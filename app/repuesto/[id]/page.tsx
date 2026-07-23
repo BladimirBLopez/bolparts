@@ -18,7 +18,6 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const session = await getServerSession(authOptions);
 
   const listing = await prisma.listing.findUnique({
     where: { id },
@@ -71,6 +70,7 @@ export default async function RepuestoPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const session = await getServerSession(authOptions);
 
   const listing = await prisma.listing.findUnique({
     where: { id },
