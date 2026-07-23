@@ -15,6 +15,7 @@ import {
   LogIn,
   UserPlus,
   User as UserIcon,
+  Settings,
 } from "lucide-react";
 
 export function MobileMenu() {
@@ -139,6 +140,15 @@ export function MobileMenu() {
                   >
                     <Package size={18} />
                     Mis publicaciones
+                  </Link>
+
+                  <Link
+                    href="/perfil"
+                    onClick={close}
+                    className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-[#16181D] hover:bg-white"
+                  >
+                    <Settings size={18} />
+                    Mi perfil
                   </Link>
                 </>
               )}
