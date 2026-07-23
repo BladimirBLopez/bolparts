@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { Role, Prisma } from "@prisma/client";
 
 export async function PATCH(
   req: Request,
@@ -15,7 +16,7 @@ export async function PATCH(
   const { id } = await params;
   const body = await req.json();
 
-  const data: { role?: string; isPremium?: boolean } = {};
+  const data: Prisma.UserUpdateInput = {};
 
   if (body.role !== undefined) {
     if (!["USER", "SELLER", "ADMIN"].includes(body.role)) {
@@ -27,7 +28,7 @@ export async function PATCH(
         { status: 400 }
       );
     }
-    data.role = body.role;
+    data.role = body.role as Role;
   }
 
   if (body.isPremium !== undefined) {
