@@ -36,17 +36,17 @@ export function MobileMenu() {
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-[100] flex justify-end">
+        <>
           {/* Fondo */}
           <button
             type="button"
             aria-label="Cerrar menú"
             onClick={close}
-            className="absolute inset-0 bg-black/40"
+            className="fixed inset-0 z-[100] bg-black/40"
           />
 
           {/* Panel */}
-          <div className="relative flex h-full w-[85%] max-w-xs flex-col bg-[#F6F6F4] shadow-xl">
+          <div className="fixed inset-y-0 right-0 z-[101] flex w-[85%] max-w-xs flex-col bg-[#F6F6F4] shadow-xl">
             {/* Tarjeta de perfil / encabezado */}
             {session?.user ? (
               <div className="flex items-center gap-3 bg-[#16181D] px-5 py-6">
@@ -171,7 +171,7 @@ export function MobileMenu() {
               </div>
             </nav>
           </div>
-        </div>
+        </>
       )}
     </>
   );
