@@ -53,7 +53,7 @@ export function Navbar() {
           ) : session ? (
             <div className="flex items-center gap-1">
               <Link
-                href="/perfil"
+                href="/mis-publicaciones"
                 className="flex h-9 w-9 items-center justify-center rounded-full bg-[#16181D] text-white"
                 aria-label="Mi cuenta"
               >
