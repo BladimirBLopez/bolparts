@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MapPin } from "lucide-react";
+import { MapPin, Star } from "lucide-react";
 import { FavoriteButton } from "@/components/FavoriteButton";
 
 type ListingCardProps = {
@@ -13,6 +13,8 @@ type ListingCardProps = {
   modelName?: string | null;
   initialFavorited?: boolean;
   loggedIn?: boolean;
+  sellerRating?: number;
+  sellerReviewCount?: number;
 };
 
 function formatPrice(price: number) {
@@ -30,6 +32,8 @@ export function ListingCard({
   modelName,
   initialFavorited = false,
   loggedIn = false,
+  sellerRating = 0,
+  sellerReviewCount = 0,
 }: ListingCardProps) {
   return (
     <Link
@@ -83,6 +87,12 @@ export function ListingCard({
           <MapPin size={12} />
           {city}
         </p>
+        {sellerReviewCount > 0 && (
+          <p className="flex items-center gap-1 text-xs text-[#6B7280]">
+            <Star size={12} className="text-[#FF5A1F]" fill="currentColor" />
+            {sellerRating.toFixed(1)} ({sellerReviewCount})
+          </p>
+        )}
       </div>
     </Link>
   );

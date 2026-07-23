@@ -93,6 +93,9 @@ export default async function BuscarPage({
       images: true,
       brand: true,
       model: true,
+      user: {
+        select: { reviewsReceived: { select: { rating: true } } },
+      },
     },
     skip: (paginaActual - 1) * POR_PAGINA,
     take: POR_PAGINA,
@@ -166,6 +169,15 @@ export default async function BuscarPage({
                   modelName={listing.model?.name}
                   loggedIn={!!session?.user}
                   initialFavorited={favoritosSet.has(listing.id)}
+                  sellerReviewCount={listing.user.reviewsReceived.length}
+                  sellerRating={
+                    listing.user.reviewsReceived.length > 0
+                      ? listing.user.reviewsReceived.reduce(
+                          (sum, r) => sum + r.rating,
+                          0
+                        ) / listing.user.reviewsReceived.length
+                      : 0
+                  }
                 />
               ))}
             </div>
