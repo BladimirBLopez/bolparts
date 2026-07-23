@@ -36,6 +36,7 @@ export function PublicarForm({
   const [condition, setCondition] = useState<"NEW" | "USED">("USED");
   const [city, setCity] = useState("");
   const [year, setYear] = useState("");
+  const [phone, setPhone] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [brandId, setBrandId] = useState("");
   const [modelId, setModelId] = useState("");
@@ -101,6 +102,10 @@ export function PublicarForm({
       setError("Elegí una ciudad");
       return;
     }
+    if (!phone) {
+      setError("Ingresá tu número de WhatsApp para que te contacten");
+      return;
+    }
 
     setSubmitting(true);
 
@@ -116,6 +121,7 @@ export function PublicarForm({
           city,
           department: city,
           year: year || null,
+          phone: phone || null,
           categoryId,
           brandId: brandId || null,
           modelId: modelId || null,
@@ -336,6 +342,24 @@ export function PublicarForm({
             className="mt-1.5 w-full rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none placeholder:text-[#9CA3AF] focus:border-[#16181D]"
           />
         </div>
+      </div>
+
+      {/* WhatsApp */}
+      <div>
+        <label className="text-sm font-semibold text-[#16181D]">
+          WhatsApp de contacto
+        </label>
+        <input
+          type="tel"
+          required
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          placeholder="Ej. 70012345"
+          className="mt-1.5 w-full rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none placeholder:text-[#9CA3AF] focus:border-[#16181D]"
+        />
+        <p className="mt-1 text-xs text-[#6B7280]">
+          Los compradores te van a escribir directo a este número.
+        </p>
       </div>
 
       {error && (
