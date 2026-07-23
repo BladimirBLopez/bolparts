@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { X, Upload, Loader2 } from "lucide-react";
 
-const MAX_FOTOS = 6;
+const MAX_FOTOS = 10;
 
 type Modelo = { id: string; name: string };
 type Marca = { id: string; name: string; models: Modelo[] };
