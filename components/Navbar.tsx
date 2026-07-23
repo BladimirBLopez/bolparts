@@ -68,11 +68,11 @@ export function Navbar() {
               </Link>
               <button
                 onClick={() => signOut({ callbackUrl: "/" })}
-                className="hidden items-center gap-1.5 rounded-full border border-[#E4E4E1] px-3 py-2 text-sm font-medium text-[#16181D] transition-colors hover:border-[#16181D] sm:flex"
+                className="flex items-center gap-1.5 rounded-full border border-[#E4E4E1] px-2.5 py-2 text-sm font-medium text-[#16181D] transition-colors hover:border-[#16181D] sm:px-3"
                 aria-label="Cerrar sesión"
               >
                 <LogOut size={15} />
-                Salir
+                <span className="hidden sm:inline">Salir</span>
               </button>
             </div>
           ) : (
