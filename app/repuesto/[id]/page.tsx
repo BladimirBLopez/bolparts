@@ -1,7 +1,52 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { Metadata } from "next";
 import { MapPin, Calendar, ArrowLeft } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+
+function formatPrecioMeta(price: number) {
+  return `Bs. ${price.toLocaleString("es-BO", { maximumFractionDigits: 0 })}`;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+
+  const listing = await prisma.listing.findUnique({
+    where: { id },
+    include: { images: true },
+  });
+
+  if (!listing) {
+    return { title: "Repuesto no encontrado — BolParts" };
+  }
+
+  const title = `${listing.title} — ${formatPrecioMeta(listing.price)} | BolParts`;
+  const description =
+    listing.description?.slice(0, 150) ||
+    `${listing.title} en ${listing.city}. Publicado en BolParts, el marketplace de repuestos de auto en Bolivia.`;
+  const imageUrl = listing.images[0]?.url;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: imageUrl ? [{ url: imageUrl, width: 800, height: 800 }] : [],
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: imageUrl ? [imageUrl] : [],
+    },
+  };
+}
 
 function formatPrice(price: number) {
   return `Bs. ${price.toLocaleString("es-BO", { maximumFractionDigits: 0 })}`;

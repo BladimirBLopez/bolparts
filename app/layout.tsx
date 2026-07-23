@@ -17,6 +17,18 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "BolParts — Repuestos de auto en Bolivia",
   description: "Comprá y vendé repuestos de auto nuevos y usados en Bolivia.",
+  metadataBase: new URL("https://bolparts.vercel.app"),
+  openGraph: {
+    title: "BolParts — Repuestos de auto en Bolivia",
+    description: "Comprá y vendé repuestos de auto nuevos y usados en Bolivia.",
+    type: "website",
+    locale: "es_BO",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "BolParts — Repuestos de auto en Bolivia",
+    description: "Comprá y vendé repuestos de auto nuevos y usados en Bolivia.",
+  },
 };
 
 export default function RootLayout({
