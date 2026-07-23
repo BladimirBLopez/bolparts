@@ -129,6 +129,7 @@ model Listing {
 
   images      Image[]
   favorites   Favorite[]
+  reports     Report[]
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -171,4 +172,26 @@ model Review {
   updatedAt DateTime @updatedAt
 
   @@unique([authorId, sellerId])
+}
+
+enum ReportReason {
+  FAKE
+  SOLD
+  INAPPROPRIATE
+  SCAM
+  OTHER
+}
+
+model Report {
+  id        String       @id @default(cuid())
+  reason    ReportReason
+  details   String?
+
+  reporterId String
+  listingId  String
+  listing    Listing     @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([reporterId, listingId])
 }

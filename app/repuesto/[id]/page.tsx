@@ -4,6 +4,9 @@ import { Metadata } from "next";
 import { MapPin, Calendar, ArrowLeft } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { StarRating } from "@/components/StarRating";
+import { ReportButton } from "@/components/ReportButton";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 function formatPrecioMeta(price: number) {
   return `Bs. ${price.toLocaleString("es-BO", { maximumFractionDigits: 0 })}`;
@@ -15,6 +18,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
+  const session = await getServerSession(authOptions);
 
   const listing = await prisma.listing.findUnique({
     where: { id },
@@ -243,6 +247,10 @@ export default async function RepuestoPage({
                   El vendedor no dejó un número de contacto.
                 </p>
               )}
+
+              <div className="mt-3 flex justify-center">
+                <ReportButton listingId={listing.id} loggedIn={!!session?.user} />
+              </div>
             </div>
           </div>
         </div>
