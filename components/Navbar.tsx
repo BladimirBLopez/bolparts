@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { Search, Plus, LogOut, User } from "lucide-react";
+import { Search, Plus, LogOut, User, Heart } from "lucide-react";
 
 export function Navbar() {
   const { data: session, status } = useSession();
@@ -52,6 +52,13 @@ export function Navbar() {
             <div className="h-9 w-9 animate-pulse rounded-full bg-[#E4E4E1]" />
           ) : session ? (
             <div className="flex items-center gap-1">
+              <Link
+                href="/favoritos"
+                className="flex h-9 w-9 items-center justify-center rounded-full text-[#16181D] transition-colors hover:bg-white"
+                aria-label="Favoritos"
+              >
+                <Heart size={18} />
+              </Link>
               <Link
                 href="/mis-publicaciones"
                 className="flex h-9 w-9 items-center justify-center rounded-full bg-[#16181D] text-white"

@@ -1,3 +1,5 @@
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ListingCard } from "@/components/ListingCard";
 import { Search } from "lucide-react";
@@ -30,9 +32,19 @@ export default async function BuscarPage({
 }) {
   const { q, categoria, ciudad, condicion } = await searchParams;
 
+  const session = await getServerSession(authOptions);
+
   const categorias = await prisma.category.findMany({
     orderBy: { name: "asc" },
   });
+
+  const misFavoritos = session?.user?.id
+    ? await prisma.favorite.findMany({
+        where: { userId: session.user.id },
+        select: { listingId: true },
+      })
+    : [];
+  const favoritosSet = new Set(misFavoritos.map((f) => f.listingId));
 
   const listings = await prisma.listing.findMany({
     where: {
@@ -172,6 +184,8 @@ export default async function BuscarPage({
                 imageUrl={listing.images[0]?.url}
                 brandName={listing.brand?.name}
                 modelName={listing.model?.name}
+                loggedIn={!!session?.user}
+                initialFavorited={favoritosSet.has(listing.id)}
               />
             ))}
           </div>

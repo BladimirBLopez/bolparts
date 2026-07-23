@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { MapPin } from "lucide-react";
+import { FavoriteButton } from "@/components/FavoriteButton";
 
 type ListingCardProps = {
   id: string;
@@ -10,6 +11,8 @@ type ListingCardProps = {
   imageUrl?: string;
   brandName?: string | null;
   modelName?: string | null;
+  initialFavorited?: boolean;
+  loggedIn?: boolean;
 };
 
 function formatPrice(price: number) {
@@ -25,6 +28,8 @@ export function ListingCard({
   imageUrl,
   brandName,
   modelName,
+  initialFavorited = false,
+  loggedIn = false,
 }: ListingCardProps) {
   return (
     <Link
@@ -53,6 +58,13 @@ export function ListingCard({
         >
           {condition === "NEW" ? "Nuevo" : "Usado"}
         </span>
+        <div className="absolute right-2 top-2">
+          <FavoriteButton
+            listingId={id}
+            initialFavorited={initialFavorited}
+            loggedIn={loggedIn}
+          />
+        </div>
       </div>
 
       <div className="flex flex-1 flex-col gap-1 p-3">
