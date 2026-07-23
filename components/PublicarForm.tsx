@@ -21,27 +21,49 @@ const CIUDADES = [
   "Cobija",
 ];
 
+type InitialListing = {
+  id: string;
+  title: string;
+  description: string | null;
+  price: number;
+  condition: "NEW" | "USED";
+  city: string;
+  year: number | null;
+  phone: string | null;
+  categoryId: string;
+  brandId: string | null;
+  modelId: string | null;
+  images: { url: string }[];
+};
+
 export function PublicarForm({
   categorias,
   marcas,
+  initialListing,
 }: {
   categorias: Categoria[];
   marcas: Marca[];
+  initialListing?: InitialListing;
 }) {
   const router = useRouter();
+  const isEditing = !!initialListing;
 
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
-  const [condition, setCondition] = useState<"NEW" | "USED">("USED");
-  const [city, setCity] = useState("");
-  const [year, setYear] = useState("");
-  const [phone, setPhone] = useState("");
-  const [categoryId, setCategoryId] = useState("");
-  const [brandId, setBrandId] = useState("");
-  const [modelId, setModelId] = useState("");
+  const [title, setTitle] = useState(initialListing?.title ?? "");
+  const [description, setDescription] = useState(initialListing?.description ?? "");
+  const [price, setPrice] = useState(initialListing?.price?.toString() ?? "");
+  const [condition, setCondition] = useState<"NEW" | "USED">(
+    initialListing?.condition ?? "USED"
+  );
+  const [city, setCity] = useState(initialListing?.city ?? "");
+  const [year, setYear] = useState(initialListing?.year?.toString() ?? "");
+  const [phone, setPhone] = useState(initialListing?.phone ?? "");
+  const [categoryId, setCategoryId] = useState(initialListing?.categoryId ?? "");
+  const [brandId, setBrandId] = useState(initialListing?.brandId ?? "");
+  const [modelId, setModelId] = useState(initialListing?.modelId ?? "");
 
-  const [images, setImages] = useState<string[]>([]);
+  const [images, setImages] = useState<string[]>(
+    initialListing?.images.map((i) => i.url) ?? []
+  );
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -110,34 +132,42 @@ export function PublicarForm({
     setSubmitting(true);
 
     try {
-      const res = await fetch("/api/listings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title,
-          description,
-          price,
-          condition,
-          city,
-          department: city,
-          year: year || null,
-          phone: phone || null,
-          categoryId,
-          brandId: brandId || null,
-          modelId: modelId || null,
-          images,
-        }),
-      });
+      const res = await fetch(
+        isEditing ? `/api/listings/${initialListing!.id}` : "/api/listings",
+        {
+          method: isEditing ? "PATCH" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title,
+            description,
+            price,
+            condition,
+            city,
+            department: city,
+            year: year || null,
+            phone: phone || null,
+            categoryId,
+            brandId: brandId || null,
+            modelId: modelId || null,
+            images,
+          }),
+        }
+      );
 
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || "No se pudo crear la publicación");
+        setError(
+          data.error ||
+            (isEditing
+              ? "No se pudo actualizar la publicación"
+              : "No se pudo crear la publicación")
+        );
         setSubmitting(false);
         return;
       }
 
-      router.push(`/`);
+      router.push(isEditing ? "/mis-publicaciones" : "/");
       router.refresh();
     } catch {
       setError("Error de conexión");
@@ -376,8 +406,10 @@ export function PublicarForm({
         {submitting ? (
           <>
             <Loader2 size={16} className="animate-spin" />
-            Publicando...
+            {isEditing ? "Guardando..." : "Publicando..."}
           </>
+        ) : isEditing ? (
+          "Guardar cambios"
         ) : (
           "Publicar repuesto"
         )}

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { MapPin, Trash2, Loader2 } from "lucide-react";
+import { MapPin, Trash2, Loader2, Pencil } from "lucide-react";
 
 type MyListingCardProps = {
   id: string;
@@ -80,7 +80,16 @@ export function MyListingCard({
         </div>
       </div>
 
-      <div className="flex shrink-0 items-start">
+      <div className="flex shrink-0 items-start gap-1">
+        {!confirming && (
+          <Link
+            href={`/mis-publicaciones/${id}/editar`}
+            aria-label="Editar publicación"
+            className="flex h-8 w-8 items-center justify-center rounded-full text-[#6B7280] transition-colors hover:bg-[#F6F6F4] hover:text-[#16181D]"
+          >
+            <Pencil size={15} />
+          </Link>
+        )}
         {confirming ? (
           <div className="flex flex-col items-end gap-1.5">
             <p className="text-[11px] text-[#6B7280]">¿Borrar?</p>
