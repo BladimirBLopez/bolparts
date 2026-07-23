@@ -5,6 +5,7 @@ import { Prisma } from "@prisma/client";
 import { ListingCard } from "@/components/ListingCard";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { VehicleFilter } from "@/components/VehicleFilter";
 
 const CIUDADES = [
   "La Paz",
@@ -28,6 +29,8 @@ type SearchParams = Promise<{
   condicion?: string;
   pagina?: string;
   orden?: string;
+  marca?: string;
+  modelo?: string;
 }>;
 
 function buildQuery(
@@ -48,12 +51,17 @@ export default async function BuscarPage({
 }: {
   searchParams: SearchParams;
 }) {
-  const { q, categoria, ciudad, condicion, pagina, orden } = await searchParams;
+  const { q, categoria, ciudad, condicion, pagina, orden, marca, modelo } = await searchParams;
 
   const session = await getServerSession(authOptions);
 
   const categorias = await prisma.category.findMany({
     orderBy: { name: "asc" },
+  });
+
+  const marcas = await prisma.brand.findMany({
+    orderBy: { name: "asc" },
+    include: { models: { orderBy: { name: "asc" } } },
   });
 
   const misFavoritos = session?.user?.id
@@ -71,6 +79,8 @@ export default async function BuscarPage({
     ...(condicion === "NEW" || condicion === "USED"
       ? { condition: condicion as Prisma.ListingWhereInput["condition"] }
       : {}),
+    ...(marca ? { brandId: marca } : {}),
+    ...(modelo ? { modelId: modelo } : {}),
   };
 
   const totalResultados = await prisma.listing.count({ where });
@@ -100,7 +110,7 @@ export default async function BuscarPage({
     take: POR_PAGINA,
   });
 
-  const baseParams = { q, categoria, ciudad, condicion, orden };
+  const baseParams = { q, categoria, ciudad, condicion, orden, marca, modelo };
 
   return (
     <main className="flex flex-1 flex-col bg-[#F6F6F4] px-4 py-8">
@@ -154,6 +164,11 @@ export default async function BuscarPage({
           ))}
         </div>
 
+        {/* Filtro por vehículo */}
+        <div className="mt-3 flex flex-wrap gap-2">
+          <VehicleFilter marcas={marcas} />
+        </div>
+
         {/* Filtros de ciudad y condición */}
         <div className="mt-3 flex flex-wrap gap-2">
           <form action="/buscar" method="GET" className="flex flex-wrap gap-2">
@@ -161,6 +176,8 @@ export default async function BuscarPage({
             {categoria && (
               <input type="hidden" name="categoria" value={categoria} />
             )}
+            {marca && <input type="hidden" name="marca" value={marca} />}
+            {modelo && <input type="hidden" name="modelo" value={modelo} />}
 
             <select
               name="ciudad"
