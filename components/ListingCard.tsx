@@ -15,6 +15,7 @@ type ListingCardProps = {
   loggedIn?: boolean;
   sellerRating?: number;
   sellerReviewCount?: number;
+  isPremium?: boolean;
 };
 
 function formatPrice(price: number) {
@@ -34,6 +35,7 @@ export function ListingCard({
   loggedIn = false,
   sellerRating = 0,
   sellerReviewCount = 0,
+  isPremium = false,
 }: ListingCardProps) {
   return (
     <Link
@@ -62,6 +64,11 @@ export function ListingCard({
         >
           {condition === "NEW" ? "Nuevo" : "Usado"}
         </span>
+        {isPremium && (
+          <span className="absolute left-2 top-8 rounded-full bg-[#FF5A1F] px-2 py-0.5 text-[11px] font-semibold text-white">
+            ★ Premium
+          </span>
+        )}
         <div className="absolute right-2 top-2">
           <FavoriteButton
             listingId={id}

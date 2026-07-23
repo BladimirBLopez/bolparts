@@ -71,12 +71,14 @@ export default async function BuscarPage({
     ...(modelo ? { modelId: modelo } : {}),
   };
 
-  const orderBy =
+  const orderBy: Prisma.ListingOrderByWithRelationInput[] = [
+    { user: { isPremium: "desc" } },
     orden === "precio_asc"
-      ? { price: "asc" as const }
+      ? { price: "asc" }
       : orden === "precio_desc"
-      ? { price: "desc" as const }
-      : { createdAt: "desc" as const };
+      ? { price: "desc" }
+      : { createdAt: "desc" },
+  ];
 
   const totalResultados = await prisma.listing.count({ where });
   const totalPaginas = Math.max(1, Math.ceil(totalResultados / POR_PAGINA));
@@ -94,7 +96,10 @@ export default async function BuscarPage({
       brand: true,
       model: true,
       user: {
-        select: { reviewsReceived: { select: { rating: true } } },
+        select: {
+          isPremium: true,
+          reviewsReceived: { select: { rating: true } },
+        },
       },
     },
     skip: (paginaActual - 1) * POR_PAGINA,
@@ -178,6 +183,7 @@ export default async function BuscarPage({
                         ) / listing.user.reviewsReceived.length
                       : 0
                   }
+                  isPremium={listing.user.isPremium}
                 />
               ))}
             </div>
