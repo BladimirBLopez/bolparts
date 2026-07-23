@@ -74,7 +74,7 @@ export default async function RepuestoPage({
       category: true,
       brand: true,
       model: true,
-      user: { select: { name: true, image: true } },
+      user: { select: { id: true, name: true, image: true } },
     },
   });
 
@@ -193,9 +193,12 @@ export default async function RepuestoPage({
               <p className="text-xs font-medium uppercase tracking-wide text-[#6B7280]">
                 Vendedor
               </p>
-              <p className="mt-1 text-sm font-semibold text-[#16181D]">
+              <Link
+                href={`/vendedor/${listing.user.id}`}
+                className="mt-1 inline-block text-sm font-semibold text-[#16181D] hover:underline"
+              >
                 {listing.user.name || "Vendedor de BolParts"}
-              </p>
+              </Link>
 
               {listing.phone ? (
                 <a
