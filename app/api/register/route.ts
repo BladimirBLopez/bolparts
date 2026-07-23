@@ -12,6 +12,14 @@ export async function POST(req: Request) {
       );
     }
 
+    const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!emailValido) {
+      return Response.json(
+        { error: "Ingresá un email válido" },
+        { status: 400 }
+      );
+    }
+
     if (password.length < 6) {
       return Response.json(
         { error: "La contraseña debe tener al menos 6 caracteres" },

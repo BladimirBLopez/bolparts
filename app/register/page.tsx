@@ -16,6 +16,13 @@ export default function RegisterPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+
+    const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!emailValido) {
+      setError("Ingresá un email válido");
+      return;
+    }
+
     setLoading(true);
 
     try {
