@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import { LocateFixed } from "lucide-react";
 
 const SANTA_CRUZ = { lat: -17.7833, lng: -63.1821 };
 
@@ -34,6 +35,16 @@ export function LocationPicker({
     [onChange]
   );
 
+  function handleUseMyLocation() {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition((pos) => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      setPosition({ lat, lng });
+      onChange(lat, lng);
+    });
+  }
+
   if (!isLoaded) {
     return (
       <div className="flex h-56 w-full items-center justify-center rounded-xl border border-[#E4E4E1] bg-[#F6F6F4] text-xs text-[#6B7280]">
@@ -43,7 +54,16 @@ export function LocationPicker({
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-[#E4E4E1]">
+    <div>
+      <button
+        type="button"
+        onClick={handleUseMyLocation}
+        className="mb-2 flex items-center gap-1.5 rounded-full border border-[#E4E4E1] bg-white px-3 py-1.5 text-xs font-semibold text-[#16181D] transition-colors hover:border-[#16181D]"
+      >
+        <LocateFixed size={13} />
+        Usar mi ubicación actual
+      </button>
+      <div className="overflow-hidden rounded-xl border border-[#E4E4E1]">
       <GoogleMap
         mapContainerStyle={{ width: "100%", height: "224px" }}
         center={position}
@@ -60,6 +80,7 @@ export function LocationPicker({
           onDragEnd={handleDragEnd}
         />
       </GoogleMap>
+      </div>
     </div>
   );
 }
