@@ -9,6 +9,8 @@ import {
   Armchair,
   ArrowRight,
 } from "lucide-react";
+import { prisma } from "@/lib/prisma";
+import { HomeVehiclePicker } from "@/components/HomeVehiclePicker";
 
 const categorias = [
   { nombre: "Motor", slug: "motor", icon: Wrench },
@@ -19,7 +21,12 @@ const categorias = [
   { nombre: "Accesorios e interior", slug: "accesorios-interior", icon: Armchair },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const marcas = await prisma.brand.findMany({
+    orderBy: { name: "asc" },
+    include: { models: { orderBy: { name: "asc" } } },
+  });
+
   return (
     <main className="flex flex-1 flex-col bg-[#F6F6F4]">
       {/* Hero */}
@@ -55,6 +62,8 @@ export default function Home() {
               Buscar
             </button>
           </form>
+
+          <HomeVehiclePicker marcas={marcas} />
         </div>
       </section>
 
