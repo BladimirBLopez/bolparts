@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { ListingCard } from "@/components/ListingCard";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
@@ -63,12 +64,12 @@ export default async function BuscarPage({
     : [];
   const favoritosSet = new Set(misFavoritos.map((f) => f.listingId));
 
-  const where = {
+  const where: Prisma.ListingWhereInput = {
     ...(q ? { title: { contains: q, mode: "insensitive" as const } } : {}),
     ...(categoria ? { category: { slug: categoria } } : {}),
     ...(ciudad ? { city: ciudad } : {}),
     ...(condicion === "NEW" || condicion === "USED"
-      ? { condition: condicion }
+      ? { condition: condicion as Prisma.ListingWhereInput["condition"] }
       : {}),
   };
 
