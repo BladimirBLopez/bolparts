@@ -10,11 +10,15 @@ export default async function PublicarPage() {
     redirect("/login");
   }
 
-  const [categorias, marcas] = await Promise.all([
+  const [categorias, marcas, usuario] = await Promise.all([
     prisma.category.findMany({ orderBy: { name: "asc" } }),
     prisma.brand.findMany({
       orderBy: { name: "asc" },
       include: { models: { orderBy: { name: "asc" } } },
+    }),
+    prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { phone: true },
     }),
   ]);
 
@@ -28,7 +32,11 @@ export default async function PublicarPage() {
           Completá los datos y subí fotos claras del repuesto.
         </p>
 
-        <PublicarForm categorias={categorias} marcas={marcas} />
+        <PublicarForm
+          categorias={categorias}
+          marcas={marcas}
+          defaultPhone={usuario?.phone ?? ""}
+        />
       </div>
     </main>
   );

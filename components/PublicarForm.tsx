@@ -42,10 +42,12 @@ export function PublicarForm({
   categorias,
   marcas,
   initialListing,
+  defaultPhone,
 }: {
   categorias: Categoria[];
   marcas: Marca[];
   initialListing?: InitialListing;
+  defaultPhone?: string;
 }) {
   const router = useRouter();
   const isEditing = !!initialListing;
@@ -58,7 +60,9 @@ export function PublicarForm({
   );
   const [city, setCity] = useState(initialListing?.city ?? "");
   const [year, setYear] = useState(initialListing?.year?.toString() ?? "");
-  const [phone, setPhone] = useState(initialListing?.phone ?? "");
+  const [phone, setPhone] = useState(
+    initialListing?.phone ?? defaultPhone ?? ""
+  );
   const [categoryId, setCategoryId] = useState(initialListing?.categoryId ?? "");
   const [brandId, setBrandId] = useState(initialListing?.brandId ?? "");
   const [modelId, setModelId] = useState(initialListing?.modelId ?? "");
