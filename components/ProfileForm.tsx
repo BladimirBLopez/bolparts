@@ -15,6 +15,8 @@ export function ProfileForm({
   initialBusinessDescription,
   initialBusinessHours,
   initialBusinessAddress,
+  initialLatitude,
+  initialLongitude,
 }: {
   initialName: string;
   initialImage: string | null;
