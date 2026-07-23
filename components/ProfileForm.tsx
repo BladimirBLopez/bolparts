@@ -10,11 +10,19 @@ export function ProfileForm({
   initialImage,
   initialPhone,
   email,
+  initialBusinessBanner,
+  initialBusinessDescription,
+  initialBusinessHours,
+  initialBusinessAddress,
 }: {
   initialName: string;
   initialImage: string | null;
   initialPhone: string | null;
   email: string;
+  initialBusinessBanner?: string | null;
+  initialBusinessDescription?: string | null;
+  initialBusinessHours?: string | null;
+  initialBusinessAddress?: string | null;
 }) {
   const { update } = useSession();
   const router = useRouter();
@@ -23,6 +31,13 @@ export function ProfileForm({
   const [image, setImage] = useState(initialImage || "");
   const [phone, setPhone] = useState(initialPhone || "");
   const [uploading, setUploading] = useState(false);
+
+  const [businessBanner, setBusinessBanner] = useState(initialBusinessBanner || "");
+  const [businessDescription, setBusinessDescription] = useState(initialBusinessDescription || "");
+  const [businessHours, setBusinessHours] = useState(initialBusinessHours || "");
+  const [businessAddress, setBusinessAddress] = useState(initialBusinessAddress || "");
+  const [uploadingBanner, setUploadingBanner] = useState(false);
+
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -54,6 +69,33 @@ export function ProfileForm({
     }
   }
 
+  async function handleBannerChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingBanner(true);
+    setError("");
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "No se pudo subir el banner");
+      } else {
+        setBusinessBanner(data.url);
+      }
+    } catch {
+      setError("Error de conexión al subir el banner");
+    } finally {
+      setUploadingBanner(false);
+      e.target.value = "";
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
@@ -70,7 +112,15 @@ export function ProfileForm({
       const res = await fetch("/api/profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, image, phone }),
+        body: JSON.stringify({
+          name,
+          image,
+          phone,
+          businessBanner,
+          businessDescription,
+          businessHours,
+          businessAddress,
+        }),
       });
       const data = await res.json();
 
@@ -159,6 +209,92 @@ export function ProfileForm({
         </p>
       </div>
 
+      {/* Sección negocio */}
+      <div className="border-t border-[#E4E4E1] pt-6">
+        <h2 className="text-base font-extrabold text-[#16181D]">
+          Info de tu negocio (opcional)
+        </h2>
+        <p className="mt-1 text-xs text-[#6B7280]">
+          Se muestra en tu perfil público de vendedor.
+        </p>
+
+        {/* Banner */}
+        <div className="mt-4">
+          <label className="text-sm font-semibold text-[#16181D]">
+            Banner
+          </label>
+          <div className="mt-1.5 flex h-28 w-full items-center justify-center overflow-hidden rounded-xl border border-[#E4E4E1] bg-[#F6F6F4]">
+            {businessBanner ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={businessBanner}
+                alt=""
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <span className="text-xs text-[#6B7280]">Sin banner</span>
+            )}
+          </div>
+          <label className="mt-2 flex w-fit cursor-pointer items-center gap-2 rounded-full border border-[#E4E4E1] bg-white px-4 py-2 text-sm font-semibold text-[#16181D] transition-colors hover:border-[#16181D]">
+            {uploadingBanner ? (
+              <Loader2 size={15} className="animate-spin" />
+            ) : (
+              <Upload size={15} />
+            )}
+            Subir banner
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleBannerChange}
+              disabled={uploadingBanner}
+            />
+          </label>
+        </div>
+
+        {/* Descripción */}
+        <div className="mt-4">
+          <label className="text-sm font-semibold text-[#16181D]">
+            Descripción del negocio
+          </label>
+          <textarea
+            value={businessDescription}
+            onChange={(e) => setBusinessDescription(e.target.value)}
+            placeholder="Ej. Repuestos usados y nuevos, importados de Chile."
+            rows={3}
+            className="mt-1.5 w-full rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none placeholder:text-[#9CA3AF] focus:border-[#16181D]"
+          />
+        </div>
+
+        {/* Horario */}
+        <div className="mt-4">
+          <label className="text-sm font-semibold text-[#16181D]">
+            Horario de atención
+          </label>
+          <input
+            type="text"
+            value={businessHours}
+            onChange={(e) => setBusinessHours(e.target.value)}
+            placeholder="Ej. Lun a Sáb, 8:00 - 18:00"
+            className="mt-1.5 w-full rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none placeholder:text-[#9CA3AF] focus:border-[#16181D]"
+          />
+        </div>
+
+        {/* Dirección */}
+        <div className="mt-4">
+          <label className="text-sm font-semibold text-[#16181D]">
+            Ubicación
+          </label>
+          <input
+            type="text"
+            value={businessAddress}
+            onChange={(e) => setBusinessAddress(e.target.value)}
+            placeholder="Ej. Av. Grigotá, 3er anillo, Santa Cruz"
+            className="mt-1.5 w-full rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none placeholder:text-[#9CA3AF] focus:border-[#16181D]"
+          />
+        </div>
+      </div>
+
       {error && (
         <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
           {error}
@@ -172,7 +308,7 @@ export function ProfileForm({
 
       <button
         type="submit"
-        disabled={submitting || uploading}
+        disabled={submitting || uploading || uploadingBanner}
         className="flex items-center justify-center gap-2 self-start rounded-full bg-[#FF5A1F] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#e64f16] disabled:opacity-60"
       >
         {submitting && <Loader2 size={16} className="animate-spin" />}

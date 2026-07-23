@@ -12,7 +12,16 @@ export default async function PerfilPage() {
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { name: true, image: true, phone: true, email: true },
+    select: {
+      name: true,
+      image: true,
+      phone: true,
+      email: true,
+      businessBanner: true,
+      businessDescription: true,
+      businessHours: true,
+      businessAddress: true,
+    },
   });
 
   if (!user) {
@@ -34,6 +43,10 @@ export default async function PerfilPage() {
           initialImage={user.image}
           initialPhone={user.phone}
           email={user.email || ""}
+          initialBusinessBanner={user.businessBanner}
+          initialBusinessDescription={user.businessDescription}
+          initialBusinessHours={user.businessHours}
+          initialBusinessAddress={user.businessAddress}
         />
       </div>
     </main>

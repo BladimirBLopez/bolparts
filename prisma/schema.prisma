@@ -29,6 +29,11 @@ model User {
   image         String?
   role          Role      @default(USER)
 
+  businessBanner      String?
+  businessDescription String?
+  businessHours       String?
+  businessAddress     String?
+
   accounts  Account[]
   sessions  Session[]
   listings       Listing[]

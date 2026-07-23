@@ -9,7 +9,15 @@ export async function PATCH(req: Request) {
   }
 
   try {
-    const { name, image, phone } = await req.json();
+    const {
+      name,
+      image,
+      phone,
+      businessBanner,
+      businessDescription,
+      businessHours,
+      businessAddress,
+    } = await req.json();
 
     if (!name || !name.trim()) {
       return Response.json({ error: "El nombre no puede estar vacío" }, { status: 400 });
@@ -21,8 +29,22 @@ export async function PATCH(req: Request) {
         name: name.trim(),
         image: image || null,
         phone: phone || null,
+        businessBanner: businessBanner || null,
+        businessDescription: businessDescription || null,
+        businessHours: businessHours || null,
+        businessAddress: businessAddress || null,
       },
-      select: { id: true, name: true, image: true, phone: true, email: true },
+      select: {
+        id: true,
+        name: true,
+        image: true,
+        phone: true,
+        email: true,
+        businessBanner: true,
+        businessDescription: true,
+        businessHours: true,
+        businessAddress: true,
+      },
     });
 
     return Response.json({ ok: true, user: updated });

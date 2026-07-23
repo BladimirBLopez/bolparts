@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { ListingCard } from "@/components/ListingCard";
 import { StarRating } from "@/components/StarRating";
 import { ReviewForm } from "@/components/ReviewForm";
-import { User as UserIcon, Calendar } from "lucide-react";
+import { User as UserIcon, Calendar, Clock, MapPin } from "lucide-react";
 
 function formatFecha(date: Date) {
   return new Intl.DateTimeFormat("es-BO", {
@@ -64,7 +64,16 @@ export default async function VendedorPage({
     <main className="flex flex-1 flex-col bg-[#F6F6F4] px-4 py-8">
       <div className="mx-auto w-full max-w-4xl">
         {/* Encabezado */}
-        <div className="flex items-center gap-4 rounded-2xl border border-[#E4E4E1] bg-white p-5">
+        <div className="overflow-hidden rounded-2xl border border-[#E4E4E1] bg-white">
+          {vendedor.businessBanner && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={vendedor.businessBanner}
+              alt=""
+              className="h-32 w-full object-cover sm:h-44"
+            />
+          )}
+        <div className="flex items-center gap-4 p-5">
           <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#16181D] text-white">
             {vendedor.image ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -95,6 +104,33 @@ export default async function VendedorPage({
               Miembro desde {formatFecha(vendedor.createdAt)}
             </p>
           </div>
+        </div>
+
+          {(vendedor.businessDescription ||
+            vendedor.businessHours ||
+            vendedor.businessAddress) && (
+            <div className="border-t border-[#E4E4E1] p-5">
+              {vendedor.businessDescription && (
+                <p className="text-sm text-[#16181D]">
+                  {vendedor.businessDescription}
+                </p>
+              )}
+              <div className="mt-2 flex flex-col gap-1.5">
+                {vendedor.businessHours && (
+                  <p className="flex items-center gap-1.5 text-xs text-[#6B7280]">
+                    <Clock size={12} />
+                    {vendedor.businessHours}
+                  </p>
+                )}
+                {vendedor.businessAddress && (
+                  <p className="flex items-center gap-1.5 text-xs text-[#6B7280]">
+                    <MapPin size={12} />
+                    {vendedor.businessAddress}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Publicaciones activas */}
