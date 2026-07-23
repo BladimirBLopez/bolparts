@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useSession, signOut } from "next-auth/react";
-import { Search, Plus, LogOut, User, Heart } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { Search, Plus } from "lucide-react";
+import { MobileMenu } from "@/components/MobileMenu";
 
 export function Navbar() {
   const { data: session, status } = useSession();
@@ -31,7 +32,7 @@ export function Navbar() {
         </Link>
 
         {/* Acciones */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <Link
             href="/buscar"
             className="flex items-center justify-center rounded-full p-2 text-[#16181D] sm:hidden"
@@ -50,38 +51,8 @@ export function Navbar() {
 
           {status === "loading" ? (
             <div className="h-9 w-9 animate-pulse rounded-full bg-[#E4E4E1]" />
-          ) : session ? (
-            <div className="flex items-center gap-1">
-              <Link
-                href="/favoritos"
-                className="flex h-9 w-9 items-center justify-center rounded-full text-[#16181D] transition-colors hover:bg-white"
-                aria-label="Favoritos"
-              >
-                <Heart size={18} />
-              </Link>
-              <Link
-                href="/mis-publicaciones"
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-[#16181D] text-white"
-                aria-label="Mi cuenta"
-              >
-                <User size={16} />
-              </Link>
-              <button
-                onClick={() => signOut({ callbackUrl: "/" })}
-                className="flex items-center gap-1.5 rounded-full border border-[#E4E4E1] px-2.5 py-2 text-sm font-medium text-[#16181D] transition-colors hover:border-[#16181D] sm:px-3"
-                aria-label="Cerrar sesión"
-              >
-                <LogOut size={15} />
-                <span className="hidden sm:inline">Salir</span>
-              </button>
-            </div>
           ) : (
-            <Link
-              href="/login"
-              className="rounded-full border border-[#16181D] px-3 py-2 text-sm font-medium text-[#16181D] transition-colors hover:bg-[#16181D] hover:text-white sm:px-4"
-            >
-              Ingresar
-            </Link>
+            <MobileMenu />
           )}
         </div>
       </div>
