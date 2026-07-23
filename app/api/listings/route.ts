@@ -59,6 +59,13 @@ export async function POST(req: Request) {
       },
     });
 
+    if (session.user.role === "USER") {
+      await prisma.user.update({
+        where: { id: session.user.id },
+        data: { role: "SELLER" },
+      });
+    }
+
     return Response.json({ ok: true, listing });
   } catch (err) {
     console.error(err);
