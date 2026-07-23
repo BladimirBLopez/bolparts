@@ -26,6 +26,7 @@ type SearchParams = Promise<{
   ciudad?: string;
   condicion?: string;
   pagina?: string;
+  orden?: string;
 }>;
 
 function buildQuery(
@@ -46,7 +47,7 @@ export default async function BuscarPage({
 }: {
   searchParams: SearchParams;
 }) {
-  const { q, categoria, ciudad, condicion, pagina } = await searchParams;
+  const { q, categoria, ciudad, condicion, pagina, orden } = await searchParams;
 
   const session = await getServerSession(authOptions);
 
@@ -79,9 +80,16 @@ export default async function BuscarPage({
     totalPaginas
   );
 
+  const orderBy =
+    orden === "precio_asc"
+      ? { price: "asc" as const }
+      : orden === "precio_desc"
+      ? { price: "desc" as const }
+      : { createdAt: "desc" as const };
+
   const listings = await prisma.listing.findMany({
     where,
-    orderBy: { createdAt: "desc" },
+    orderBy,
     include: {
       images: true,
       brand: true,
@@ -91,7 +99,7 @@ export default async function BuscarPage({
     take: POR_PAGINA,
   });
 
-  const baseParams = { q, categoria, ciudad, condicion };
+  const baseParams = { q, categoria, ciudad, condicion, orden };
 
   return (
     <main className="flex flex-1 flex-col bg-[#F6F6F4] px-4 py-8">
@@ -174,6 +182,16 @@ export default async function BuscarPage({
               <option value="">Nuevo y usado</option>
               <option value="NEW">Solo nuevo</option>
               <option value="USED">Solo usado</option>
+            </select>
+
+            <select
+              name="orden"
+              defaultValue={orden || ""}
+              className="rounded-full border border-[#E4E4E1] bg-white px-3 py-1.5 text-xs font-medium text-[#16181D] outline-none"
+            >
+              <option value="">Más recientes</option>
+              <option value="precio_asc">Menor precio</option>
+              <option value="precio_desc">Mayor precio</option>
             </select>
 
             <button
