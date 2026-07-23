@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { X, Upload, Loader2 } from "lucide-react";
 
+const MAX_FOTOS = 6;
+
 type Modelo = { id: string; name: string };
 type Marca = { id: string; name: string; models: Modelo[] };
 type Categoria = { id: string; name: string; slug: string };
@@ -75,10 +77,23 @@ export function PublicarForm({
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    setUploading(true);
     setError("");
 
-    for (const file of Array.from(files)) {
+    const espacioDisponible = MAX_FOTOS - images.length;
+    if (espacioDisponible <= 0) {
+      setError(`Máximo ${MAX_FOTOS} fotos por publicación`);
+      e.target.value = "";
+      return;
+    }
+
+    const archivosAProcesar = Array.from(files).slice(0, espacioDisponible);
+    if (files.length > espacioDisponible) {
+      setError(`Solo se agregaron ${espacioDisponible} foto(s): el máximo es ${MAX_FOTOS}`);
+    }
+
+    setUploading(true);
+
+    for (const file of archivosAProcesar) {
       const formData = new FormData();
       formData.append("file", file);
 
@@ -198,23 +213,28 @@ export function PublicarForm({
             </div>
           ))}
 
-          <label className="flex h-24 w-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-[#E4E4E1] bg-white text-[#6B7280] transition-colors hover:border-[#16181D]">
-            {uploading ? (
-              <Loader2 size={20} className="animate-spin" />
-            ) : (
-              <Upload size={18} />
-            )}
-            <span className="text-[11px]">Agregar</span>
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              className="hidden"
-              onChange={handleFileChange}
-              disabled={uploading}
-            />
-          </label>
+          {images.length < MAX_FOTOS && (
+            <label className="flex h-24 w-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-[#E4E4E1] bg-white text-[#6B7280] transition-colors hover:border-[#16181D]">
+              {uploading ? (
+                <Loader2 size={20} className="animate-spin" />
+              ) : (
+                <Upload size={18} />
+              )}
+              <span className="text-[11px]">Agregar</span>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={handleFileChange}
+                disabled={uploading}
+              />
+            </label>
+          )}
         </div>
+        <p className="mt-1.5 text-xs text-[#6B7280]">
+          {images.length}/{MAX_FOTOS} fotos
+        </p>
       </div>
 
       {/* Título */}

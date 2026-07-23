@@ -19,6 +19,14 @@ export async function POST(req: Request) {
     return Response.json({ error: "El archivo debe ser una imagen" }, { status: 400 });
   }
 
+  const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+  if (file.size > MAX_SIZE) {
+    return Response.json(
+      { error: "La imagen no puede pesar más de 5MB" },
+      { status: 400 }
+    );
+  }
+
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
 
