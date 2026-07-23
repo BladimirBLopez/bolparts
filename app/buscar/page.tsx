@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ListingCard } from "@/components/ListingCard";
-import { Search } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 const CIUDADES = [
@@ -18,19 +18,35 @@ const CIUDADES = [
   "Cobija",
 ];
 
+const POR_PAGINA = 24;
+
 type SearchParams = Promise<{
   q?: string;
   categoria?: string;
   ciudad?: string;
   condicion?: string;
+  pagina?: string;
 }>;
+
+function buildQuery(
+  params: Record<string, string | undefined>,
+  overrides: Record<string, string | undefined>
+) {
+  const merged = { ...params, ...overrides };
+  const search = new URLSearchParams();
+  for (const [key, value] of Object.entries(merged)) {
+    if (value) search.set(key, value);
+  }
+  const qs = search.toString();
+  return qs ? `/buscar?${qs}` : "/buscar";
+}
 
 export default async function BuscarPage({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
-  const { q, categoria, ciudad, condicion } = await searchParams;
+  const { q, categoria, ciudad, condicion, pagina } = await searchParams;
 
   const session = await getServerSession(authOptions);
 
@@ -46,24 +62,36 @@ export default async function BuscarPage({
     : [];
   const favoritosSet = new Set(misFavoritos.map((f) => f.listingId));
 
+  const where = {
+    ...(q ? { title: { contains: q, mode: "insensitive" as const } } : {}),
+    ...(categoria ? { category: { slug: categoria } } : {}),
+    ...(ciudad ? { city: ciudad } : {}),
+    ...(condicion === "NEW" || condicion === "USED"
+      ? { condition: condicion }
+      : {}),
+  };
+
+  const totalResultados = await prisma.listing.count({ where });
+  const totalPaginas = Math.max(1, Math.ceil(totalResultados / POR_PAGINA));
+
+  const paginaActual = Math.min(
+    Math.max(1, parseInt(pagina || "1", 10) || 1),
+    totalPaginas
+  );
+
   const listings = await prisma.listing.findMany({
-    where: {
-      ...(q
-        ? { title: { contains: q, mode: "insensitive" as const } }
-        : {}),
-      ...(categoria ? { category: { slug: categoria } } : {}),
-      ...(ciudad ? { city: ciudad } : {}),
-      ...(condicion === "NEW" || condicion === "USED"
-        ? { condition: condicion }
-        : {}),
-    },
+    where,
     orderBy: { createdAt: "desc" },
     include: {
       images: true,
       brand: true,
       model: true,
     },
+    skip: (paginaActual - 1) * POR_PAGINA,
+    take: POR_PAGINA,
   });
+
+  const baseParams = { q, categoria, ciudad, condicion };
 
   return (
     <main className="flex flex-1 flex-col bg-[#F6F6F4] px-4 py-8">
@@ -90,7 +118,7 @@ export default async function BuscarPage({
           </button>
         </form>
 
-        {/* Filtros */}
+        {/* Filtros por categoría */}
         <div className="mt-4 flex flex-wrap gap-2">
           <Link
             href="/buscar"
@@ -117,6 +145,7 @@ export default async function BuscarPage({
           ))}
         </div>
 
+        {/* Filtros de ciudad y condición */}
         <div className="mt-3 flex flex-wrap gap-2">
           <form action="/buscar" method="GET" className="flex flex-wrap gap-2">
             {q && <input type="hidden" name="q" value={q} />}
@@ -158,8 +187,8 @@ export default async function BuscarPage({
 
         {/* Resultados */}
         <p className="mt-6 text-sm text-[#6B7280]">
-          {listings.length}{" "}
-          {listings.length === 1 ? "resultado" : "resultados"}
+          {totalResultados}{" "}
+          {totalResultados === 1 ? "resultado" : "resultados"}
         </p>
 
         {listings.length === 0 ? (
@@ -172,23 +201,62 @@ export default async function BuscarPage({
             </p>
           </div>
         ) : (
-          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-            {listings.map((listing) => (
-              <ListingCard
-                key={listing.id}
-                id={listing.id}
-                title={listing.title}
-                price={listing.price}
-                condition={listing.condition}
-                city={listing.city}
-                imageUrl={listing.images[0]?.url}
-                brandName={listing.brand?.name}
-                modelName={listing.model?.name}
-                loggedIn={!!session?.user}
-                initialFavorited={favoritosSet.has(listing.id)}
-              />
-            ))}
-          </div>
+          <>
+            <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+              {listings.map((listing) => (
+                <ListingCard
+                  key={listing.id}
+                  id={listing.id}
+                  title={listing.title}
+                  price={listing.price}
+                  condition={listing.condition}
+                  city={listing.city}
+                  imageUrl={listing.images[0]?.url}
+                  brandName={listing.brand?.name}
+                  modelName={listing.model?.name}
+                  loggedIn={!!session?.user}
+                  initialFavorited={favoritosSet.has(listing.id)}
+                />
+              ))}
+            </div>
+
+            {/* Paginación */}
+            {totalPaginas > 1 && (
+              <div className="mt-8 flex items-center justify-center gap-2">
+                <Link
+                  href={buildQuery(baseParams, {
+                    pagina: String(Math.max(1, paginaActual - 1)),
+                  })}
+                  aria-disabled={paginaActual === 1}
+                  className={`flex h-9 w-9 items-center justify-center rounded-full border border-[#E4E4E1] bg-white text-[#16181D] transition-colors ${
+                    paginaActual === 1
+                      ? "pointer-events-none opacity-40"
+                      : "hover:border-[#16181D]"
+                  }`}
+                >
+                  <ChevronLeft size={16} />
+                </Link>
+
+                <span className="px-3 text-sm font-medium text-[#16181D]">
+                  Página {paginaActual} de {totalPaginas}
+                </span>
+
+                <Link
+                  href={buildQuery(baseParams, {
+                    pagina: String(Math.min(totalPaginas, paginaActual + 1)),
+                  })}
+                  aria-disabled={paginaActual === totalPaginas}
+                  className={`flex h-9 w-9 items-center justify-center rounded-full border border-[#E4E4E1] bg-white text-[#16181D] transition-colors ${
+                    paginaActual === totalPaginas
+                      ? "pointer-events-none opacity-40"
+                      : "hover:border-[#16181D]"
+                  }`}
+                >
+                  <ChevronRight size={16} />
+                </Link>
+              </div>
+            )}
+          </>
         )}
       </div>
     </main>
