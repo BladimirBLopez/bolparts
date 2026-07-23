@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import {
@@ -19,6 +20,11 @@ import {
 export function MobileMenu() {
   const { data: session } = useSession();
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   function close() {
     setOpen(false);
@@ -35,9 +41,11 @@ export function MobileMenu() {
         <Menu size={20} />
       </button>
 
-      {open && (
-        <>
-          {/* Fondo */}
+      {open &&
+        mounted &&
+        createPortal(
+          <>
+            {/* Fondo */}
           <button
             type="button"
             aria-label="Cerrar menú"
@@ -170,9 +178,10 @@ export function MobileMenu() {
                 )}
               </div>
             </nav>
-          </div>
-        </>
-      )}
+            </div>
+          </>,
+          document.body
+        )}
     </>
   );
 }
