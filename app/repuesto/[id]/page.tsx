@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Metadata } from "next";
 import { MapPin, Calendar, ArrowLeft } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { StarRating } from "@/components/StarRating";
 
 function formatPrecioMeta(price: number) {
   return `Bs. ${price.toLocaleString("es-BO", { maximumFractionDigits: 0 })}`;
@@ -74,13 +75,27 @@ export default async function RepuestoPage({
       category: true,
       brand: true,
       model: true,
-      user: { select: { id: true, name: true, image: true } },
+      user: {
+        select: {
+          id: true,
+          name: true,
+          image: true,
+          reviewsReceived: { select: { rating: true } },
+        },
+      },
     },
   });
 
   if (!listing) {
     notFound();
   }
+
+  const totalReviews = listing.user.reviewsReceived.length;
+  const avgRating =
+    totalReviews > 0
+      ? listing.user.reviewsReceived.reduce((sum, r) => sum + r.rating, 0) /
+        totalReviews
+      : 0;
 
   const mainImage = listing.images[0]?.url;
   const restoImages = listing.images.slice(1);
@@ -199,6 +214,18 @@ export default async function RepuestoPage({
               >
                 {listing.user.name || "Vendedor de BolParts"}
               </Link>
+
+              {totalReviews > 0 ? (
+                <div className="mt-1 flex items-center gap-1.5">
+                  <StarRating rating={avgRating} size={13} />
+                  <span className="text-xs text-[#6B7280]">
+                    {avgRating.toFixed(1)} ({totalReviews}{" "}
+                    {totalReviews === 1 ? "reseña" : "reseñas"})
+                  </span>
+                </div>
+              ) : (
+                <p className="mt-1 text-xs text-[#6B7280]">Sin reseñas todavía</p>
+              )}
 
               {listing.phone ? (
                 <a
