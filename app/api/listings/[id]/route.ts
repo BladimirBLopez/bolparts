@@ -19,7 +19,10 @@ export async function DELETE(
     return Response.json({ error: "Publicación no encontrada" }, { status: 404 });
   }
 
-  if (listing.userId !== session.user.id) {
+  const isOwner = listing.userId === session.user.id;
+  const isAdmin = session.user.role === "ADMIN";
+
+  if (!isOwner && !isAdmin) {
     return Response.json({ error: "No autorizado" }, { status: 403 });
   }
 
