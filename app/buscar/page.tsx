@@ -3,22 +3,9 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { ListingCard } from "@/components/ListingCard";
+import { SearchFilters } from "@/components/SearchFilters";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { VehicleFilter } from "@/components/VehicleFilter";
-
-const CIUDADES = [
-  "La Paz",
-  "El Alto",
-  "Santa Cruz de la Sierra",
-  "Cochabamba",
-  "Sucre",
-  "Oruro",
-  "Potosí",
-  "Tarija",
-  "Trinidad",
-  "Cobija",
-];
 
 const POR_PAGINA = 24;
 
@@ -51,7 +38,8 @@ export default async function BuscarPage({
 }: {
   searchParams: SearchParams;
 }) {
-  const { q, categoria, ciudad, condicion, pagina, orden, marca, modelo } = await searchParams;
+  const { q, categoria, ciudad, condicion, pagina, orden, marca, modelo } =
+    await searchParams;
 
   const session = await getServerSession(authOptions);
 
@@ -83,6 +71,13 @@ export default async function BuscarPage({
     ...(modelo ? { modelId: modelo } : {}),
   };
 
+  const orderBy =
+    orden === "precio_asc"
+      ? { price: "asc" as const }
+      : orden === "precio_desc"
+      ? { price: "desc" as const }
+      : { createdAt: "desc" as const };
+
   const totalResultados = await prisma.listing.count({ where });
   const totalPaginas = Math.max(1, Math.ceil(totalResultados / POR_PAGINA));
 
@@ -90,13 +85,6 @@ export default async function BuscarPage({
     Math.max(1, parseInt(pagina || "1", 10) || 1),
     totalPaginas
   );
-
-  const orderBy =
-    orden === "precio_asc"
-      ? { price: "asc" as const }
-      : orden === "precio_desc"
-      ? { price: "desc" as const }
-      : { createdAt: "desc" as const };
 
   const listings = await prisma.listing.findMany({
     where,
@@ -115,110 +103,36 @@ export default async function BuscarPage({
   return (
     <main className="flex flex-1 flex-col bg-[#F6F6F4] px-4 py-8">
       <div className="mx-auto w-full max-w-6xl">
-        {/* Buscador */}
-        <form
-          action="/buscar"
-          method="GET"
-          className="flex items-center gap-2 rounded-full border border-[#E4E4E1] bg-white p-1.5 shadow-sm"
-        >
-          <Search size={18} className="ml-3 shrink-0 text-[#6B7280]" />
-          <input
-            type="text"
-            name="q"
-            defaultValue={q}
-            placeholder="Buscar repuestos..."
-            className="w-full bg-transparent py-2 text-sm text-[#16181D] outline-none placeholder:text-[#9CA3AF]"
-          />
-          <button
-            type="submit"
-            className="shrink-0 rounded-full bg-[#FF5A1F] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#e64f16]"
+        {/* Buscador + Filtros */}
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <form
+            action="/buscar"
+            method="GET"
+            className="flex flex-1 items-center gap-2 rounded-full border border-[#E4E4E1] bg-white p-1.5 shadow-sm"
           >
-            Buscar
-          </button>
-        </form>
-
-        {/* Filtros por categoría */}
-        <div className="mt-4 flex flex-wrap gap-2">
-          <Link
-            href="/buscar"
-            className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
-              !categoria
-                ? "border-[#16181D] bg-[#16181D] text-white"
-                : "border-[#E4E4E1] bg-white text-[#16181D]"
-            }`}
-          >
-            Todas
-          </Link>
-          {categorias.map((c) => (
-            <Link
-              key={c.id}
-              href={`/buscar?categoria=${c.slug}${q ? `&q=${q}` : ""}`}
-              className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
-                categoria === c.slug
-                  ? "border-[#16181D] bg-[#16181D] text-white"
-                  : "border-[#E4E4E1] bg-white text-[#16181D]"
-              }`}
-            >
-              {c.name}
-            </Link>
-          ))}
-        </div>
-
-        {/* Filtro por vehículo */}
-        <div className="mt-3 flex flex-wrap gap-2">
-          <VehicleFilter marcas={marcas} />
-        </div>
-
-        {/* Filtros de ciudad y condición */}
-        <div className="mt-3 flex flex-wrap gap-2">
-          <form action="/buscar" method="GET" className="flex flex-wrap gap-2">
-            {q && <input type="hidden" name="q" value={q} />}
-            {categoria && (
-              <input type="hidden" name="categoria" value={categoria} />
-            )}
-            {marca && <input type="hidden" name="marca" value={marca} />}
-            {modelo && <input type="hidden" name="modelo" value={modelo} />}
-
-            <select
-              name="ciudad"
-              defaultValue={ciudad || ""}
-              className="rounded-full border border-[#E4E4E1] bg-white px-3 py-1.5 text-xs font-medium text-[#16181D] outline-none"
-            >
-              <option value="">Todas las ciudades</option>
-              {CIUDADES.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-
-            <select
-              name="condicion"
-              defaultValue={condicion || ""}
-              className="rounded-full border border-[#E4E4E1] bg-white px-3 py-1.5 text-xs font-medium text-[#16181D] outline-none"
-            >
-              <option value="">Nuevo y usado</option>
-              <option value="NEW">Solo nuevo</option>
-              <option value="USED">Solo usado</option>
-            </select>
-
-            <select
-              name="orden"
-              defaultValue={orden || ""}
-              className="rounded-full border border-[#E4E4E1] bg-white px-3 py-1.5 text-xs font-medium text-[#16181D] outline-none"
-            >
-              <option value="">Más recientes</option>
-              <option value="precio_asc">Menor precio</option>
-              <option value="precio_desc">Mayor precio</option>
-            </select>
-
+            <Search size={18} className="ml-3 shrink-0 text-[#6B7280]" />
+            <input
+              type="text"
+              name="q"
+              defaultValue={q}
+              placeholder="Buscar repuestos..."
+              className="w-full bg-transparent py-2 text-sm text-[#16181D] outline-none placeholder:text-[#9CA3AF]"
+            />
             <button
               type="submit"
-              className="rounded-full border border-[#16181D] bg-[#16181D] px-3 py-1.5 text-xs font-semibold text-white"
+              className="shrink-0 rounded-full bg-[#FF5A1F] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#e64f16]"
             >
-              Filtrar
+              Buscar
             </button>
           </form>
+
+          <div className="shrink-0">
+            <SearchFilters
+              categorias={categorias}
+              marcas={marcas}
+              current={{ q, categoria, ciudad, condicion, orden, marca, modelo }}
+            />
+          </div>
         </div>
 
         {/* Resultados */}
