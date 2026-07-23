@@ -8,9 +8,11 @@ import {
   CircleDot,
   Armchair,
   ArrowRight,
+  Car,
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { HomeVehiclePicker } from "@/components/HomeVehiclePicker";
+import { ScrollCarousel } from "@/components/ScrollCarousel";
 
 const categorias = [
   { nombre: "Motor", slug: "motor", icon: Wrench },
@@ -73,27 +75,63 @@ export default async function Home() {
           <h2 className="text-xl font-extrabold tracking-tight text-[#16181D]">
             Categorías
           </h2>
-          <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {categorias.map(({ nombre, slug, icon: Icon }) => (
-              <Link
-                key={slug}
-                href={`/buscar?categoria=${slug}`}
-                className="group flex flex-col items-start gap-3 rounded-2xl border border-[#E4E4E1] bg-white p-4 transition-colors hover:border-[#16181D]"
-              >
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#F6F6F4] text-[#16181D] transition-colors group-hover:bg-[#FF5A1F] group-hover:text-white">
-                  <Icon size={18} />
-                </span>
-                <span className="text-sm font-semibold text-[#16181D]">
-                  {nombre}
-                </span>
-              </Link>
-            ))}
+          <div className="mt-6">
+            <ScrollCarousel>
+              {categorias.map(({ nombre, slug, icon: Icon }) => (
+                <Link
+                  key={slug}
+                  href={`/buscar?categoria=${slug}`}
+                  className="group flex w-36 shrink-0 snap-start flex-col items-center gap-3 rounded-2xl border border-[#E4E4E1] bg-white px-4 py-6 text-center transition-colors hover:border-[#16181D]"
+                >
+                  <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#F6F6F4] text-[#16181D] transition-colors group-hover:bg-[#FF5A1F] group-hover:text-white">
+                    <Icon size={24} />
+                  </span>
+                  <span className="text-sm font-semibold leading-snug text-[#16181D]">
+                    {nombre}
+                  </span>
+                </Link>
+              ))}
+            </ScrollCarousel>
           </div>
         </div>
       </section>
 
+      {/* Marcas */}
+      {marcas.length > 0 && (
+        <section className="border-y border-[#E4E4E1] bg-white px-4 py-12 sm:py-16">
+          <div className="mx-auto max-w-5xl">
+            <h2 className="text-xl font-extrabold tracking-tight text-[#16181D]">
+              Buscá por marca
+            </h2>
+            <div className="mt-6">
+              <ScrollCarousel>
+                {marcas.map((marca) => (
+                  <Link
+                    key={marca.id}
+                    href={`/buscar?marca=${marca.id}`}
+                    className="group flex w-36 shrink-0 snap-start flex-col items-center justify-center gap-2 rounded-2xl border border-[#E4E4E1] bg-[#F6F6F4] px-4 py-8 text-center transition-colors hover:border-[#16181D] hover:bg-white"
+                  >
+                    <Car
+                      size={22}
+                      className="text-[#6B7280] transition-colors group-hover:text-[#FF5A1F]"
+                    />
+                    <span className="text-sm font-bold text-[#16181D]">
+                      {marca.name}
+                    </span>
+                    <span className="text-[11px] text-[#6B7280]">
+                      {marca.models.length}{" "}
+                      {marca.models.length === 1 ? "modelo" : "modelos"}
+                    </span>
+                  </Link>
+                ))}
+              </ScrollCarousel>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Confianza */}
-      <section className="border-y border-[#E4E4E1] bg-white px-4 py-10">
+      <section className="px-4 py-10">
         <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 text-center sm:grid-cols-3">
           <div>
             <p className="text-2xl font-extrabold text-[#16181D]">100%</p>
