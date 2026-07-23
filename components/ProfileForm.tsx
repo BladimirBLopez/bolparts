@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { User as UserIcon, Upload, Loader2 } from "lucide-react";
+import { LocationPicker } from "@/components/LocationPicker";
 
 export function ProfileForm({
   initialName,
@@ -23,6 +24,8 @@ export function ProfileForm({
   initialBusinessDescription?: string | null;
   initialBusinessHours?: string | null;
   initialBusinessAddress?: string | null;
+  initialLatitude?: number | null;
+  initialLongitude?: number | null;
 }) {
   const { update } = useSession();
   const router = useRouter();
@@ -36,6 +39,8 @@ export function ProfileForm({
   const [businessDescription, setBusinessDescription] = useState(initialBusinessDescription || "");
   const [businessHours, setBusinessHours] = useState(initialBusinessHours || "");
   const [businessAddress, setBusinessAddress] = useState(initialBusinessAddress || "");
+  const [latitude, setLatitude] = useState<number | null>(initialLatitude ?? null);
+  const [longitude, setLongitude] = useState<number | null>(initialLongitude ?? null);
   const [uploadingBanner, setUploadingBanner] = useState(false);
 
   const [submitting, setSubmitting] = useState(false);
@@ -120,6 +125,8 @@ export function ProfileForm({
           businessDescription,
           businessHours,
           businessAddress,
+          latitude,
+          longitude,
         }),
       });
       const data = await res.json();
@@ -291,6 +298,24 @@ export function ProfileForm({
             onChange={(e) => setBusinessAddress(e.target.value)}
             placeholder="Ej. Av. Grigotá, 3er anillo, Santa Cruz"
             className="mt-1.5 w-full rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none placeholder:text-[#9CA3AF] focus:border-[#16181D]"
+          />
+        </div>
+
+        {/* Ubicación en el mapa */}
+        <div className="mt-4">
+          <label className="text-sm font-semibold text-[#16181D]">
+            Marcá tu ubicación en el mapa
+          </label>
+          <p className="mt-1 mb-2 text-xs text-[#6B7280]">
+            Arrastrá el pin al lugar exacto. Aparece en el mapa de vendedores.
+          </p>
+          <LocationPicker
+            initialLat={latitude}
+            initialLng={longitude}
+            onChange={(lat, lng) => {
+              setLatitude(lat);
+              setLongitude(lng);
+            }}
           />
         </div>
       </div>

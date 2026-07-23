@@ -17,6 +17,8 @@ export async function PATCH(req: Request) {
       businessDescription,
       businessHours,
       businessAddress,
+      latitude,
+      longitude,
     } = await req.json();
 
     if (!name || !name.trim()) {
@@ -33,6 +35,8 @@ export async function PATCH(req: Request) {
         businessDescription: businessDescription || null,
         businessHours: businessHours || null,
         businessAddress: businessAddress || null,
+        latitude: typeof latitude === "number" ? latitude : null,
+        longitude: typeof longitude === "number" ? longitude : null,
       },
       select: {
         id: true,
@@ -44,6 +48,8 @@ export async function PATCH(req: Request) {
         businessDescription: true,
         businessHours: true,
         businessAddress: true,
+        latitude: true,
+        longitude: true,
       },
     });
 

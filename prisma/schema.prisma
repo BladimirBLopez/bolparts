@@ -34,6 +34,8 @@ model User {
   businessHours       String?
   businessAddress     String?
   isPremium           Boolean   @default(false)
+  latitude            Float?
+  longitude           Float?
 
   accounts  Account[]
   sessions  Session[]

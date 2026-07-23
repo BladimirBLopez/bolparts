@@ -21,6 +21,8 @@ export default async function PerfilPage() {
       businessDescription: true,
       businessHours: true,
       businessAddress: true,
+      latitude: true,
+      longitude: true,
     },
   });
 
@@ -47,6 +49,8 @@ export default async function PerfilPage() {
           initialBusinessDescription={user.businessDescription}
           initialBusinessHours={user.businessHours}
           initialBusinessAddress={user.businessAddress}
+          initialLatitude={user.latitude}
+          initialLongitude={user.longitude}
         />
       </div>
     </main>
