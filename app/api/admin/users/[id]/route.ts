@@ -13,22 +13,30 @@ export async function PATCH(
   }
 
   const { id } = await params;
-  const { role } = await req.json();
+  const body = await req.json();
 
-  if (!["USER", "SELLER", "ADMIN"].includes(role)) {
-    return Response.json({ error: "Rol inválido" }, { status: 400 });
+  const data: { role?: string; isPremium?: boolean } = {};
+
+  if (body.role !== undefined) {
+    if (!["USER", "SELLER", "ADMIN"].includes(body.role)) {
+      return Response.json({ error: "Rol inválido" }, { status: 400 });
+    }
+    if (id === session.user.id) {
+      return Response.json(
+        { error: "No podés cambiar tu propio rol" },
+        { status: 400 }
+      );
+    }
+    data.role = body.role;
   }
 
-  if (id === session.user.id) {
-    return Response.json(
-      { error: "No podés cambiar tu propio rol" },
-      { status: 400 }
-    );
+  if (body.isPremium !== undefined) {
+    data.isPremium = !!body.isPremium;
   }
 
   const updated = await prisma.user.update({
     where: { id },
-    data: { role },
+    data,
   });
 
   return Response.json({ ok: true, user: updated });

@@ -7,6 +7,7 @@ type AdminUser = {
   name: string | null;
   email: string;
   role: string;
+  isPremium: boolean;
   createdAt: string;
   _count: { listings: number };
 };
@@ -55,6 +56,22 @@ export default function AdminPage() {
       return;
     }
     setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, role } : u)));
+  }
+
+  async function togglePremium(id: string, isPremium: boolean) {
+    const res = await fetch("/api/admin/users/" + id, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ isPremium }),
+    });
+    const data = await res.json();
+    if (!data.ok) {
+      alert(data.error || "No se pudo cambiar el estado premium");
+      return;
+    }
+    setUsers((prev) =>
+      prev.map((u) => (u.id === id ? { ...u, isPremium } : u))
+    );
   }
 
   async function deleteListing(id: string) {
@@ -112,21 +129,37 @@ export default function AdminPage() {
                 <div className="min-w-0">
                   <p className="font-bold text-[#16181D] truncate">
                     {u.name || "Sin nombre"}
+                    {u.isPremium && (
+                      <span className="ml-1.5 text-[#FF5A1F]">★ Premium</span>
+                    )}
                   </p>
                   <p className="text-sm text-[#6B7280] truncate">{u.email}</p>
                   <p className="text-xs text-[#6B7280]">
                     {u._count.listings} publicaciones
                   </p>
                 </div>
-                <select
-                  value={u.role}
-                  onChange={(e) => changeRole(u.id, e.target.value)}
-                  className="border border-[#E4E4E1] rounded-lg px-2 py-1 text-sm font-bold"
-                >
-                  <option value="USER">USER</option>
-                  <option value="SELLER">SELLER</option>
-                  <option value="ADMIN">ADMIN</option>
-                </select>
+                <div className="flex flex-col items-end gap-1.5 shrink-0">
+                  <select
+                    value={u.role}
+                    onChange={(e) => changeRole(u.id, e.target.value)}
+                    className="border border-[#E4E4E1] rounded-lg px-2 py-1 text-sm font-bold"
+                  >
+                    <option value="USER">USER</option>
+                    <option value="SELLER">SELLER</option>
+                    <option value="ADMIN">ADMIN</option>
+                  </select>
+                  <button
+                    onClick={() => togglePremium(u.id, !u.isPremium)}
+                    className={
+                      "text-xs font-bold px-2 py-1 rounded-lg border " +
+                      (u.isPremium
+                        ? "border-[#FF5A1F] text-[#FF5A1F]"
+                        : "border-[#E4E4E1] text-[#6B7280]")
+                    }
+                  >
+                    {u.isPremium ? "Quitar premium" : "Hacer premium"}
+                  </button>
+                </div>
               </div>
             ))}
           </div>

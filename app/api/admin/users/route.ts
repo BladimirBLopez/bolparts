@@ -16,6 +16,7 @@ export async function GET() {
       name: true,
       email: true,
       role: true,
+      isPremium: true,
       createdAt: true,
       _count: {
         select: { listings: true },

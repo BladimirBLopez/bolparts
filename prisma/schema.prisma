@@ -33,6 +33,7 @@ model User {
   businessDescription String?
   businessHours       String?
   businessAddress     String?
+  isPremium           Boolean   @default(false)
 
   accounts  Account[]
   sessions  Session[]
