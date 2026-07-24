@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { ListingCard } from "@/components/ListingCard";
 import { StarRating } from "@/components/StarRating";
 import { ReviewForm } from "@/components/ReviewForm";
+import { ShareProfileButton } from "@/components/ShareProfileButton";
 import { User as UserIcon, Calendar, Clock, MapPin } from "lucide-react";
 
 function formatFecha(date: Date) {
@@ -82,10 +83,12 @@ export default async function VendedorPage({
               <UserIcon size={24} />
             )}
           </div>
-          <div>
-            <h1 className="text-xl font-extrabold tracking-tight text-[#16181D]">
-              {vendedor.name || "Vendedor de BolParts"}
-            </h1>
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-extrabold tracking-tight text-[#16181D]">
+                {vendedor.name || "Vendedor de BolParts"}
+              </h1>
+            </div>
             <div className="mt-1 flex items-center gap-2">
               {totalReviews > 0 ? (
                 <>
@@ -103,6 +106,11 @@ export default async function VendedorPage({
               <Calendar size={12} />
               Miembro desde {formatFecha(vendedor.createdAt)}
             </p>
+            <div className="mt-2">
+              <ShareProfileButton
+                sellerName={vendedor.name || "Vendedor de BolParts"}
+              />
+            </div>
           </div>
         </div>
 
