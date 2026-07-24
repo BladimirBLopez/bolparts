@@ -7,7 +7,7 @@ import { SlidersHorizontal, X, ChevronDown } from "lucide-react";
 
 type Categoria = { id: string; name: string; slug: string };
 type Modelo = { id: string; name: string };
-type Marca = { id: string; name: string; models: Modelo[] };
+type Marca = { id: string; name: string; models: Modelo[]; tipo: "AUTO" | "MOTO" | "CAMION" };
 
 const CIUDADES = [
   "La Paz",
@@ -44,6 +44,11 @@ export function SearchFilters({
   const [open, setOpen] = useState(false);
 
   const [categoria, setCategoria] = useState(current.categoria || "");
+  const initialTipoVehiculo =
+    marcas.find((m) => m.id === current.marca)?.tipo ?? "AUTO";
+  const [tipoVehiculo, setTipoVehiculo] = useState<"AUTO" | "MOTO" | "CAMION">(
+    initialTipoVehiculo
+  );
   const [marca, setMarca] = useState(current.marca || "");
   const [modelo, setModelo] = useState(current.modelo || "");
   const [ciudad, setCiudad] = useState(current.ciudad || "");
@@ -53,6 +58,7 @@ export function SearchFilters({
   useEffect(() => setMounted(true), []);
 
   const modelosDisponibles = marcas.find((m) => m.id === marca)?.models ?? [];
+  const marcasDisponibles = marcas.filter((m) => m.tipo === tipoVehiculo);
 
   const activeCount = [categoria, marca, modelo, ciudad, condicion, orden].filter(
     Boolean
@@ -157,6 +163,27 @@ export function SearchFilters({
 
                 {/* Vehículo */}
                 <p className="mt-6 text-sm font-semibold text-[#16181D]">Vehículo</p>
+                <div className="mt-2 flex rounded-xl border border-[#E4E4E1] bg-white p-1">
+                  {(["AUTO", "MOTO", "CAMION"] as const).map((t) => (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => {
+                        setTipoVehiculo(t);
+                        setMarca("");
+                        setModelo("");
+                      }}
+                      className={
+                        "flex-1 rounded-lg py-2 text-sm font-semibold transition-colors " +
+                        (tipoVehiculo === t
+                          ? "bg-[#16181D] text-white"
+                          : "text-[#6B7280]")
+                      }
+                    >
+                      {t === "AUTO" ? "Auto" : t === "MOTO" ? "Moto" : "Camión"}
+                    </button>
+                  ))}
+                </div>
                 <div className="mt-2 flex gap-2">
                   <div className="relative flex-1">
                     <select
@@ -168,7 +195,7 @@ export function SearchFilters({
                       className="w-full appearance-none rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 pr-9 text-sm text-[#16181D] outline-none"
                     >
                       <option value="">Cualquier marca</option>
-                      {marcas.map((m) => (
+                      {marcasDisponibles.map((m) => (
                         <option key={m.id} value={m.id}>
                           {m.name}
                         </option>
