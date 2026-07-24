@@ -5,6 +5,7 @@ import { MapPin, Calendar, ArrowLeft, User as UserIcon } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { StarRating } from "@/components/StarRating";
 import { ListingGallery } from "@/components/ListingGallery";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { ReportButton } from "@/components/ReportButton";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -221,16 +222,11 @@ export default async function RepuestoPage({
               </div>
 
               {listing.phone ? (
-                <a
+                <WhatsAppButton
                   href={`https://wa.me/591${listing.phone.replace(/\D/g, "")}?text=${encodeURIComponent(
                     `Hola, vi tu publicación "${listing.title}" en BolParts y me interesa.`
                   )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-[#25D366] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#1ebe57]"
-                >
-                  Contactar por WhatsApp
-                </a>
+                />
               ) : (
                 <p className="mt-4 text-xs text-[#6B7280]">
                   El vendedor no dejó un número de contacto.

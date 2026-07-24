@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { ListingCard } from "@/components/ListingCard";
+import { AnimatedCard } from "@/components/AnimatedCard";
 import { SearchFilters } from "@/components/SearchFilters";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
@@ -161,30 +162,31 @@ export default async function BuscarPage({
         ) : (
           <>
             <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-              {listings.map((listing) => (
-                <ListingCard
-                  key={listing.id}
-                  id={listing.id}
-                  title={listing.title}
-                  price={listing.price}
-                  condition={listing.condition}
-                  city={listing.city}
-                  imageUrl={listing.images[0]?.url}
-                  brandName={listing.brand?.name}
-                  modelName={listing.model?.name}
-                  loggedIn={!!session?.user}
-                  initialFavorited={favoritosSet.has(listing.id)}
-                  sellerReviewCount={listing.user.reviewsReceived.length}
-                  sellerRating={
-                    listing.user.reviewsReceived.length > 0
-                      ? listing.user.reviewsReceived.reduce(
-                          (sum, r) => sum + r.rating,
-                          0
-                        ) / listing.user.reviewsReceived.length
-                      : 0
-                  }
-                  isPremium={listing.user.isPremium}
-                />
+              {listings.map((listing, index) => (
+                <AnimatedCard key={listing.id} index={index}>
+                  <ListingCard
+                    id={listing.id}
+                    title={listing.title}
+                    price={listing.price}
+                    condition={listing.condition}
+                    city={listing.city}
+                    imageUrl={listing.images[0]?.url}
+                    brandName={listing.brand?.name}
+                    modelName={listing.model?.name}
+                    loggedIn={!!session?.user}
+                    initialFavorited={favoritosSet.has(listing.id)}
+                    sellerReviewCount={listing.user.reviewsReceived.length}
+                    sellerRating={
+                      listing.user.reviewsReceived.length > 0
+                        ? listing.user.reviewsReceived.reduce(
+                            (sum, r) => sum + r.rating,
+                            0
+                          ) / listing.user.reviewsReceived.length
+                        : 0
+                    }
+                    isPremium={listing.user.isPremium}
+                  />
+                </AnimatedCard>
               ))}
             </div>
 

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { X, Upload, Loader2, ChevronDown } from "lucide-react";
+import { TapButton } from "@/components/TapButton";
 
 const MAX_FOTOS = 10;
 
@@ -496,7 +497,7 @@ export function PublicarForm({
         </div>
       )}
 
-      <button
+      <TapButton
         type="submit"
         disabled={submitting || uploading}
         className="flex items-center justify-center gap-2 rounded-full bg-[#FF5A1F] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#e64f16] disabled:opacity-60"
@@ -511,7 +512,7 @@ export function PublicarForm({
         ) : (
           "Publicar repuesto"
         )}
-      </button>
+      </TapButton>
     </form>
   );
 }

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
+import { TapButton } from "@/components/TapButton";
 import { useRouter } from "next/navigation";
 import { SlidersHorizontal, X, ChevronDown } from "lucide-react";
 
@@ -309,13 +310,13 @@ export function SearchFilters({
                 >
                   Limpiar
                 </button>
-                <button
+                <TapButton
                   type="button"
                   onClick={aplicar}
                   className="flex-1 rounded-full bg-[#FF5A1F] px-4 py-3 text-sm font-semibold text-white"
                 >
                   Aplicar filtros
-                </button>
+                </TapButton>
               </div>
                 </motion.div>
               </>
