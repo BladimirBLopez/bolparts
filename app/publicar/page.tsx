@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { PublicarForm } from "@/components/PublicarForm";
+import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 
 export default async function PublicarPage() {
   const session = await getServerSession(authOptions);
@@ -25,6 +27,13 @@ export default async function PublicarPage() {
   return (
     <main className="flex flex-1 flex-col bg-[#F6F6F4] px-4 py-10">
       <div className="mx-auto w-full max-w-xl">
+        <Link
+          href="/"
+          className="mb-4 inline-flex items-center gap-1 text-sm font-semibold text-[#6B7280] hover:text-[#16181D]"
+        >
+          <ChevronLeft size={16} />
+          Volver
+        </Link>
         <h1 className="text-2xl font-extrabold tracking-tight text-[#16181D]">
           Publicar repuesto
         </h1>
