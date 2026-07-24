@@ -4,6 +4,7 @@ import { Metadata } from "next";
 import { MapPin, Calendar, ArrowLeft, User as UserIcon } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { StarRating } from "@/components/StarRating";
+import { ListingGallery } from "@/components/ListingGallery";
 import { ReportButton } from "@/components/ReportButton";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -102,9 +103,6 @@ export default async function RepuestoPage({
         totalReviews
       : 0;
 
-  const mainImage = listing.images[0]?.url;
-  const restoImages = listing.images.slice(1);
-
   return (
     <main className="flex flex-1 flex-col bg-[#F6F6F4] px-4 py-6">
       <div className="mx-auto w-full max-w-4xl">
@@ -118,40 +116,7 @@ export default async function RepuestoPage({
 
         <div className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-2">
           {/* Galería */}
-          <div>
-            <div className="aspect-square w-full overflow-hidden rounded-2xl border border-[#E4E4E1] bg-white">
-              {mainImage ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={mainImage}
-                  alt={listing.title}
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center text-sm text-[#9CA3AF]">
-                  Sin foto
-                </div>
-              )}
-            </div>
-
-            {restoImages.length > 0 && (
-              <div className="mt-3 grid grid-cols-4 gap-2">
-                {restoImages.map((img) => (
-                  <div
-                    key={img.id}
-                    className="aspect-square overflow-hidden rounded-xl border border-[#E4E4E1] bg-white"
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={img.url}
-                      alt={listing.title}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <ListingGallery images={listing.images} title={listing.title} />
 
           {/* Info */}
           <div className="flex flex-col">
