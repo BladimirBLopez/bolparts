@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Users, Package, Star, Flag } from "lucide-react";
+import { toast } from "sonner";
 import {
   BarChart,
   Bar,
@@ -97,10 +98,11 @@ export default function AdminPage() {
     });
     const data = await res.json();
     if (!data.ok) {
-      alert(data.error || "No se pudo cambiar el rol");
+      toast.error(data.error || "No se pudo cambiar el rol");
       return;
     }
     setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, role } : u)));
+    toast.success("Rol actualizado");
   }
 
   async function togglePremium(id: string, isPremium: boolean) {
@@ -111,12 +113,13 @@ export default function AdminPage() {
     });
     const data = await res.json();
     if (!data.ok) {
-      alert(data.error || "No se pudo cambiar el estado premium");
+      toast.error(data.error || "No se pudo cambiar el estado premium");
       return;
     }
     setUsers((prev) =>
       prev.map((u) => (u.id === id ? { ...u, isPremium } : u))
     );
+    toast.success(isPremium ? "Usuario marcado como premium" : "Premium quitado");
   }
 
   async function deleteListing(id: string) {
@@ -124,10 +127,11 @@ export default function AdminPage() {
     const res = await fetch("/api/listings/" + id, { method: "DELETE" });
     const data = await res.json();
     if (!data.ok) {
-      alert(data.error || "No se pudo borrar");
+      toast.error(data.error || "No se pudo borrar");
       return;
     }
     setListings((prev) => prev.filter((l) => l.id !== id));
+    toast.success("Publicación borrada");
   }
 
   return (
