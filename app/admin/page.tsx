@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Users, Package, Star, Flag } from "lucide-react";
 
 type AdminUser = {
   id: string;
@@ -20,6 +21,26 @@ type AdminListing = {
   reports: { id: string; reason: string; details: string | null }[];
   images: { url: string }[];
 };
+
+function MetricCard({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  label: string;
+  value: number;
+}) {
+  return (
+    <div className="bg-white border border-[#E4E4E1] rounded-2xl p-4">
+      <div className="flex items-center gap-2 text-[#6B7280]">
+        <Icon size={15} />
+        <span className="text-xs font-semibold">{label}</span>
+      </div>
+      <p className="mt-1 text-2xl font-extrabold text-[#16181D]">{value}</p>
+    </div>
+  );
+}
 
 export default function AdminPage() {
   const [tab, setTab] = useState<"users" | "listings">("users");
@@ -91,6 +112,31 @@ export default function AdminPage() {
         <h1 className="text-2xl font-extrabold text-[#16181D] mb-6">
           Panel Admin
         </h1>
+
+        {!loading && (
+          <div className="grid grid-cols-2 gap-3 mb-6 sm:grid-cols-4">
+            <MetricCard
+              icon={Users}
+              label="Usuarios"
+              value={users.length}
+            />
+            <MetricCard
+              icon={Package}
+              label="Publicaciones"
+              value={listings.length}
+            />
+            <MetricCard
+              icon={Star}
+              label="Premium"
+              value={users.filter((u) => u.isPremium).length}
+            />
+            <MetricCard
+              icon={Flag}
+              label="Reportes"
+              value={listings.reduce((sum, l) => sum + l.reports.length, 0)}
+            />
+          </div>
+        )}
 
         <div className="flex gap-2 mb-6 border-b border-[#E4E4E1]">
           <button
