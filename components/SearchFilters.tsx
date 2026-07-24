@@ -127,7 +127,7 @@ export function SearchFilters({
                   initial={{ y: "100%" }}
                   animate={{ y: 0 }}
                   exit={{ y: "100%" }}
-                  transition={{ type: "spring", damping: 30, stiffness: 300 }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
                 >
               <div className="flex shrink-0 items-center justify-between border-b border-[#E4E4E1] px-5 py-4">
                 <p className="text-base font-extrabold text-[#16181D]">Filtros</p>
