@@ -9,6 +9,9 @@ import {
   Armchair,
   ArrowRight,
   Car,
+  MessageCircleHeart,
+  PackageCheck,
+  MapPinned,
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { HomeVehiclePicker } from "@/components/HomeVehiclePicker";
@@ -131,19 +134,44 @@ export default async function Home() {
       )}
 
       {/* Confianza */}
-      <section className="px-4 py-10">
-        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 text-center sm:grid-cols-3">
-          <div>
-            <p className="text-2xl font-extrabold text-[#16181D]">100%</p>
-            <p className="mt-1 text-sm text-[#6B7280]">Contacto directo con el vendedor</p>
-          </div>
-          <div>
-            <p className="text-2xl font-extrabold text-[#16181D]">Nuevos y usados</p>
-            <p className="mt-1 text-sm text-[#6B7280]">Repuestos para todo tipo de vehículo</p>
-          </div>
-          <div>
-            <p className="text-2xl font-extrabold text-[#16181D]">9 departamentos</p>
-            <p className="mt-1 text-sm text-[#6B7280]">Publicaciones de todo el país</p>
+      <section className="px-4 py-12 sm:py-16">
+        <div className="mx-auto max-w-5xl">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div className="flex flex-col items-center gap-3 rounded-2xl border border-[#E4E4E1] bg-white px-6 py-8 text-center">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F6F6F4] text-[#FF5A1F]">
+                <MessageCircleHeart size={22} />
+              </span>
+              <p className="text-lg font-extrabold tracking-tight text-[#16181D]">
+                Contacto 100% directo
+              </p>
+              <p className="text-sm text-[#6B7280]">
+                Hablás con el vendedor por WhatsApp, sin intermediarios.
+              </p>
+            </div>
+
+            <div className="flex flex-col items-center gap-3 rounded-2xl border border-[#E4E4E1] bg-white px-6 py-8 text-center">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F6F6F4] text-[#FF5A1F]">
+                <PackageCheck size={22} />
+              </span>
+              <p className="text-lg font-extrabold tracking-tight text-[#16181D]">
+                Nuevos y usados
+              </p>
+              <p className="text-sm text-[#6B7280]">
+                Repuestos para todo tipo de vehículo, en cualquier estado.
+              </p>
+            </div>
+
+            <div className="flex flex-col items-center gap-3 rounded-2xl border border-[#E4E4E1] bg-white px-6 py-8 text-center">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F6F6F4] text-[#FF5A1F]">
+                <MapPinned size={22} />
+              </span>
+              <p className="text-lg font-extrabold tracking-tight text-[#16181D]">
+                Los 9 departamentos
+              </p>
+              <p className="text-sm text-[#6B7280]">
+                Publicaciones de vendedores de todo el país.
+              </p>
+            </div>
           </div>
         </div>
       </section>
