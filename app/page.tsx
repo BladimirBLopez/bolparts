@@ -16,6 +16,7 @@ import {
 import { prisma } from "@/lib/prisma";
 import { HomeVehiclePicker } from "@/components/HomeVehiclePicker";
 import { ScrollCarousel } from "@/components/ScrollCarousel";
+import { ListingCard } from "@/components/ListingCard";
 
 const categorias = [
   { nombre: "Motor", slug: "motor", icon: Wrench },
@@ -27,10 +28,27 @@ const categorias = [
 ];
 
 export default async function Home() {
-  const marcas = await prisma.brand.findMany({
-    orderBy: { name: "asc" },
-    include: { models: { orderBy: { name: "asc" } } },
-  });
+  const [marcas, publicacionesRecientes] = await Promise.all([
+    prisma.brand.findMany({
+      orderBy: { name: "asc" },
+      include: { models: { orderBy: { name: "asc" } } },
+    }),
+    prisma.listing.findMany({
+      orderBy: [{ user: { isPremium: "desc" } }, { createdAt: "desc" }],
+      take: 8,
+      include: {
+        images: true,
+        brand: true,
+        model: true,
+        user: {
+          select: {
+            isPremium: true,
+            reviewsReceived: { select: { rating: true } },
+          },
+        },
+      },
+    }),
+  ]);
 
   return (
     <main className="flex flex-1 flex-col bg-[#F6F6F4]">
@@ -128,6 +146,50 @@ export default async function Home() {
                   </Link>
                 ))}
               </ScrollCarousel>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Publicaciones recientes */}
+      {publicacionesRecientes.length > 0 && (
+        <section className="border-t border-[#E4E4E1] px-4 py-12 sm:py-16">
+          <div className="mx-auto max-w-5xl">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-extrabold tracking-tight text-[#16181D]">
+                Publicaciones recientes
+              </h2>
+              <Link
+                href="/buscar"
+                className="text-sm font-semibold text-[#FF5A1F] hover:underline"
+              >
+                Ver todas
+              </Link>
+            </div>
+            <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+              {publicacionesRecientes.map((listing) => (
+                <ListingCard
+                  key={listing.id}
+                  id={listing.id}
+                  title={listing.title}
+                  price={listing.price}
+                  condition={listing.condition}
+                  city={listing.city}
+                  imageUrl={listing.images[0]?.url}
+                  brandName={listing.brand?.name}
+                  modelName={listing.model?.name}
+                  isPremium={listing.user.isPremium}
+                  sellerReviewCount={listing.user.reviewsReceived.length}
+                  sellerRating={
+                    listing.user.reviewsReceived.length > 0
+                      ? listing.user.reviewsReceived.reduce(
+                          (sum, r) => sum + r.rating,
+                          0
+                        ) / listing.user.reviewsReceived.length
+                      : 0
+                  }
+                />
+              ))}
             </div>
           </div>
         </section>
