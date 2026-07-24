@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { SlidersHorizontal, X, ChevronDown } from "lucide-react";
 
@@ -106,18 +107,28 @@ export function SearchFilters({
         )}
       </button>
 
-      {open &&
-        mounted &&
+      {mounted &&
         createPortal(
-          <>
-            <button
-              type="button"
-              aria-label="Cerrar filtros"
-              onClick={() => setOpen(false)}
-              className="fixed inset-0 z-[100] bg-black/40"
-            />
+          <AnimatePresence>
+            {open && (
+              <>
+                <motion.button
+                  type="button"
+                  aria-label="Cerrar filtros"
+                  onClick={() => setOpen(false)}
+                  className="fixed inset-0 z-[100] bg-black/40"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                />
 
-            <div className="fixed inset-x-0 bottom-0 z-[101] flex max-h-[85vh] flex-col rounded-t-3xl bg-[#F6F6F4] shadow-xl">
+                <motion.div
+                  className="fixed inset-x-0 bottom-0 z-[101] flex max-h-[85vh] flex-col rounded-t-3xl bg-[#F6F6F4] shadow-xl"
+                  initial={{ y: "100%" }}
+                  animate={{ y: 0 }}
+                  exit={{ y: "100%" }}
+                  transition={{ type: "spring", damping: 30, stiffness: 300 }}
+                >
               <div className="flex shrink-0 items-center justify-between border-b border-[#E4E4E1] px-5 py-4">
                 <p className="text-base font-extrabold text-[#16181D]">Filtros</p>
                 <button
@@ -306,8 +317,10 @@ export function SearchFilters({
                   Aplicar filtros
                 </button>
               </div>
-            </div>
-          </>,
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>,
           document.body
         )}
     </>
