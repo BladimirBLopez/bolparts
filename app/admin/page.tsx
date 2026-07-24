@@ -2,6 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { Users, Package, Star, Flag } from "lucide-react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  ResponsiveContainer,
+  Tooltip,
+} from "recharts";
 
 type AdminUser = {
   id: string;
@@ -17,10 +25,26 @@ type AdminListing = {
   id: string;
   title: string;
   price: number;
+  createdAt: string;
   user: { id: string; name: string | null; email: string };
   reports: { id: string; reason: string; details: string | null }[];
   images: { url: string }[];
 };
+
+function agruparPorMes(listings: AdminListing[]) {
+  const meses = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+  const conteo: Record<string, number> = {};
+
+  for (const listing of listings) {
+    const fecha = new Date(listing.createdAt);
+    const clave = meses[fecha.getMonth()] + " " + fecha.getFullYear();
+    conteo[clave] = (conteo[clave] || 0) + 1;
+  }
+
+  return Object.entries(conteo)
+    .map(([mes, cantidad]) => ({ mes, cantidad }))
+    .slice(-6);
+}
 
 function MetricCard({
   icon: Icon,
@@ -135,6 +159,38 @@ export default function AdminPage() {
               label="Reportes"
               value={listings.reduce((sum, l) => sum + l.reports.length, 0)}
             />
+          </div>
+        )}
+
+        {!loading && listings.length > 0 && (
+          <div className="bg-white border border-[#E4E4E1] rounded-2xl p-4 mb-6">
+            <p className="text-sm font-bold text-[#16181D] mb-3">
+              Publicaciones por mes
+            </p>
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={agruparPorMes(listings)}>
+                <XAxis
+                  dataKey="mes"
+                  tick={{ fontSize: 11, fill: "#6B7280" }}
+                  axisLine={{ stroke: "#E4E4E1" }}
+                  tickLine={false}
+                />
+                <YAxis
+                  allowDecimals={false}
+                  tick={{ fontSize: 11, fill: "#6B7280" }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: 12,
+                    border: "1px solid #E4E4E1",
+                    fontSize: 12,
+                  }}
+                />
+                <Bar dataKey="cantidad" fill="#FF5A1F" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         )}
 
