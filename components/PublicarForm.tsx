@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { X, Upload, Loader2 } from "lucide-react";
+import { X, Upload, Loader2, ChevronDown } from "lucide-react";
 
 const MAX_FOTOS = 10;
 
@@ -348,39 +348,51 @@ export function PublicarForm({
           <label className="text-sm font-semibold text-[#16181D]">
             Marca (opcional)
           </label>
-          <select
-            value={brandId}
-            onChange={(e) => {
-              setBrandId(e.target.value);
-              setModelId("");
-            }}
-            className="mt-1.5 w-full rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none focus:border-[#16181D]"
-          >
-            <option value="">Cualquier marca</option>
-            {marcas.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.name}
-              </option>
-            ))}
-          </select>
+          <div className="relative mt-1.5">
+            <select
+              value={brandId}
+              onChange={(e) => {
+                setBrandId(e.target.value);
+                setModelId("");
+              }}
+              className="w-full appearance-none rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 pr-9 text-sm text-[#16181D] outline-none focus:border-[#16181D]"
+            >
+              <option value="">Cualquier marca</option>
+              {marcas.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.name}
+                </option>
+              ))}
+            </select>
+            <ChevronDown
+              size={16}
+              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#6B7280]"
+            />
+          </div>
         </div>
         <div className="flex-1">
           <label className="text-sm font-semibold text-[#16181D]">
             Modelo (opcional)
           </label>
-          <select
-            value={modelId}
-            onChange={(e) => setModelId(e.target.value)}
-            disabled={!brandId}
-            className="mt-1.5 w-full rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none focus:border-[#16181D] disabled:opacity-50"
-          >
-            <option value="">Cualquier modelo</option>
-            {modelosDisponibles.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.name}
-              </option>
-            ))}
-          </select>
+          <div className="relative mt-1.5">
+            <select
+              value={modelId}
+              onChange={(e) => setModelId(e.target.value)}
+              disabled={!brandId}
+              className="w-full appearance-none rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 pr-9 text-sm text-[#16181D] outline-none focus:border-[#16181D] disabled:opacity-50"
+            >
+              <option value="">Cualquier modelo</option>
+              {modelosDisponibles.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.name}
+                </option>
+              ))}
+            </select>
+            <ChevronDown
+              size={16}
+              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#6B7280]"
+            />
+          </div>
         </div>
       </div>
 
@@ -390,19 +402,25 @@ export function PublicarForm({
           <label className="text-sm font-semibold text-[#16181D]">
             Ciudad
           </label>
-          <select
-            required
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            className="mt-1.5 w-full rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none focus:border-[#16181D]"
-          >
-            <option value="">Elegí una ciudad</option>
-            {CIUDADES.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
+          <div className="relative mt-1.5">
+            <select
+              required
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              className="w-full appearance-none rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 pr-9 text-sm text-[#16181D] outline-none focus:border-[#16181D]"
+            >
+              <option value="">Elegí una ciudad</option>
+              {CIUDADES.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+            <ChevronDown
+              size={16}
+              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#6B7280]"
+            />
+          </div>
         </div>
         <div className="flex-1">
           <label className="text-sm font-semibold text-[#16181D]">
