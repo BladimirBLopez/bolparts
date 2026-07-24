@@ -289,14 +289,32 @@ export function PublicarForm({
           <label className="text-sm font-semibold text-[#16181D]">
             Condición
           </label>
-          <select
-            value={condition}
-            onChange={(e) => setCondition(e.target.value as "NEW" | "USED")}
-            className="mt-1.5 w-full rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none focus:border-[#16181D]"
-          >
-            <option value="USED">Usado</option>
-            <option value="NEW">Nuevo</option>
-          </select>
+          <div className="mt-1.5 flex rounded-xl border border-[#E4E4E1] bg-white p-1">
+            <button
+              type="button"
+              onClick={() => setCondition("USED")}
+              className={
+                "flex-1 rounded-lg py-2 text-sm font-semibold transition-colors " +
+                (condition === "USED"
+                  ? "bg-[#16181D] text-white"
+                  : "text-[#6B7280]")
+              }
+            >
+              Usado
+            </button>
+            <button
+              type="button"
+              onClick={() => setCondition("NEW")}
+              className={
+                "flex-1 rounded-lg py-2 text-sm font-semibold transition-colors " +
+                (condition === "NEW"
+                  ? "bg-[#16181D] text-white"
+                  : "text-[#6B7280]")
+              }
+            >
+              Nuevo
+            </button>
+          </div>
         </div>
       </div>
 
@@ -305,19 +323,23 @@ export function PublicarForm({
         <label className="text-sm font-semibold text-[#16181D]">
           Categoría
         </label>
-        <select
-          required
-          value={categoryId}
-          onChange={(e) => setCategoryId(e.target.value)}
-          className="mt-1.5 w-full rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none focus:border-[#16181D]"
-        >
-          <option value="">Elegí una categoría</option>
+        <div className="mt-2 flex flex-wrap gap-2">
           {categorias.map((c) => (
-            <option key={c.id} value={c.id}>
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => setCategoryId(c.id)}
+              className={
+                "rounded-full border px-4 py-2 text-sm font-semibold transition-colors " +
+                (categoryId === c.id
+                  ? "border-[#FF5A1F] bg-[#FF5A1F] text-white"
+                  : "border-[#E4E4E1] bg-white text-[#16181D]")
+              }
+            >
               {c.name}
-            </option>
+            </button>
           ))}
-        </select>
+        </div>
       </div>
 
       {/* Marca + modelo */}
