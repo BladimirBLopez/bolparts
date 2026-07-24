@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Metadata } from "next";
-import { MapPin, Calendar, ArrowLeft } from "lucide-react";
+import { MapPin, Calendar, ArrowLeft, User as UserIcon } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { StarRating } from "@/components/StarRating";
 import { ReportButton } from "@/components/ReportButton";
@@ -84,6 +84,7 @@ export default async function RepuestoPage({
           id: true,
           name: true,
           image: true,
+          isPremium: true,
           reviewsReceived: { select: { rating: true } },
         },
       },
@@ -212,24 +213,47 @@ export default async function RepuestoPage({
               <p className="text-xs font-medium uppercase tracking-wide text-[#6B7280]">
                 Vendedor
               </p>
-              <Link
-                href={`/vendedor/${listing.user.id}`}
-                className="mt-1 inline-block text-sm font-semibold text-[#16181D] hover:underline"
-              >
-                {listing.user.name || "Vendedor de BolParts"}
-              </Link>
-
-              {totalReviews > 0 ? (
-                <div className="mt-1 flex items-center gap-1.5">
-                  <StarRating rating={avgRating} size={13} />
-                  <span className="text-xs text-[#6B7280]">
-                    {avgRating.toFixed(1)} ({totalReviews}{" "}
-                    {totalReviews === 1 ? "reseña" : "reseñas"})
-                  </span>
+              <div className="mt-2 flex items-center gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#16181D] text-white">
+                  {listing.user.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={listing.user.image}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <UserIcon size={18} />
+                  )}
                 </div>
-              ) : (
-                <p className="mt-1 text-xs text-[#6B7280]">Sin reseñas todavía</p>
-              )}
+                <div>
+                  <Link
+                    href={`/vendedor/${listing.user.id}`}
+                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#16181D] hover:underline"
+                  >
+                    {listing.user.name || "Vendedor de BolParts"}
+                    {listing.user.isPremium && (
+                      <span className="text-xs font-bold text-[#FF5A1F]">
+                        ★ Premium
+                      </span>
+                    )}
+                  </Link>
+
+                  {totalReviews > 0 ? (
+                    <div className="mt-0.5 flex items-center gap-1.5">
+                      <StarRating rating={avgRating} size={13} />
+                      <span className="text-xs text-[#6B7280]">
+                        {avgRating.toFixed(1)} ({totalReviews}{" "}
+                        {totalReviews === 1 ? "reseña" : "reseñas"})
+                      </span>
+                    </div>
+                  ) : (
+                    <p className="mt-0.5 text-xs text-[#6B7280]">
+                      Sin reseñas todavía
+                    </p>
+                  )}
+                </div>
+              </div>
 
               {listing.phone ? (
                 <a
