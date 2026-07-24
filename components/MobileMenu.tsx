@@ -16,6 +16,7 @@ import {
   UserPlus,
   User as UserIcon,
   Settings,
+  ShieldCheck,
 } from "lucide-react";
 
 export function MobileMenu() {
@@ -150,6 +151,17 @@ export function MobileMenu() {
                     <Settings size={18} />
                     Mi perfil
                   </Link>
+
+                  {session.user.role === "ADMIN" && (
+                    <Link
+                      href="/admin"
+                      onClick={close}
+                      className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-[#FF5A1F] hover:bg-white"
+                    >
+                      <ShieldCheck size={18} />
+                      Panel Admin
+                    </Link>
+                  )}
                 </>
               )}
 
