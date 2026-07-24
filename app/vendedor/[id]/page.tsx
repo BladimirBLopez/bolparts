@@ -165,6 +165,7 @@ export default async function VendedorPage({
                   modelName={listing.model?.name}
                   loggedIn={!!session?.user}
                   initialFavorited={favoritosSet.has(listing.id)}
+                  isPremium={vendedor.isPremium}
                 />
               ))}
             </div>
