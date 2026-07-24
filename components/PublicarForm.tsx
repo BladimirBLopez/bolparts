@@ -8,7 +8,7 @@ const MAX_FOTOS = 10;
 
 type Modelo = { id: string; name: string };
 type Marca = { id: string; name: string; models: Modelo[] };
-type Categoria = { id: string; name: string; slug: string };
+type Categoria = { id: string; name: string; slug: string; tipo: "VEHICULO" | "REPUESTO" };
 
 const CIUDADES = [
   "La Paz",
@@ -62,6 +62,12 @@ export function PublicarForm({
   const [year, setYear] = useState(initialListing?.year?.toString() ?? "");
   const [phone, setPhone] = useState(
     initialListing?.phone ?? defaultPhone ?? ""
+  );
+  const initialCategoria = categorias.find(
+    (c) => c.id === initialListing?.categoryId
+  );
+  const [tipoPublicacion, setTipoPublicacion] = useState<"VEHICULO" | "REPUESTO">(
+    initialCategoria?.tipo ?? "REPUESTO"
   );
   const [categoryId, setCategoryId] = useState(initialListing?.categoryId ?? "");
   const [brandId, setBrandId] = useState(initialListing?.brandId ?? "");
@@ -145,6 +151,10 @@ export function PublicarForm({
     }
     if (!phone) {
       setError("Ingresá tu número de WhatsApp para que te contacten");
+      return;
+    }
+    if (tipoPublicacion === "VEHICULO" && (!brandId || !modelId)) {
+      setError("Elegí la marca y el modelo del vehículo");
       return;
     }
 
@@ -318,27 +328,68 @@ export function PublicarForm({
         </div>
       </div>
 
+      {/* Tipo de publicación */}
+      <div>
+        <label className="text-sm font-semibold text-[#16181D]">
+          ¿Qué publicás?
+        </label>
+        <div className="mt-1.5 flex rounded-xl border border-[#E4E4E1] bg-white p-1">
+          <button
+            type="button"
+            onClick={() => {
+              setTipoPublicacion("REPUESTO");
+              setCategoryId("");
+            }}
+            className={
+              "flex-1 rounded-lg py-2 text-sm font-semibold transition-colors " +
+              (tipoPublicacion === "REPUESTO"
+                ? "bg-[#16181D] text-white"
+                : "text-[#6B7280]")
+            }
+          >
+            Repuesto
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setTipoPublicacion("VEHICULO");
+              setCategoryId("");
+            }}
+            className={
+              "flex-1 rounded-lg py-2 text-sm font-semibold transition-colors " +
+              (tipoPublicacion === "VEHICULO"
+                ? "bg-[#16181D] text-white"
+                : "text-[#6B7280]")
+            }
+          >
+            Vehículo
+          </button>
+        </div>
+      </div>
+
       {/* Categoría */}
       <div>
         <label className="text-sm font-semibold text-[#16181D]">
           Categoría
         </label>
         <div className="mt-2 flex flex-wrap gap-2">
-          {categorias.map((c) => (
-            <button
-              key={c.id}
-              type="button"
-              onClick={() => setCategoryId(c.id)}
-              className={
-                "rounded-full border px-4 py-2 text-sm font-semibold transition-colors " +
-                (categoryId === c.id
-                  ? "border-[#FF5A1F] bg-[#FF5A1F] text-white"
-                  : "border-[#E4E4E1] bg-white text-[#16181D]")
-              }
-            >
-              {c.name}
-            </button>
-          ))}
+          {categorias
+            .filter((c) => c.tipo === tipoPublicacion)
+            .map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => setCategoryId(c.id)}
+                className={
+                  "rounded-full border px-4 py-2 text-sm font-semibold transition-colors " +
+                  (categoryId === c.id
+                    ? "border-[#FF5A1F] bg-[#FF5A1F] text-white"
+                    : "border-[#E4E4E1] bg-white text-[#16181D]")
+                }
+              >
+                {c.name}
+              </button>
+            ))}
         </div>
       </div>
 
@@ -346,7 +397,7 @@ export function PublicarForm({
       <div className="flex gap-3">
         <div className="flex-1">
           <label className="text-sm font-semibold text-[#16181D]">
-            Marca (opcional)
+            {tipoPublicacion === "VEHICULO" ? "Marca" : "Marca (opcional)"}
           </label>
           <div className="relative mt-1.5">
             <select
@@ -372,7 +423,7 @@ export function PublicarForm({
         </div>
         <div className="flex-1">
           <label className="text-sm font-semibold text-[#16181D]">
-            Modelo (opcional)
+            {tipoPublicacion === "VEHICULO" ? "Modelo" : "Modelo (opcional)"}
           </label>
           <div className="relative mt-1.5">
             <select
