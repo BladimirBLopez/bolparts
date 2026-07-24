@@ -7,7 +7,7 @@ import { X, Upload, Loader2, ChevronDown } from "lucide-react";
 const MAX_FOTOS = 10;
 
 type Modelo = { id: string; name: string };
-type Marca = { id: string; name: string; models: Modelo[] };
+type Marca = { id: string; name: string; models: Modelo[]; tipo: "AUTO" | "MOTO" | "CAMION" };
 type Categoria = { id: string; name: string; slug: string; tipo: "VEHICULO" | "REPUESTO" };
 
 const CIUDADES = [
@@ -64,6 +64,11 @@ export function PublicarForm({
     initialListing?.phone ?? defaultPhone ?? ""
   );
   const [categoryId, setCategoryId] = useState(initialListing?.categoryId ?? "");
+  const initialTipoVehiculo =
+    marcas.find((m) => m.id === initialListing?.brandId)?.tipo ?? "AUTO";
+  const [tipoVehiculo, setTipoVehiculo] = useState<"AUTO" | "MOTO" | "CAMION">(
+    initialTipoVehiculo
+  );
   const [brandId, setBrandId] = useState(initialListing?.brandId ?? "");
   const [modelId, setModelId] = useState(initialListing?.modelId ?? "");
 
@@ -76,6 +81,7 @@ export function PublicarForm({
 
   const modelosDisponibles =
     marcas.find((m) => m.id === brandId)?.models ?? [];
+  const marcasDisponibles = marcas.filter((m) => m.tipo === tipoVehiculo);
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
@@ -342,6 +348,34 @@ export function PublicarForm({
         </div>
       </div>
 
+      {/* Tipo de vehículo compatible */}
+      <div>
+        <label className="text-sm font-semibold text-[#16181D]">
+          Tipo de vehículo compatible (opcional)
+        </label>
+        <div className="mt-1.5 flex rounded-xl border border-[#E4E4E1] bg-white p-1">
+          {(["AUTO", "MOTO", "CAMION"] as const).map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => {
+                setTipoVehiculo(t);
+                setBrandId("");
+                setModelId("");
+              }}
+              className={
+                "flex-1 rounded-lg py-2 text-sm font-semibold transition-colors " +
+                (tipoVehiculo === t
+                  ? "bg-[#16181D] text-white"
+                  : "text-[#6B7280]")
+              }
+            >
+              {t === "AUTO" ? "Auto" : t === "MOTO" ? "Moto" : "Camión"}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Marca + modelo */}
       <div className="flex gap-3">
         <div className="flex-1">
@@ -358,7 +392,7 @@ export function PublicarForm({
               className="w-full appearance-none rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 pr-9 text-sm text-[#16181D] outline-none focus:border-[#16181D]"
             >
               <option value="">Cualquier marca</option>
-              {marcas.map((m) => (
+              {marcasDisponibles.map((m) => (
                 <option key={m.id} value={m.id}>
                   {m.name}
                 </option>
