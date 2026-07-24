@@ -72,6 +72,7 @@ export default function AdminPage() {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [listings, setListings] = useState<AdminListing[]>([]);
   const [loading, setLoading] = useState(true);
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
 
   useEffect(() => {
     loadData();
@@ -123,14 +124,15 @@ export default function AdminPage() {
   }
 
   async function deleteListing(id: string) {
-    if (!confirm("¿Borrar esta publicación?")) return;
     const res = await fetch("/api/listings/" + id, { method: "DELETE" });
     const data = await res.json();
     if (!data.ok) {
       toast.error(data.error || "No se pudo borrar");
+      setConfirmingId(null);
       return;
     }
     setListings((prev) => prev.filter((l) => l.id !== id));
+    setConfirmingId(null);
     toast.success("Publicación borrada");
   }
 
@@ -287,12 +289,32 @@ export default function AdminPage() {
                       {l.user.name || l.user.email} · Bs {l.price}
                     </p>
                   </div>
-                  <button
-                    onClick={() => deleteListing(l.id)}
-                    className="text-sm font-bold text-red-600 shrink-0"
-                  >
-                    Borrar
-                  </button>
+                  {confirmingId === l.id ? (
+                    <div className="flex flex-col items-end gap-1 shrink-0">
+                      <p className="text-[11px] text-[#6B7280]">¿Borrar?</p>
+                      <div className="flex gap-1.5">
+                        <button
+                          onClick={() => deleteListing(l.id)}
+                          className="rounded-full bg-red-600 px-2.5 py-1 text-[11px] font-semibold text-white"
+                        >
+                          Sí
+                        </button>
+                        <button
+                          onClick={() => setConfirmingId(null)}
+                          className="rounded-full border border-[#E4E4E1] px-2.5 py-1 text-[11px] font-medium text-[#16181D]"
+                        >
+                          No
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setConfirmingId(l.id)}
+                      className="text-sm font-bold text-red-600 shrink-0"
+                    >
+                      Borrar
+                    </button>
+                  )}
                 </div>
                 {l.reports.length > 0 && (
                   <div className="mt-2 pt-2 border-t border-[#E4E4E1]">
