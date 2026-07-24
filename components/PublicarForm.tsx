@@ -510,7 +510,7 @@ export function PublicarForm({
         ) : isEditing ? (
           "Guardar cambios"
         ) : (
-          "Publicar repuesto"
+          "Vender repuesto"
         )}
       </TapButton>
     </form>

@@ -214,7 +214,7 @@ export function ProfileForm({
           className="mt-1.5 w-full rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none placeholder:text-[#9CA3AF] focus:border-[#16181D]"
         />
         <p className="mt-1 text-xs text-[#6B7280]">
-          Se va a usar como número por defecto al publicar un repuesto.
+          Se va a usar como número por defecto al vender un repuesto.
         </p>
       </div>
 

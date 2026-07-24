@@ -26,7 +26,7 @@ export default async function MisPublicacionesPage() {
             Mis publicaciones
           </h1>
           <Link
-            href="/publicar"
+            href="/vender"
             className="flex items-center gap-1.5 rounded-full bg-[#FF5A1F] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#e64f16]"
           >
             <Plus size={16} />
@@ -40,10 +40,10 @@ export default async function MisPublicacionesPage() {
               Todavía no publicaste ningún repuesto
             </p>
             <Link
-              href="/publicar"
+              href="/vender"
               className="mt-2 rounded-full bg-[#FF5A1F] px-5 py-2.5 text-sm font-semibold text-white"
             >
-              Publicar mi primer repuesto
+              Vender mi primer repuesto
             </Link>
           </div>
         ) : (

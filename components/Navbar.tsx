@@ -42,11 +42,11 @@ export function Navbar() {
           </Link>
 
           <Link
-            href={session ? "/publicar" : "/login"}
+            href={session ? "/vender" : "/login"}
             className="flex items-center gap-1.5 rounded-full bg-[#FF5A1F] px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#e64f16] sm:px-4"
           >
             <Plus size={16} />
-            <span className="hidden sm:inline">Publicar</span>
+            <span className="hidden sm:inline">Vender</span>
           </Link>
 
           {status === "loading" ? (

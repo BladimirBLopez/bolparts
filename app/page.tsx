@@ -250,10 +250,10 @@ export default async function Home() {
             Publicá gratis y llegá a compradores de todo el país en minutos.
           </p>
           <Link
-            href="/publicar"
+            href="/vender"
             className="mt-2 flex items-center gap-2 rounded-full bg-[#FF5A1F] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#e64f16]"
           >
-            Publicar repuesto
+            Vender repuesto
             <ArrowRight size={16} />
           </Link>
         </div>

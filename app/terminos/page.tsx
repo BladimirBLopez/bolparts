@@ -34,7 +34,7 @@ export default function TerminosPage() {
           <section>
             <h2 className="font-semibold">3. Publicaciones</h2>
             <p className="mt-1 text-[#6B7280]">
-              Al publicar un repuesto, el usuario declara que tiene derecho a
+              Al vender un repuesto, el usuario declara que tiene derecho a
               venderlo y que las fotos y la descripción corresponden al
               producto real. Nos reservamos el derecho de eliminar
               publicaciones falsas, engañosas o que infrinjan estos términos.
@@ -44,7 +44,7 @@ export default function TerminosPage() {
           <section>
             <h2 className="font-semibold">4. Contenido prohibido</h2>
             <p className="mt-1 text-[#6B7280]">
-              No está permitido publicar repuestos robados, falsificados, o
+              No está permitido vender repuestos robados, falsificados, o
               cualquier contenido ilegal, ofensivo o fraudulento.
             </p>
           </section>

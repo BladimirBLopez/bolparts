@@ -115,12 +115,12 @@ export function MobileMenu() {
               </Link>
 
               <Link
-                href="/publicar"
+                href="/vender"
                 onClick={close}
                 className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-[#16181D] hover:bg-white"
               >
                 <Plus size={18} />
-                Publicar repuesto
+                Vender repuesto
               </Link>
 
               {session?.user && (
