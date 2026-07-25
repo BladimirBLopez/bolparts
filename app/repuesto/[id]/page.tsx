@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { Metadata } from "next";
 import { MapPin, Calendar, ArrowLeft, User as UserIcon } from "lucide-react";
@@ -180,13 +181,14 @@ export default async function RepuestoPage({
                 Vendedor
               </p>
               <div className="mt-2 flex items-center gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#16181D] text-white">
+                <div className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#16181D] text-white">
                   {listing.user.image ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
+                    <Image
                       src={listing.user.image}
                       alt=""
-                      className="h-full w-full object-cover"
+                      fill
+                      sizes="44px"
+                      className="object-cover"
                     />
                   ) : (
                     <UserIcon size={18} />
