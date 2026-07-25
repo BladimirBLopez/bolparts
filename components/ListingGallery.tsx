@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 
 export function ListingGallery({
   images,
@@ -23,12 +24,14 @@ export function ListingGallery({
 
   return (
     <div>
-      <div className="aspect-square w-full overflow-hidden rounded-2xl border border-[#E4E4E1] bg-white">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+      <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-[#E4E4E1] bg-white">
+        <Image
           src={selected}
           alt={title}
-          className="h-full w-full object-cover"
+          fill
+          priority
+          sizes="(max-width: 768px) 100vw, 50vw"
+          className="object-cover"
         />
       </div>
 
@@ -40,17 +43,18 @@ export function ListingGallery({
               type="button"
               onClick={() => setSelected(img.url)}
               className={
-                "aspect-square overflow-hidden rounded-xl border bg-white transition-colors " +
+                "relative aspect-square overflow-hidden rounded-xl border bg-white transition-colors " +
                 (selected === img.url
                   ? "border-[#FF5A1F] border-2"
                   : "border-[#E4E4E1]")
               }
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src={img.url}
                 alt={title}
-                className="h-full w-full object-cover"
+                fill
+                sizes="25vw"
+                className="object-cover"
               />
             </button>
           ))}
