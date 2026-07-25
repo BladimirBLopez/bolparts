@@ -59,11 +59,15 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       // Al iniciar sesión, "user" viene con los datos de authorize() o del adapter
       if (user) {
         token.id = user.id;
         token.role = (user as { role?: string }).role ?? "USER";
+      } else if (trigger === "update" && session) {
+        // Actualización manual desde el cliente (ej. ProfileForm llamando a update())
+        if (session.name !== undefined) token.name = session.name;
+        if (session.image !== undefined) token.picture = session.image;
       } else if (token.id) {
         const dbUser = await prisma.user.findUnique({
           where: { id: token.id as string },
