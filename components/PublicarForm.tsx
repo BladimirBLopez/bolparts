@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { X, Upload, Loader2, ChevronDown } from "lucide-react";
 import { TapButton } from "@/components/TapButton";
 
@@ -39,6 +42,19 @@ type InitialListing = {
   images: { url: string }[];
 };
 
+const publicarSchema = z.object({
+  title: z.string().min(1, "El título es requerido"),
+  description: z.string().optional(),
+  price: z.string().min(1, "El precio es requerido"),
+  brandId: z.string().optional(),
+  modelId: z.string().optional(),
+  city: z.string().min(1, "Elegí una ciudad"),
+  year: z.string().optional(),
+  phone: z.string().min(1, "Ingresá tu número de WhatsApp para que te contacten"),
+});
+
+type PublicarFormValues = z.infer<typeof publicarSchema>;
+
 export function PublicarForm({
   categorias,
   marcas,
@@ -53,32 +69,44 @@ export function PublicarForm({
   const router = useRouter();
   const isEditing = !!initialListing;
 
-  const [title, setTitle] = useState(initialListing?.title ?? "");
-  const [description, setDescription] = useState(initialListing?.description ?? "");
-  const [price, setPrice] = useState(initialListing?.price?.toString() ?? "");
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<PublicarFormValues>({
+    resolver: zodResolver(publicarSchema),
+    defaultValues: {
+      title: initialListing?.title ?? "",
+      description: initialListing?.description ?? "",
+      price: initialListing?.price?.toString() ?? "",
+      brandId: initialListing?.brandId ?? "",
+      modelId: initialListing?.modelId ?? "",
+      city: initialListing?.city ?? "",
+      year: initialListing?.year?.toString() ?? "",
+      phone: initialListing?.phone ?? defaultPhone ?? "",
+    },
+  });
+
+  const brandId = watch("brandId");
+
   const [condition, setCondition] = useState<"NEW" | "USED">(
     initialListing?.condition ?? "USED"
   );
-  const [city, setCity] = useState(initialListing?.city ?? "");
-  const [year, setYear] = useState(initialListing?.year?.toString() ?? "");
-  const [phone, setPhone] = useState(
-    initialListing?.phone ?? defaultPhone ?? ""
-  );
   const [categoryId, setCategoryId] = useState(initialListing?.categoryId ?? "");
+
   const initialTipoVehiculo =
     marcas.find((m) => m.id === initialListing?.brandId)?.tipo ?? "AUTO";
   const [tipoVehiculo, setTipoVehiculo] = useState<"AUTO" | "MOTO" | "CAMION">(
     initialTipoVehiculo
   );
-  const [brandId, setBrandId] = useState(initialListing?.brandId ?? "");
-  const [modelId, setModelId] = useState(initialListing?.modelId ?? "");
 
   const [images, setImages] = useState<string[]>(
     initialListing?.images.map((i) => i.url) ?? []
   );
   const [uploading, setUploading] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
+  const [formError, setFormError] = useState("");
 
   const modelosDisponibles =
     marcas.find((m) => m.id === brandId)?.models ?? [];
@@ -88,18 +116,18 @@ export function PublicarForm({
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    setError("");
+    setFormError("");
 
     const espacioDisponible = MAX_FOTOS - images.length;
     if (espacioDisponible <= 0) {
-      setError(`Máximo ${MAX_FOTOS} fotos por publicación`);
+      setFormError(`Máximo ${MAX_FOTOS} fotos por publicación`);
       e.target.value = "";
       return;
     }
 
     const archivosAProcesar = Array.from(files).slice(0, espacioDisponible);
     if (files.length > espacioDisponible) {
-      setError(`Solo se agregaron ${espacioDisponible} foto(s): el máximo es ${MAX_FOTOS}`);
+      setFormError(`Solo se agregaron ${espacioDisponible} foto(s): el máximo es ${MAX_FOTOS}`);
     }
 
     setUploading(true);
@@ -116,13 +144,13 @@ export function PublicarForm({
         const data = await res.json();
 
         if (!res.ok) {
-          setError(data.error || "No se pudo subir una imagen");
+          setFormError(data.error || "No se pudo subir una imagen");
           continue;
         }
 
         setImages((prev) => [...prev, data.url]);
       } catch {
-        setError("Error de conexión al subir la imagen");
+        setFormError("Error de conexión al subir la imagen");
       }
     }
 
@@ -134,28 +162,17 @@ export function PublicarForm({
     setImages((prev) => prev.filter((img) => img !== url));
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
+  async function onSubmit(data: PublicarFormValues) {
+    setFormError("");
 
     if (images.length === 0) {
-      setError("Agregá al menos una foto del repuesto");
+      setFormError("Agregá al menos una foto del repuesto");
       return;
     }
     if (!categoryId) {
-      setError("Elegí una categoría");
+      setFormError("Elegí una categoría");
       return;
     }
-    if (!city) {
-      setError("Elegí una ciudad");
-      return;
-    }
-    if (!phone) {
-      setError("Ingresá tu número de WhatsApp para que te contacten");
-      return;
-    }
-
-    setSubmitting(true);
 
     try {
       const res = await fetch(
@@ -164,45 +181,43 @@ export function PublicarForm({
           method: isEditing ? "PATCH" : "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            title,
-            description,
-            price,
+            title: data.title,
+            description: data.description,
+            price: data.price,
             condition,
-            city,
-            department: city,
-            year: year || null,
-            phone: phone || null,
+            city: data.city,
+            department: data.city,
+            year: data.year || null,
+            phone: data.phone || null,
             categoryId,
-            brandId: brandId || null,
-            modelId: modelId || null,
+            brandId: data.brandId || null,
+            modelId: data.modelId || null,
             images,
           }),
         }
       );
 
-      const data = await res.json();
+      const result = await res.json();
 
       if (!res.ok) {
-        setError(
-          data.error ||
+        setFormError(
+          result.error ||
             (isEditing
               ? "No se pudo actualizar la publicación"
               : "No se pudo crear la publicación")
         );
-        setSubmitting(false);
         return;
       }
 
       router.push(isEditing ? "/mis-publicaciones" : "/");
       router.refresh();
     } catch {
-      setError("Error de conexión");
-      setSubmitting(false);
+      setFormError("Error de conexión");
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="mt-8 flex flex-col gap-6">
       {/* Fotos */}
       <div>
         <label className="text-sm font-semibold text-[#16181D]">Fotos</label>
@@ -253,12 +268,13 @@ export function PublicarForm({
         <label className="text-sm font-semibold text-[#16181D]">Título</label>
         <input
           type="text"
-          required
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          {...register("title")}
           placeholder="Ej. Juego de pastillas de freno delanteras"
           className="mt-1.5 w-full rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none placeholder:text-[#9CA3AF] focus:border-[#16181D]"
         />
+        {errors.title && (
+          <p className="mt-1 text-xs text-red-600">{errors.title.message}</p>
+        )}
       </div>
 
       {/* Descripción */}
@@ -267,8 +283,7 @@ export function PublicarForm({
           Descripción
         </label>
         <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          {...register("description")}
           rows={4}
           placeholder="Estado, compatibilidad, detalles del repuesto..."
           className="mt-1.5 w-full resize-none rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none placeholder:text-[#9CA3AF] focus:border-[#16181D]"
@@ -283,14 +298,14 @@ export function PublicarForm({
           </label>
           <input
             type="number"
-            required
-            min="0"
             step="0.01"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
+            {...register("price")}
             placeholder="0"
             className="mt-1.5 w-full rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none placeholder:text-[#9CA3AF] focus:border-[#16181D]"
           />
+          {errors.price && (
+            <p className="mt-1 text-xs text-red-600">{errors.price.message}</p>
+          )}
         </div>
         <div className="flex-1">
           <label className="text-sm font-semibold text-[#16181D]">
@@ -361,8 +376,8 @@ export function PublicarForm({
               type="button"
               onClick={() => {
                 setTipoVehiculo(t);
-                setBrandId("");
-                setModelId("");
+                setValue("brandId", "");
+                setValue("modelId", "");
               }}
               className={
                 "flex-1 rounded-lg py-2 text-sm font-semibold transition-colors " +
@@ -385,11 +400,9 @@ export function PublicarForm({
           </label>
           <div className="relative mt-1.5">
             <select
-              value={brandId}
-              onChange={(e) => {
-                setBrandId(e.target.value);
-                setModelId("");
-              }}
+              {...register("brandId", {
+                onChange: () => setValue("modelId", ""),
+              })}
               className="w-full appearance-none rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 pr-9 text-sm text-[#16181D] outline-none focus:border-[#16181D]"
             >
               <option value="">Cualquier marca</option>
@@ -411,8 +424,7 @@ export function PublicarForm({
           </label>
           <div className="relative mt-1.5">
             <select
-              value={modelId}
-              onChange={(e) => setModelId(e.target.value)}
+              {...register("modelId")}
               disabled={!brandId}
               className="w-full appearance-none rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 pr-9 text-sm text-[#16181D] outline-none focus:border-[#16181D] disabled:opacity-50"
             >
@@ -439,9 +451,7 @@ export function PublicarForm({
           </label>
           <div className="relative mt-1.5">
             <select
-              required
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
+              {...register("city")}
               className="w-full appearance-none rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 pr-9 text-sm text-[#16181D] outline-none focus:border-[#16181D]"
             >
               <option value="">Elegí una ciudad</option>
@@ -456,6 +466,9 @@ export function PublicarForm({
               className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#6B7280]"
             />
           </div>
+          {errors.city && (
+            <p className="mt-1 text-xs text-red-600">{errors.city.message}</p>
+          )}
         </div>
         <div className="flex-1">
           <label className="text-sm font-semibold text-[#16181D]">
@@ -465,8 +478,7 @@ export function PublicarForm({
             type="number"
             min="1970"
             max="2030"
-            value={year}
-            onChange={(e) => setYear(e.target.value)}
+            {...register("year")}
             placeholder="Ej. 2015"
             className="mt-1.5 w-full rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none placeholder:text-[#9CA3AF] focus:border-[#16181D]"
           />
@@ -480,29 +492,30 @@ export function PublicarForm({
         </label>
         <input
           type="tel"
-          required
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
+          {...register("phone")}
           placeholder="Ej. 70012345"
           className="mt-1.5 w-full rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none placeholder:text-[#9CA3AF] focus:border-[#16181D]"
         />
+        {errors.phone && (
+          <p className="mt-1 text-xs text-red-600">{errors.phone.message}</p>
+        )}
         <p className="mt-1 text-xs text-[#6B7280]">
           Los compradores te van a escribir directo a este número.
         </p>
       </div>
 
-      {error && (
+      {formError && (
         <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
-          {error}
+          {formError}
         </div>
       )}
 
       <TapButton
         type="submit"
-        disabled={submitting || uploading}
+        disabled={isSubmitting || uploading}
         className="flex items-center justify-center gap-2 rounded-full bg-[#FF5A1F] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#e64f16] disabled:opacity-60"
       >
-        {submitting ? (
+        {isSubmitting ? (
           <>
             <Loader2 size={16} className="animate-spin" />
             {isEditing ? "Guardando..." : "Publicando..."}
