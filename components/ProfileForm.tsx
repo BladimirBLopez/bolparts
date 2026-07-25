@@ -3,8 +3,22 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { User as UserIcon, Upload, Loader2 } from "lucide-react";
 import { LocationPicker } from "@/components/LocationPicker";
+import { TapButton } from "@/components/TapButton";
+
+const profileSchema = z.object({
+  name: z.string().min(1, "El nombre no puede estar vacío"),
+  phone: z.string().optional(),
+  businessDescription: z.string().optional(),
+  businessHours: z.string().optional(),
+  businessAddress: z.string().optional(),
+});
+
+type ProfileFormValues = z.infer<typeof profileSchema>;
 
 export function ProfileForm({
   initialName,
@@ -32,21 +46,30 @@ export function ProfileForm({
   const { update } = useSession();
   const router = useRouter();
 
-  const [name, setName] = useState(initialName);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<ProfileFormValues>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      name: initialName,
+      phone: initialPhone || "",
+      businessDescription: initialBusinessDescription || "",
+      businessHours: initialBusinessHours || "",
+      businessAddress: initialBusinessAddress || "",
+    },
+  });
+
   const [image, setImage] = useState(initialImage || "");
-  const [phone, setPhone] = useState(initialPhone || "");
   const [uploading, setUploading] = useState(false);
 
   const [businessBanner, setBusinessBanner] = useState(initialBusinessBanner || "");
-  const [businessDescription, setBusinessDescription] = useState(initialBusinessDescription || "");
-  const [businessHours, setBusinessHours] = useState(initialBusinessHours || "");
-  const [businessAddress, setBusinessAddress] = useState(initialBusinessAddress || "");
   const [latitude, setLatitude] = useState<number | null>(initialLatitude ?? null);
   const [longitude, setLongitude] = useState<number | null>(initialLongitude ?? null);
   const [uploadingBanner, setUploadingBanner] = useState(false);
 
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
+  const [formError, setFormError] = useState("");
   const [success, setSuccess] = useState(false);
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -54,7 +77,7 @@ export function ProfileForm({
     if (!file) return;
 
     setUploading(true);
-    setError("");
+    setFormError("");
 
     const formData = new FormData();
     formData.append("file", file);
@@ -64,12 +87,12 @@ export function ProfileForm({
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || "No se pudo subir la foto");
+        setFormError(data.error || "No se pudo subir la foto");
       } else {
         setImage(data.url);
       }
     } catch {
-      setError("Error de conexión al subir la foto");
+      setFormError("Error de conexión al subir la foto");
     } finally {
       setUploading(false);
       e.target.value = "";
@@ -81,7 +104,7 @@ export function ProfileForm({
     if (!file) return;
 
     setUploadingBanner(true);
-    setError("");
+    setFormError("");
 
     const formData = new FormData();
     formData.append("file", file);
@@ -91,66 +114,55 @@ export function ProfileForm({
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || "No se pudo subir el banner");
+        setFormError(data.error || "No se pudo subir el banner");
       } else {
         setBusinessBanner(data.url);
       }
     } catch {
-      setError("Error de conexión al subir el banner");
+      setFormError("Error de conexión al subir el banner");
     } finally {
       setUploadingBanner(false);
       e.target.value = "";
     }
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
+  async function onSubmit(data: ProfileFormValues) {
+    setFormError("");
     setSuccess(false);
-
-    if (!name.trim()) {
-      setError("El nombre no puede estar vacío");
-      return;
-    }
-
-    setSubmitting(true);
 
     try {
       const res = await fetch("/api/profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name,
+          name: data.name,
           image,
-          phone,
+          phone: data.phone,
           businessBanner,
-          businessDescription,
-          businessHours,
-          businessAddress,
+          businessDescription: data.businessDescription,
+          businessHours: data.businessHours,
+          businessAddress: data.businessAddress,
           latitude,
           longitude,
         }),
       });
-      const data = await res.json();
+      const result = await res.json();
 
       if (!res.ok) {
-        setError(data.error || "No se pudo actualizar el perfil");
-        setSubmitting(false);
+        setFormError(result.error || "No se pudo actualizar el perfil");
         return;
       }
 
-      await update({ name, image });
+      await update({ name: data.name, image });
       setSuccess(true);
       router.refresh();
     } catch {
-      setError("Error de conexión");
-    } finally {
-      setSubmitting(false);
+      setFormError("Error de conexión");
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="mt-6 flex flex-col gap-6">
       {/* Foto */}
       <div className="flex items-center gap-4">
         <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#16181D] text-white">
@@ -194,11 +206,12 @@ export function ProfileForm({
         <label className="text-sm font-semibold text-[#16181D]">Nombre</label>
         <input
           type="text"
-          required
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          {...register("name")}
           className="mt-1.5 w-full rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none focus:border-[#16181D]"
         />
+        {errors.name && (
+          <p className="mt-1 text-xs text-red-600">{errors.name.message}</p>
+        )}
       </div>
 
       {/* Teléfono */}
@@ -208,8 +221,7 @@ export function ProfileForm({
         </label>
         <input
           type="tel"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
+          {...register("phone")}
           placeholder="Ej. 70012345"
           className="mt-1.5 w-full rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none placeholder:text-[#9CA3AF] focus:border-[#16181D]"
         />
@@ -267,8 +279,7 @@ export function ProfileForm({
             Descripción del negocio
           </label>
           <textarea
-            value={businessDescription}
-            onChange={(e) => setBusinessDescription(e.target.value)}
+            {...register("businessDescription")}
             placeholder="Ej. Repuestos usados y nuevos, importados de Chile."
             rows={3}
             className="mt-1.5 w-full rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none placeholder:text-[#9CA3AF] focus:border-[#16181D]"
@@ -282,8 +293,7 @@ export function ProfileForm({
           </label>
           <input
             type="text"
-            value={businessHours}
-            onChange={(e) => setBusinessHours(e.target.value)}
+            {...register("businessHours")}
             placeholder="Ej. Lun a Sáb, 8:00 - 18:00"
             className="mt-1.5 w-full rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none placeholder:text-[#9CA3AF] focus:border-[#16181D]"
           />
@@ -296,8 +306,7 @@ export function ProfileForm({
           </label>
           <input
             type="text"
-            value={businessAddress}
-            onChange={(e) => setBusinessAddress(e.target.value)}
+            {...register("businessAddress")}
             placeholder="Ej. Av. Grigotá, 3er anillo, Santa Cruz"
             className="mt-1.5 w-full rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none placeholder:text-[#9CA3AF] focus:border-[#16181D]"
           />
@@ -322,9 +331,9 @@ export function ProfileForm({
         </div>
       </div>
 
-      {error && (
+      {formError && (
         <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
-          {error}
+          {formError}
         </div>
       )}
       {success && (
@@ -333,14 +342,14 @@ export function ProfileForm({
         </div>
       )}
 
-      <button
+      <TapButton
         type="submit"
-        disabled={submitting || uploading || uploadingBanner}
+        disabled={isSubmitting || uploading || uploadingBanner}
         className="flex items-center justify-center gap-2 self-start rounded-full bg-[#FF5A1F] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#e64f16] disabled:opacity-60"
       >
-        {submitting && <Loader2 size={16} className="animate-spin" />}
+        {isSubmitting && <Loader2 size={16} className="animate-spin" />}
         Guardar cambios
-      </button>
+      </TapButton>
     </form>
   );
 }
