@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { MapPin, Trash2, Loader2, Pencil } from "lucide-react";
 
 type MyListingCardProps = {
@@ -48,11 +49,10 @@ export function MyListingCard({
     <div className="flex gap-3 rounded-2xl border border-[#E4E4E1] bg-white p-3">
       <Link
         href={`/repuesto/${id}`}
-        className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-[#F6F6F4]"
+        className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-[#F6F6F4]"
       >
         {imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={imageUrl} alt={title} className="h-full w-full object-cover" />
+          <Image src={imageUrl} alt={title} fill sizes="80px" className="object-cover" />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-[10px] text-[#9CA3AF]">
             Sin foto
