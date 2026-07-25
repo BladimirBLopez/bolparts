@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -165,10 +166,9 @@ export function ProfileForm({
     <form onSubmit={handleSubmit(onSubmit)} className="mt-6 flex flex-col gap-6">
       {/* Foto */}
       <div className="flex items-center gap-4">
-        <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#16181D] text-white">
+        <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#16181D] text-white">
           {image ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={image} alt="" className="h-full w-full object-cover" />
+            <Image src={image} alt="" fill sizes="80px" className="object-cover" />
           ) : (
             <UserIcon size={28} />
           )}
@@ -244,13 +244,14 @@ export function ProfileForm({
           <label className="text-sm font-semibold text-[#16181D]">
             Banner
           </label>
-          <div className="mt-1.5 flex h-28 w-full items-center justify-center overflow-hidden rounded-xl border border-[#E4E4E1] bg-[#F6F6F4]">
+          <div className="relative mt-1.5 flex h-28 w-full items-center justify-center overflow-hidden rounded-xl border border-[#E4E4E1] bg-[#F6F6F4]">
             {businessBanner ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <Image
                 src={businessBanner}
                 alt=""
-                className="h-full w-full object-cover"
+                fill
+                sizes="100vw"
+                className="object-cover"
               />
             ) : (
               <span className="text-xs text-[#6B7280]">Sin banner</span>
