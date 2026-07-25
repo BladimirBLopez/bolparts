@@ -3,44 +3,49 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Loader2 } from "lucide-react";
+
+const registerSchema = z.object({
+  name: z.string().optional(),
+  email: z.string().min(1, "El email es requerido").email("Ingresá un email válido"),
+  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
+});
+
+type RegisterForm = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [serverError, setServerError] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterForm>({
+    resolver: zodResolver(registerSchema),
+  });
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-
-    const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    if (!emailValido) {
-      setError("Ingresá un email válido");
-      return;
-    }
-
-    setLoading(true);
+  async function onSubmit(data: RegisterForm) {
+    setServerError("");
 
     try {
       const res = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify(data),
       });
 
-      const data = await res.json();
+      const result = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "No se pudo crear la cuenta");
+        throw new Error(result.error || "No se pudo crear la cuenta");
       }
 
       const signInResult = await signIn("credentials", {
-        email,
-        password,
+        email: data.email,
+        password: data.password,
         redirect: false,
       });
 
@@ -51,9 +56,7 @@ export default function RegisterPage() {
 
       router.push("/");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error inesperado");
-    } finally {
-      setLoading(false);
+      setServerError(err instanceof Error ? err.message : "Error inesperado");
     }
   }
 
@@ -93,15 +96,14 @@ export default function RegisterPage() {
             Registrate para comprar y vender repuestos.
           </p>
 
-          <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="mt-6 flex flex-col gap-4">
             <div>
               <label className="text-sm font-semibold text-[#16181D]">
                 Nombre
               </label>
               <input
                 type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                {...register("name")}
                 placeholder="Tu nombre"
                 className="mt-1.5 w-full rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none placeholder:text-[#9CA3AF] focus:border-[#16181D]"
               />
@@ -113,12 +115,13 @@ export default function RegisterPage() {
               </label>
               <input
                 type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                {...register("email")}
                 placeholder="tu@email.com"
                 className="mt-1.5 w-full rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none placeholder:text-[#9CA3AF] focus:border-[#16181D]"
               />
+              {errors.email && (
+                <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>
+              )}
             </div>
 
             <div>
@@ -127,28 +130,28 @@ export default function RegisterPage() {
               </label>
               <input
                 type="password"
-                required
-                minLength={6}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                {...register("password")}
                 placeholder="Mínimo 6 caracteres"
                 className="mt-1.5 w-full rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none placeholder:text-[#9CA3AF] focus:border-[#16181D]"
               />
+              {errors.password && (
+                <p className="mt-1 text-xs text-red-600">{errors.password.message}</p>
+              )}
             </div>
 
-            {error && (
+            {serverError && (
               <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
-                {error}
+                {serverError}
               </div>
             )}
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={isSubmitting}
               className="mt-1 flex items-center justify-center gap-2 rounded-full bg-[#FF5A1F] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#e64f16] disabled:opacity-60"
             >
-              {loading && <Loader2 size={16} className="animate-spin" />}
-              {loading ? "Creando cuenta..." : "Crear cuenta"}
+              {isSubmitting && <Loader2 size={16} className="animate-spin" />}
+              {isSubmitting ? "Creando cuenta..." : "Crear cuenta"}
             </button>
           </form>
 
