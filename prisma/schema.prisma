@@ -134,7 +134,8 @@ model Listing {
   city        String
   department  String
 
-  year        Int?
+  yearFrom    Int?
+  yearTo      Int?
   phone       String?
 
   userId      String

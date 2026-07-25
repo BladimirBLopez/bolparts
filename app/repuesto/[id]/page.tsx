@@ -161,7 +161,15 @@ export default async function RepuestoPage({
                 {[listing.brand?.name, listing.model?.name]
                   .filter(Boolean)
                   .join(" ")}
-                {listing.year ? ` · ${listing.year}` : ""}
+                {listing.yearFrom && listing.yearTo
+                  ? listing.yearFrom === listing.yearTo
+                    ? ` · ${listing.yearFrom}`
+                    : ` · ${listing.yearFrom}-${listing.yearTo}`
+                  : listing.yearFrom
+                  ? ` · Desde ${listing.yearFrom}`
+                  : listing.yearTo
+                  ? ` · Hasta ${listing.yearTo}`
+                  : ""}
               </p>
             )}
 

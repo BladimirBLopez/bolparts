@@ -35,7 +35,8 @@ type InitialListing = {
   price: number;
   condition: "NEW" | "USED";
   city: string;
-  year: number | null;
+  yearFrom: number | null;
+  yearTo: number | null;
   phone: string | null;
   categoryId: string;
   brandId: string | null;
@@ -50,9 +51,16 @@ const publicarSchema = z.object({
   brandId: z.string().optional(),
   modelId: z.string().optional(),
   city: z.string().min(1, "Elegí una ciudad"),
-  year: z.string().optional(),
+  yearFrom: z.string().optional(),
+  yearTo: z.string().optional(),
   phone: z.string().min(1, "Ingresá tu número de WhatsApp para que te contacten"),
-});
+}).refine(
+  (data) => {
+    if (!data.yearFrom || !data.yearTo) return true;
+    return parseInt(data.yearTo) >= parseInt(data.yearFrom);
+  },
+  { message: "El año final debe ser mayor o igual al inicial", path: ["yearTo"] }
+);
 
 type PublicarFormValues = z.infer<typeof publicarSchema>;
 
@@ -85,7 +93,8 @@ export function PublicarForm({
       brandId: initialListing?.brandId ?? "",
       modelId: initialListing?.modelId ?? "",
       city: initialListing?.city ?? "",
-      year: initialListing?.year?.toString() ?? "",
+      yearFrom: initialListing?.yearFrom?.toString() ?? "",
+      yearTo: initialListing?.yearTo?.toString() ?? "",
       phone: initialListing?.phone ?? defaultPhone ?? "",
     },
   });
@@ -188,7 +197,8 @@ export function PublicarForm({
             condition,
             city: data.city,
             department: data.city,
-            year: data.year || null,
+            yearFrom: data.yearFrom || null,
+            yearTo: data.yearTo || null,
             phone: data.phone || null,
             categoryId,
             brandId: data.brandId || null,
@@ -470,19 +480,38 @@ export function PublicarForm({
             <p className="mt-1 text-xs text-red-600">{errors.city.message}</p>
           )}
         </div>
-        <div className="flex-1">
-          <label className="text-sm font-semibold text-[#16181D]">
-            Año del vehículo (opcional)
-          </label>
+      </div>
+
+      {/* Años compatibles */}
+      <div>
+        <label className="text-sm font-semibold text-[#16181D]">
+          Años compatibles (opcional)
+        </label>
+        <p className="mt-0.5 text-xs text-[#6B7280]">
+          Si el repuesto sirve para varios años del mismo modelo, indicá el rango.
+        </p>
+        <div className="mt-1.5 flex items-center gap-3">
           <input
             type="number"
             min="1970"
             max="2030"
-            {...register("year")}
-            placeholder="Ej. 2015"
-            className="mt-1.5 w-full rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none placeholder:text-[#9CA3AF] focus:border-[#16181D]"
+            {...register("yearFrom")}
+            placeholder="Desde. Ej. 2015"
+            className="w-full rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none placeholder:text-[#9CA3AF] focus:border-[#16181D]"
+          />
+          <span className="text-sm text-[#6B7280]">a</span>
+          <input
+            type="number"
+            min="1970"
+            max="2030"
+            {...register("yearTo")}
+            placeholder="Hasta. Ej. 2018"
+            className="w-full rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none placeholder:text-[#9CA3AF] focus:border-[#16181D]"
           />
         </div>
+        {errors.yearTo && (
+          <p className="mt-1 text-xs text-red-600">{errors.yearTo.message}</p>
+        )}
       </div>
 
       {/* WhatsApp */}
