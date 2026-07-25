@@ -6,6 +6,7 @@ import { ListingCard } from "@/components/ListingCard";
 import { StarRating } from "@/components/StarRating";
 import { ReviewForm } from "@/components/ReviewForm";
 import { ShareProfileButton } from "@/components/ShareProfileButton";
+import Image from "next/image";
 import { User as UserIcon, Calendar, Clock, MapPin } from "lucide-react";
 
 function formatFecha(date: Date) {
@@ -67,18 +68,20 @@ export default async function VendedorPage({
         {/* Encabezado */}
         <div className="overflow-hidden rounded-2xl border border-[#E4E4E1] bg-white">
           {vendedor.businessBanner && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={vendedor.businessBanner}
-              alt=""
-              className="h-32 w-full object-cover sm:h-44"
-            />
+            <div className="relative h-32 w-full sm:h-44">
+              <Image
+                src={vendedor.businessBanner}
+                alt=""
+                fill
+                sizes="100vw"
+                className="object-cover"
+              />
+            </div>
           )}
         <div className="flex items-center gap-4 p-5">
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#16181D] text-white">
+          <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#16181D] text-white">
             {vendedor.image ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={vendedor.image} alt="" className="h-full w-full object-cover" />
+              <Image src={vendedor.image} alt="" fill sizes="64px" className="object-cover" />
             ) : (
               <UserIcon size={24} />
             )}
