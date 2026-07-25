@@ -3,30 +3,40 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Loader2 } from "lucide-react";
+
+const loginSchema = z.object({
+  email: z.string().min(1, "El email es requerido").email("Ingresá un email válido"),
+  password: z.string().min(1, "Ingresá tu contraseña"),
+});
+
+type LoginForm = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [serverError, setServerError] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginForm>({
+    resolver: zodResolver(loginSchema),
+  });
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+  async function onSubmit(data: LoginForm) {
+    setServerError("");
 
     const result = await signIn("credentials", {
-      email,
-      password,
+      email: data.email,
+      password: data.password,
       redirect: false,
     });
 
-    setLoading(false);
-
     if (result?.error) {
-      setError("Email o contraseña incorrectos");
+      setServerError("Email o contraseña incorrectos");
       return;
     }
 
@@ -69,19 +79,20 @@ export default function LoginPage() {
             Entrá para comprar y vender repuestos.
           </p>
 
-          <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="mt-6 flex flex-col gap-4">
             <div>
               <label className="text-sm font-semibold text-[#16181D]">
                 Email
               </label>
               <input
                 type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                {...register("email")}
                 placeholder="tu@email.com"
                 className="mt-1.5 w-full rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none placeholder:text-[#9CA3AF] focus:border-[#16181D]"
               />
+              {errors.email && (
+                <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>
+              )}
             </div>
 
             <div>
@@ -90,27 +101,28 @@ export default function LoginPage() {
               </label>
               <input
                 type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                {...register("password")}
                 placeholder="Tu contraseña"
                 className="mt-1.5 w-full rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none placeholder:text-[#9CA3AF] focus:border-[#16181D]"
               />
+              {errors.password && (
+                <p className="mt-1 text-xs text-red-600">{errors.password.message}</p>
+              )}
             </div>
 
-            {error && (
+            {serverError && (
               <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
-                {error}
+                {serverError}
               </div>
             )}
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={isSubmitting}
               className="mt-1 flex items-center justify-center gap-2 rounded-full bg-[#FF5A1F] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#e64f16] disabled:opacity-60"
             >
-              {loading && <Loader2 size={16} className="animate-spin" />}
-              {loading ? "Ingresando..." : "Ingresar"}
+              {isSubmitting && <Loader2 size={16} className="animate-spin" />}
+              {isSubmitting ? "Ingresando..." : "Ingresar"}
             </button>
           </form>
 
