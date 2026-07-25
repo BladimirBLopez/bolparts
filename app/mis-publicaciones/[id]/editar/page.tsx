@@ -50,6 +50,7 @@ export default async function EditarPage({
           categorias={categorias}
           marcas={marcas}
           initialListing={listing}
+          backHref="/mis-publicaciones"
         />
       </div>
     </main>

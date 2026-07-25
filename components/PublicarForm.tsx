@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -69,11 +71,13 @@ export function PublicarForm({
   marcas,
   initialListing,
   defaultPhone,
+  backHref = "/",
 }: {
   categorias: Categoria[];
   marcas: Marca[];
   initialListing?: InitialListing;
   defaultPhone?: string;
+  backHref?: string;
 }) {
   const router = useRouter();
   const isEditing = !!initialListing;
@@ -83,7 +87,7 @@ export function PublicarForm({
     handleSubmit,
     watch,
     setValue,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<PublicarFormValues>({
     resolver: zodResolver(publicarSchema),
     defaultValues: {
@@ -117,6 +121,27 @@ export function PublicarForm({
   );
   const [uploading, setUploading] = useState(false);
   const [formError, setFormError] = useState("");
+  const [confirmandoSalida, setConfirmandoSalida] = useState(false);
+  const cantidadImagenesInicial = initialListing?.images.length ?? 0;
+  const hayCambiosSinGuardar =
+    isDirty || images.length !== cantidadImagenesInicial;
+
+  useEffect(() => {
+    function handleBeforeUnload(e: BeforeUnloadEvent) {
+      if (hayCambiosSinGuardar && !isSubmitting) {
+        e.preventDefault();
+      }
+    }
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [hayCambiosSinGuardar, isSubmitting]);
+
+  function handleVolverClick(e: React.MouseEvent) {
+    if (hayCambiosSinGuardar) {
+      e.preventDefault();
+      setConfirmandoSalida(true);
+    }
+  }
 
   const modelosDisponibles =
     marcas.find((m) => m.id === brandId)?.models ?? [];
@@ -228,6 +253,43 @@ export function PublicarForm({
   }
 
   return (
+    <>
+      <Link
+        href={backHref}
+        onClick={handleVolverClick}
+        className="mb-4 inline-flex items-center gap-1 text-sm font-semibold text-[#6B7280] hover:text-[#16181D]"
+      >
+        <ChevronLeft size={16} />
+        Volver
+      </Link>
+
+      {confirmandoSalida && (
+        <div className="mb-4 rounded-2xl border border-[#E4E4E1] bg-white p-4">
+          <p className="text-sm font-semibold text-[#16181D]">
+            Tenés cambios sin guardar
+          </p>
+          <p className="mt-1 text-xs text-[#6B7280]">
+            Si salís ahora vas a perder lo que completaste. ¿Querés descartarlos?
+          </p>
+          <div className="mt-3 flex gap-2">
+            <button
+              type="button"
+              onClick={() => router.push(backHref)}
+              className="rounded-full bg-red-600 px-4 py-2 text-xs font-semibold text-white"
+            >
+              Descartar y salir
+            </button>
+            <button
+              type="button"
+              onClick={() => setConfirmandoSalida(false)}
+              className="rounded-full border border-[#E4E4E1] px-4 py-2 text-xs font-semibold text-[#16181D]"
+            >
+              Seguir editando
+            </button>
+          </div>
+        </div>
+      )}
+
     <form onSubmit={handleSubmit(onSubmit)} className="mt-8 flex flex-col gap-6">
       {/* Fotos */}
       <div>
@@ -556,5 +618,6 @@ export function PublicarForm({
         )}
       </TapButton>
     </form>
+    </>
   );
 }
