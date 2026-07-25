@@ -28,6 +28,8 @@ const categorias = [
   { nombre: "Accesorios e interior", slug: "accesorios-interior", icon: Armchair },
 ];
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const [marcas, publicacionesRecientes] = await Promise.all([
     prisma.brand.findMany({
