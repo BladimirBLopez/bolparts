@@ -8,6 +8,7 @@ import { StarRating } from "@/components/StarRating";
 import { ListingGallery } from "@/components/ListingGallery";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { ReportButton } from "@/components/ReportButton";
+import { ListingCard } from "@/components/ListingCard";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
@@ -97,6 +98,20 @@ export default async function RepuestoPage({
   if (!listing) {
     notFound();
   }
+
+  const otrosDelVendedor = await prisma.listing.findMany({
+    where: {
+      userId: listing.user.id,
+      id: { not: listing.id },
+    },
+    orderBy: { createdAt: "desc" },
+    take: 4,
+    include: {
+      images: true,
+      brand: true,
+      model: true,
+    },
+  });
 
   const totalReviews = listing.user.reviewsReceived.length;
   const avgRating =
@@ -241,6 +256,30 @@ export default async function RepuestoPage({
             </div>
           </div>
         </div>
+
+        {otrosDelVendedor.length > 0 && (
+          <div className="mt-10">
+            <h2 className="text-lg font-extrabold tracking-tight text-[#16181D]">
+              Más de {listing.user.name || "este vendedor"}
+            </h2>
+            <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {otrosDelVendedor.map((l) => (
+                <ListingCard
+                  key={l.id}
+                  id={l.id}
+                  title={l.title}
+                  price={l.price}
+                  condition={l.condition}
+                  city={l.city}
+                  imageUrl={l.images[0]?.url}
+                  brandName={l.brand?.name}
+                  modelName={l.model?.name}
+                  isPremium={listing.user.isPremium}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </main>
   );
