@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -227,8 +228,7 @@ export function PublicarForm({
               key={url}
               className="relative h-24 w-24 overflow-hidden rounded-xl border border-[#E4E4E1]"
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={url} alt="" className="h-full w-full object-cover" />
+              <Image src={url} alt="" fill sizes="96px" className="object-cover" />
               <button
                 type="button"
                 onClick={() => removeImage(url)}
