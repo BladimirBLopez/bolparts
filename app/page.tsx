@@ -62,7 +62,7 @@ export default async function Home() {
             Repuestos en toda Bolivia
           </span>
           <h1 className="mt-5 text-3xl font-extrabold leading-tight tracking-tight text-[#16181D] sm:text-5xl">
-            Encontrá el repuesto que tu auto necesita
+            Encontrá el repuesto que tu vehículo necesita
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-base text-[#6B7280] sm:text-lg">
             Comprá y vendé repuestos nuevos y usados directamente con otros
@@ -78,7 +78,7 @@ export default async function Home() {
             <input
               type="text"
               name="q"
-              placeholder="Ej. pastillas de freno para Toyota Corolla"
+              placeholder="Ej. pastillas de freno, cadena de moto, filtro de camión"
               className="w-full bg-transparent py-2 text-sm text-[#16181D] outline-none placeholder:text-[#9CA3AF]"
             />
             <button
