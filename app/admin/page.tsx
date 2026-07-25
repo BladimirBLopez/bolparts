@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Users, Package, Star, Flag } from "lucide-react";
+import { Users, Package, Star, Flag, Trash2, Plus } from "lucide-react";
 import { toast } from "sonner";
 import {
   BarChart,
@@ -30,6 +30,14 @@ type AdminListing = {
   user: { id: string; name: string | null; email: string };
   reports: { id: string; reason: string; details: string | null }[];
   images: { url: string }[];
+};
+
+type AdminModel = { id: string; name: string };
+type AdminBrand = {
+  id: string;
+  name: string;
+  tipo: "AUTO" | "MOTO" | "CAMION";
+  models: AdminModel[];
 };
 
 function agruparPorMes(listings: AdminListing[]) {
@@ -68,11 +76,20 @@ function MetricCard({
 }
 
 export default function AdminPage() {
-  const [tab, setTab] = useState<"users" | "listings">("users");
+  const [tab, setTab] = useState<"users" | "listings" | "brands">("users");
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [listings, setListings] = useState<AdminListing[]>([]);
+  const [brands, setBrands] = useState<AdminBrand[]>([]);
   const [loading, setLoading] = useState(true);
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
+
+  const [newBrandName, setNewBrandName] = useState("");
+  const [newBrandTipo, setNewBrandTipo] = useState<"AUTO" | "MOTO" | "CAMION">(
+    "AUTO"
+  );
+  const [creatingBrand, setCreatingBrand] = useState(false);
+  const [newModelName, setNewModelName] = useState<Record<string, string>>({});
+  const [creatingModelFor, setCreatingModelFor] = useState<string | null>(null);
 
   useEffect(() => {
     loadData();
@@ -80,15 +97,92 @@ export default function AdminPage() {
 
   async function loadData() {
     setLoading(true);
-    const [usersRes, listingsRes] = await Promise.all([
+    const [usersRes, listingsRes, brandsRes] = await Promise.all([
       fetch("/api/admin/users"),
       fetch("/api/admin/listings"),
+      fetch("/api/admin/brands"),
     ]);
     const usersData = await usersRes.json();
     const listingsData = await listingsRes.json();
+    const brandsData = await brandsRes.json();
     if (usersData.ok) setUsers(usersData.users);
     if (listingsData.ok) setListings(listingsData.listings);
+    if (brandsData.ok) setBrands(brandsData.brands);
     setLoading(false);
+  }
+
+  async function createBrand(e: React.FormEvent) {
+    e.preventDefault();
+    if (!newBrandName.trim()) return;
+    setCreatingBrand(true);
+    const res = await fetch("/api/admin/brands", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: newBrandName.trim(), tipo: newBrandTipo }),
+    });
+    const data = await res.json();
+    setCreatingBrand(false);
+    if (!data.ok) {
+      toast.error(data.error || "No se pudo crear la marca");
+      return;
+    }
+    setBrands((prev) =>
+      [...prev, { ...data.brand, models: [] }].sort((a, b) =>
+        a.name.localeCompare(b.name)
+      )
+    );
+    setNewBrandName("");
+    toast.success("Marca creada");
+  }
+
+  async function createModel(brandId: string) {
+    const name = newModelName[brandId];
+    if (!name || !name.trim()) return;
+    setCreatingModelFor(brandId);
+    const res = await fetch("/api/admin/models", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: name.trim(), brandId }),
+    });
+    const data = await res.json();
+    setCreatingModelFor(null);
+    if (!data.ok) {
+      toast.error(data.error || "No se pudo crear el modelo");
+      return;
+    }
+    setBrands((prev) =>
+      prev.map((b) =>
+        b.id === brandId
+          ? {
+              ...b,
+              models: [...b.models, data.model].sort((a, c) =>
+                a.name.localeCompare(c.name)
+              ),
+            }
+          : b
+      )
+    );
+    setNewModelName((prev) => ({ ...prev, [brandId]: "" }));
+    toast.success("Modelo agregado");
+  }
+
+  async function deleteModel(brandId: string, modelId: string) {
+    const res = await fetch("/api/admin/models/" + modelId, {
+      method: "DELETE",
+    });
+    const data = await res.json();
+    if (!data.ok) {
+      toast.error(data.error || "No se pudo borrar el modelo");
+      return;
+    }
+    setBrands((prev) =>
+      prev.map((b) =>
+        b.id === brandId
+          ? { ...b, models: b.models.filter((m) => m.id !== modelId) }
+          : b
+      )
+    );
+    toast.success("Modelo borrado");
   }
 
   async function changeRole(id: string, role: string) {
@@ -223,6 +317,17 @@ export default function AdminPage() {
           >
             Publicaciones ({listings.length})
           </button>
+          <button
+            onClick={() => setTab("brands")}
+            className={
+              "px-4 py-2 font-bold text-sm " +
+              (tab === "brands"
+                ? "text-[#FF5A1F] border-b-2 border-[#FF5A1F]"
+                : "text-[#6B7280]")
+            }
+          >
+            Marcas ({brands.length})
+          </button>
         </div>
 
         {loading && <p className="text-[#6B7280]">Cargando...</p>}
@@ -334,6 +439,112 @@ export default function AdminPage() {
             {listings.length === 0 && (
               <p className="text-[#6B7280]">No hay publicaciones.</p>
             )}
+          </div>
+        )}
+
+        {!loading && tab === "brands" && (
+          <div>
+            <form
+              onSubmit={createBrand}
+              className="bg-white border border-[#E4E4E1] rounded-2xl p-4 mb-4 flex flex-col gap-2 sm:flex-row sm:items-center"
+            >
+              <input
+                type="text"
+                value={newBrandName}
+                onChange={(e) => setNewBrandName(e.target.value)}
+                placeholder="Nombre de la marca"
+                className="flex-1 rounded-lg border border-[#E4E4E1] px-3 py-2 text-sm outline-none"
+              />
+              <select
+                value={newBrandTipo}
+                onChange={(e) =>
+                  setNewBrandTipo(e.target.value as "AUTO" | "MOTO" | "CAMION")
+                }
+                className="rounded-lg border border-[#E4E4E1] px-3 py-2 text-sm font-semibold"
+              >
+                <option value="AUTO">Auto</option>
+                <option value="MOTO">Moto</option>
+                <option value="CAMION">Camión</option>
+              </select>
+              <button
+                type="submit"
+                disabled={creatingBrand || !newBrandName.trim()}
+                className="flex items-center justify-center gap-1.5 rounded-lg bg-[#FF5A1F] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+              >
+                <Plus size={15} />
+                Agregar marca
+              </button>
+            </form>
+
+            <div className="space-y-2">
+              {brands.map((b) => (
+                <div
+                  key={b.id}
+                  className="bg-white border border-[#E4E4E1] rounded-xl p-4"
+                >
+                  <div className="flex items-center justify-between">
+                    <p className="font-bold text-[#16181D]">{b.name}</p>
+                    <span className="text-[11px] font-semibold text-[#6B7280] border border-[#E4E4E1] rounded-full px-2 py-0.5">
+                      {b.tipo === "AUTO"
+                        ? "Auto"
+                        : b.tipo === "MOTO"
+                        ? "Moto"
+                        : "Camión"}
+                    </span>
+                  </div>
+
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {b.models.map((m) => (
+                      <span
+                        key={m.id}
+                        className="flex items-center gap-1 rounded-full bg-[#F6F6F4] px-2.5 py-1 text-xs text-[#16181D]"
+                      >
+                        {m.name}
+                        <button
+                          onClick={() => deleteModel(b.id, m.id)}
+                          className="text-[#6B7280] hover:text-red-600"
+                        >
+                          <Trash2 size={11} />
+                        </button>
+                      </span>
+                    ))}
+                    {b.models.length === 0 && (
+                      <span className="text-xs text-[#6B7280]">
+                        Sin modelos
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="mt-3 flex gap-2">
+                    <input
+                      type="text"
+                      value={newModelName[b.id] || ""}
+                      onChange={(e) =>
+                        setNewModelName((prev) => ({
+                          ...prev,
+                          [b.id]: e.target.value,
+                        }))
+                      }
+                      placeholder="Nuevo modelo"
+                      className="flex-1 rounded-lg border border-[#E4E4E1] px-2.5 py-1.5 text-xs outline-none"
+                    />
+                    <button
+                      onClick={() => createModel(b.id)}
+                      disabled={
+                        creatingModelFor === b.id ||
+                        !(newModelName[b.id] || "").trim()
+                      }
+                      className="rounded-lg bg-[#16181D] px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50"
+                    >
+                      Agregar
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {brands.length === 0 && (
+                <p className="text-[#6B7280]">No hay marcas todavía.</p>
+              )}
+            </div>
           </div>
         )}
       </div>
