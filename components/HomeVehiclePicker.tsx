@@ -3,6 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Car, ArrowRight } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type Modelo = { id: string; name: string };
 type Marca = {
@@ -64,35 +71,41 @@ export function HomeVehiclePicker({ marcas }: { marcas: Marca[] }) {
       </div>
 
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-      <select
+      <Select
         value={brandId}
-        onChange={(e) => {
-          setBrandId(e.target.value);
+        onValueChange={(value) => {
+          setBrandId(value);
           setModelId("");
         }}
-        className="flex-1 rounded-xl border border-[#E4E4E1] bg-[#F6F6F4] px-3 py-2.5 text-sm text-[#16181D] outline-none"
       >
-        <option value="">Marca</option>
-        {marcasDisponibles.map((m) => (
-          <option key={m.id} value={m.id}>
-            {m.name}
-          </option>
-        ))}
-      </select>
+        <SelectTrigger className="w-full flex-1 rounded-xl border-[#E4E4E1] bg-[#F6F6F4] px-3 py-2.5 text-sm text-[#16181D]">
+          <SelectValue placeholder="Marca" />
+        </SelectTrigger>
+        <SelectContent>
+          {marcasDisponibles.map((m) => (
+            <SelectItem key={m.id} value={m.id}>
+              {m.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
-      <select
+      <Select
         value={modelId}
-        onChange={(e) => setModelId(e.target.value)}
+        onValueChange={setModelId}
         disabled={!brandId}
-        className="flex-1 rounded-xl border border-[#E4E4E1] bg-[#F6F6F4] px-3 py-2.5 text-sm text-[#16181D] outline-none disabled:opacity-50"
       >
-        <option value="">Modelo</option>
-        {modelosDisponibles.map((m) => (
-          <option key={m.id} value={m.id}>
-            {m.name}
-          </option>
-        ))}
-      </select>
+        <SelectTrigger className="w-full flex-1 rounded-xl border-[#E4E4E1] bg-[#F6F6F4] px-3 py-2.5 text-sm text-[#16181D]">
+          <SelectValue placeholder="Modelo" />
+        </SelectTrigger>
+        <SelectContent>
+          {modelosDisponibles.map((m) => (
+            <SelectItem key={m.id} value={m.id}>
+              {m.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
       <button
         type="submit"
