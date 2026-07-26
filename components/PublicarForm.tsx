@@ -457,8 +457,8 @@ export function PublicarForm({
               type="button"
               onClick={() => {
                 setTipoVehiculo(t);
-                setValue("brandId", "");
-                setValue("modelId", "");
+                setValue("brandId", "", { shouldDirty: true });
+                setValue("modelId", "", { shouldDirty: true });
               }}
               className={
                 "flex-1 rounded-lg py-2 text-sm font-semibold transition-colors " +
@@ -482,8 +482,8 @@ export function PublicarForm({
           <Select
             value={brandId}
             onValueChange={(value) => {
-              setValue("brandId", value ?? "");
-              setValue("modelId", "");
+              setValue("brandId", value ?? "", { shouldDirty: true });
+              setValue("modelId", "", { shouldDirty: true });
             }}
           >
             <SelectTrigger className="mt-1.5 w-full rounded-xl border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D]">
@@ -513,7 +513,9 @@ export function PublicarForm({
           </label>
           <Select
             value={modelId}
-            onValueChange={(value) => setValue("modelId", value ?? "")}
+            onValueChange={(value) =>
+              setValue("modelId", value ?? "", { shouldDirty: true })
+            }
             disabled={!brandId}
           >
             <SelectTrigger className="mt-1.5 w-full rounded-xl border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D]">
@@ -548,7 +550,10 @@ export function PublicarForm({
           <Select
             value={city}
             onValueChange={(value) =>
-              setValue("city", value ?? "", { shouldValidate: true })
+              setValue("city", value ?? "", {
+                shouldValidate: true,
+                shouldDirty: true,
+              })
             }
           >
             <SelectTrigger className="mt-1.5 w-full rounded-xl border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D]">
