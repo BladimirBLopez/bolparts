@@ -26,6 +26,7 @@ export function HomeVehiclePicker({ marcas }: { marcas: Marca[] }) {
   );
   const [brandId, setBrandId] = useState("");
   const [modelId, setModelId] = useState("");
+  const [modeloAbierto, setModeloAbierto] = useState(false);
 
   const marcasDisponibles = marcas.filter((m) => m.tipo === tipoVehiculo);
   const modelosDisponibles = marcas.find((m) => m.id === brandId)?.models ?? [];
@@ -76,6 +77,9 @@ export function HomeVehiclePicker({ marcas }: { marcas: Marca[] }) {
         onValueChange={(value) => {
           setBrandId(value ?? "");
           setModelId("");
+          if (value) {
+            setTimeout(() => setModeloAbierto(true), 150);
+          }
         }}
       >
         <SelectTrigger className="w-full flex-1 rounded-xl border-[#E4E4E1] bg-[#F6F6F4] px-3 py-2.5 text-sm text-[#16181D]">
@@ -102,6 +106,8 @@ export function HomeVehiclePicker({ marcas }: { marcas: Marca[] }) {
         value={modelId}
         onValueChange={(value) => setModelId(value ?? "")}
         disabled={!brandId}
+        open={modeloAbierto}
+        onOpenChange={setModeloAbierto}
       >
         <SelectTrigger className="w-full flex-1 rounded-xl border-[#E4E4E1] bg-[#F6F6F4] px-3 py-2.5 text-sm text-[#16181D]">
           <SelectValue placeholder="Modelo">
