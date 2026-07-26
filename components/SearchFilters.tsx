@@ -5,7 +5,14 @@ import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { TapButton } from "@/components/TapButton";
 import { useRouter } from "next/navigation";
-import { SlidersHorizontal, X, ChevronDown } from "lucide-react";
+import { SlidersHorizontal, X } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type Categoria = { id: string; name: string; slug: string };
 type Modelo = { id: string; name: string };
@@ -62,9 +69,14 @@ export function SearchFilters({
   const modelosDisponibles = marcas.find((m) => m.id === marca)?.models ?? [];
   const marcasDisponibles = marcas.filter((m) => m.tipo === tipoVehiculo);
 
-  const activeCount = [categoria, marca, modelo, ciudad, condicion, orden].filter(
-    Boolean
-  ).length;
+  const activeCount = [
+    categoria,
+    marca,
+    modelo,
+    ciudad,
+    condicion,
+    orden && orden !== "recientes" ? orden : "",
+  ].filter(Boolean).length;
 
   function aplicar() {
     const params = new URLSearchParams();
@@ -74,7 +86,7 @@ export function SearchFilters({
     if (modelo) params.set("modelo", modelo);
     if (ciudad) params.set("ciudad", ciudad);
     if (condicion) params.set("condicion", condicion);
-    if (orden) params.set("orden", orden);
+    if (orden && orden !== "recientes") params.set("orden", orden);
     router.push(`/buscar?${params.toString()}`);
     setOpen(false);
   }
@@ -197,68 +209,83 @@ export function SearchFilters({
                   ))}
                 </div>
                 <div className="mt-2 flex gap-2">
-                  <div className="relative flex-1">
-                    <select
-                      value={marca}
-                      onChange={(e) => {
-                        setMarca(e.target.value);
-                        setModelo("");
-                      }}
-                      className="w-full appearance-none rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 pr-9 text-sm text-[#16181D] outline-none"
-                    >
-                      <option value="">Cualquier marca</option>
+                  <Select
+                    value={marca}
+                    onValueChange={(value) => {
+                      setMarca(value ?? "");
+                      setModelo("");
+                    }}
+                  >
+                    <SelectTrigger className="w-full flex-1 rounded-xl border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D]">
+                      <SelectValue placeholder="Cualquier marca">
+                        {(value: string) =>
+                          marcasDisponibles.find((m) => m.id === value)
+                            ?.name ?? "Cualquier marca"
+                        }
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent className="rounded-2xl border border-[#E4E4E1] bg-white p-1.5 shadow-lg ring-0">
                       {marcasDisponibles.map((m) => (
-                        <option key={m.id} value={m.id}>
+                        <SelectItem
+                          key={m.id}
+                          value={m.id}
+                          className="rounded-xl px-3 py-2.5 text-sm data-highlighted:bg-[#FFF1EA] data-highlighted:text-[#FF5A1F]"
+                        >
                           {m.name}
-                        </option>
+                        </SelectItem>
                       ))}
-                    </select>
-                    <ChevronDown
-                      size={16}
-                      className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#6B7280]"
-                    />
-                  </div>
-                  <div className="relative flex-1">
-                    <select
-                      value={modelo}
-                      onChange={(e) => setModelo(e.target.value)}
-                      disabled={!marca}
-                      className="w-full appearance-none rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 pr-9 text-sm text-[#16181D] outline-none disabled:opacity-50"
-                    >
-                      <option value="">Cualquier modelo</option>
+                    </SelectContent>
+                  </Select>
+                  <Select
+                    value={modelo}
+                    onValueChange={(value) => setModelo(value ?? "")}
+                    disabled={!marca}
+                  >
+                    <SelectTrigger className="w-full flex-1 rounded-xl border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D]">
+                      <SelectValue placeholder="Cualquier modelo">
+                        {(value: string) =>
+                          modelosDisponibles.find((m) => m.id === value)
+                            ?.name ?? "Cualquier modelo"
+                        }
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent className="rounded-2xl border border-[#E4E4E1] bg-white p-1.5 shadow-lg ring-0">
                       {modelosDisponibles.map((m) => (
-                        <option key={m.id} value={m.id}>
+                        <SelectItem
+                          key={m.id}
+                          value={m.id}
+                          className="rounded-xl px-3 py-2.5 text-sm data-highlighted:bg-[#FFF1EA] data-highlighted:text-[#FF5A1F]"
+                        >
                           {m.name}
-                        </option>
+                        </SelectItem>
                       ))}
-                    </select>
-                    <ChevronDown
-                      size={16}
-                      className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#6B7280]"
-                    />
-                  </div>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 {/* Ciudad */}
                 <p className="mt-6 text-sm font-semibold text-[#16181D]">Ciudad</p>
-                <div className="relative mt-2">
-                  <select
-                    value={ciudad}
-                    onChange={(e) => setCiudad(e.target.value)}
-                    className="w-full appearance-none rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 pr-9 text-sm text-[#16181D] outline-none"
-                  >
-                    <option value="">Todas las ciudades</option>
+                <Select
+                  value={ciudad}
+                  onValueChange={(value) => setCiudad(value ?? "")}
+                >
+                  <SelectTrigger className="mt-2 w-full rounded-xl border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D]">
+                    <SelectValue placeholder="Todas las ciudades">
+                      {(value: string) => value || "Todas las ciudades"}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent className="rounded-2xl border border-[#E4E4E1] bg-white p-1.5 shadow-lg ring-0">
                     {CIUDADES.map((c) => (
-                      <option key={c} value={c}>
+                      <SelectItem
+                        key={c}
+                        value={c}
+                        className="rounded-xl px-3 py-2.5 text-sm data-highlighted:bg-[#FFF1EA] data-highlighted:text-[#FF5A1F]"
+                      >
                         {c}
-                      </option>
+                      </SelectItem>
                     ))}
-                  </select>
-                  <ChevronDown
-                    size={16}
-                    className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#6B7280]"
-                  />
-                </div>
+                  </SelectContent>
+                </Select>
 
                 {/* Condición */}
                 <p className="mt-6 text-sm font-semibold text-[#16181D]">Condición</p>
@@ -285,21 +312,42 @@ export function SearchFilters({
 
                 {/* Orden */}
                 <p className="mt-6 text-sm font-semibold text-[#16181D]">Ordenar por</p>
-                <div className="relative mt-2">
-                  <select
-                    value={orden}
-                    onChange={(e) => setOrden(e.target.value)}
-                    className="w-full appearance-none rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 pr-9 text-sm text-[#16181D] outline-none"
-                  >
-                    <option value="">Más recientes</option>
-                    <option value="precio_asc">Menor precio</option>
-                    <option value="precio_desc">Mayor precio</option>
-                  </select>
-                  <ChevronDown
-                    size={16}
-                    className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#6B7280]"
-                  />
-                </div>
+                <Select
+                  value={orden}
+                  onValueChange={(value) => setOrden(value ?? "")}
+                >
+                  <SelectTrigger className="mt-2 w-full rounded-xl border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D]">
+                    <SelectValue placeholder="Más recientes">
+                      {(value: string) =>
+                        value === "precio_asc"
+                          ? "Menor precio"
+                          : value === "precio_desc"
+                          ? "Mayor precio"
+                          : "Más recientes"
+                      }
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent className="rounded-2xl border border-[#E4E4E1] bg-white p-1.5 shadow-lg ring-0">
+                    <SelectItem
+                      value="recientes"
+                      className="rounded-xl px-3 py-2.5 text-sm data-highlighted:bg-[#FFF1EA] data-highlighted:text-[#FF5A1F]"
+                    >
+                      Más recientes
+                    </SelectItem>
+                    <SelectItem
+                      value="precio_asc"
+                      className="rounded-xl px-3 py-2.5 text-sm data-highlighted:bg-[#FFF1EA] data-highlighted:text-[#FF5A1F]"
+                    >
+                      Menor precio
+                    </SelectItem>
+                    <SelectItem
+                      value="precio_desc"
+                      className="rounded-xl px-3 py-2.5 text-sm data-highlighted:bg-[#FFF1EA] data-highlighted:text-[#FF5A1F]"
+                    >
+                      Mayor precio
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="flex shrink-0 gap-2 border-t border-[#E4E4E1] p-4">
