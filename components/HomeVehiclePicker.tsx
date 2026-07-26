@@ -79,7 +79,11 @@ export function HomeVehiclePicker({ marcas }: { marcas: Marca[] }) {
         }}
       >
         <SelectTrigger className="w-full flex-1 rounded-xl border-[#E4E4E1] bg-[#F6F6F4] px-3 py-2.5 text-sm text-[#16181D]">
-          <SelectValue placeholder="Marca" />
+          <SelectValue placeholder="Marca">
+            {(value: string) =>
+              marcasDisponibles.find((m) => m.id === value)?.name ?? "Marca"
+            }
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
           {marcasDisponibles.map((m) => (
@@ -96,7 +100,11 @@ export function HomeVehiclePicker({ marcas }: { marcas: Marca[] }) {
         disabled={!brandId}
       >
         <SelectTrigger className="w-full flex-1 rounded-xl border-[#E4E4E1] bg-[#F6F6F4] px-3 py-2.5 text-sm text-[#16181D]">
-          <SelectValue placeholder="Modelo" />
+          <SelectValue placeholder="Modelo">
+            {(value: string) =>
+              modelosDisponibles.find((m) => m.id === value)?.name ?? "Modelo"
+            }
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
           {modelosDisponibles.map((m) => (
