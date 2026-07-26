@@ -85,9 +85,13 @@ export function HomeVehiclePicker({ marcas }: { marcas: Marca[] }) {
             }
           </SelectValue>
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="rounded-2xl border border-[#E4E4E1] bg-white p-1.5 shadow-lg ring-0">
           {marcasDisponibles.map((m) => (
-            <SelectItem key={m.id} value={m.id}>
+            <SelectItem
+              key={m.id}
+              value={m.id}
+              className="rounded-xl px-3 py-2.5 text-sm data-highlighted:bg-[#FFF1EA] data-highlighted:text-[#FF5A1F]"
+            >
               {m.name}
             </SelectItem>
           ))}
@@ -106,9 +110,13 @@ export function HomeVehiclePicker({ marcas }: { marcas: Marca[] }) {
             }
           </SelectValue>
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="rounded-2xl border border-[#E4E4E1] bg-white p-1.5 shadow-lg ring-0">
           {modelosDisponibles.map((m) => (
-            <SelectItem key={m.id} value={m.id}>
+            <SelectItem
+              key={m.id}
+              value={m.id}
+              className="rounded-xl px-3 py-2.5 text-sm data-highlighted:bg-[#FFF1EA] data-highlighted:text-[#FF5A1F]"
+            >
               {m.name}
             </SelectItem>
           ))}
