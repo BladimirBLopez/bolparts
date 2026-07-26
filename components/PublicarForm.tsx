@@ -8,8 +8,15 @@ import { ChevronLeft } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { X, Upload, Loader2, ChevronDown } from "lucide-react";
+import { X, Upload, Loader2 } from "lucide-react";
 import { TapButton } from "@/components/TapButton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const MAX_FOTOS = 10;
 
@@ -104,6 +111,8 @@ export function PublicarForm({
   });
 
   const brandId = watch("brandId");
+  const modelId = watch("modelId");
+  const city = watch("city");
 
   const [condition, setCondition] = useState<"NEW" | "USED">(
     initialListing?.condition ?? "USED"
@@ -470,48 +479,63 @@ export function PublicarForm({
           <label className="text-sm font-semibold text-[#16181D]">
             Marca (opcional)
           </label>
-          <div className="relative mt-1.5">
-            <select
-              {...register("brandId", {
-                onChange: () => setValue("modelId", ""),
-              })}
-              className="w-full appearance-none rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 pr-9 text-sm text-[#16181D] outline-none focus:border-[#16181D]"
-            >
-              <option value="">Cualquier marca</option>
+          <Select
+            value={brandId}
+            onValueChange={(value) => {
+              setValue("brandId", value ?? "");
+              setValue("modelId", "");
+            }}
+          >
+            <SelectTrigger className="mt-1.5 w-full rounded-xl border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D]">
+              <SelectValue placeholder="Cualquier marca">
+                {(value: string) =>
+                  marcasDisponibles.find((m) => m.id === value)?.name ??
+                  "Cualquier marca"
+                }
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent className="rounded-2xl border border-[#E4E4E1] bg-white p-1.5 shadow-lg ring-0">
               {marcasDisponibles.map((m) => (
-                <option key={m.id} value={m.id}>
+                <SelectItem
+                  key={m.id}
+                  value={m.id}
+                  className="rounded-xl px-3 py-2.5 text-sm data-highlighted:bg-[#FFF1EA] data-highlighted:text-[#FF5A1F]"
+                >
                   {m.name}
-                </option>
+                </SelectItem>
               ))}
-            </select>
-            <ChevronDown
-              size={16}
-              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#6B7280]"
-            />
-          </div>
+            </SelectContent>
+          </Select>
         </div>
         <div className="flex-1">
           <label className="text-sm font-semibold text-[#16181D]">
             Modelo (opcional)
           </label>
-          <div className="relative mt-1.5">
-            <select
-              {...register("modelId")}
-              disabled={!brandId}
-              className="w-full appearance-none rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 pr-9 text-sm text-[#16181D] outline-none focus:border-[#16181D] disabled:opacity-50"
-            >
-              <option value="">Cualquier modelo</option>
+          <Select
+            value={modelId}
+            onValueChange={(value) => setValue("modelId", value ?? "")}
+            disabled={!brandId}
+          >
+            <SelectTrigger className="mt-1.5 w-full rounded-xl border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D]">
+              <SelectValue placeholder="Cualquier modelo">
+                {(value: string) =>
+                  modelosDisponibles.find((m) => m.id === value)?.name ??
+                  "Cualquier modelo"
+                }
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent className="rounded-2xl border border-[#E4E4E1] bg-white p-1.5 shadow-lg ring-0">
               {modelosDisponibles.map((m) => (
-                <option key={m.id} value={m.id}>
+                <SelectItem
+                  key={m.id}
+                  value={m.id}
+                  className="rounded-xl px-3 py-2.5 text-sm data-highlighted:bg-[#FFF1EA] data-highlighted:text-[#FF5A1F]"
+                >
                   {m.name}
-                </option>
+                </SelectItem>
               ))}
-            </select>
-            <ChevronDown
-              size={16}
-              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#6B7280]"
-            />
-          </div>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -521,23 +545,29 @@ export function PublicarForm({
           <label className="text-sm font-semibold text-[#16181D]">
             Ciudad
           </label>
-          <div className="relative mt-1.5">
-            <select
-              {...register("city")}
-              className="w-full appearance-none rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 pr-9 text-sm text-[#16181D] outline-none focus:border-[#16181D]"
-            >
-              <option value="">Elegí una ciudad</option>
+          <Select
+            value={city}
+            onValueChange={(value) =>
+              setValue("city", value ?? "", { shouldValidate: true })
+            }
+          >
+            <SelectTrigger className="mt-1.5 w-full rounded-xl border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D]">
+              <SelectValue placeholder="Elegí una ciudad">
+                {(value: string) => value || "Elegí una ciudad"}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent className="rounded-2xl border border-[#E4E4E1] bg-white p-1.5 shadow-lg ring-0">
               {CIUDADES.map((c) => (
-                <option key={c} value={c}>
+                <SelectItem
+                  key={c}
+                  value={c}
+                  className="rounded-xl px-3 py-2.5 text-sm data-highlighted:bg-[#FFF1EA] data-highlighted:text-[#FF5A1F]"
+                >
                   {c}
-                </option>
+                </SelectItem>
               ))}
-            </select>
-            <ChevronDown
-              size={16}
-              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#6B7280]"
-            />
-          </div>
+            </SelectContent>
+          </Select>
           {errors.city && (
             <p className="mt-1 text-xs text-red-600">{errors.city.message}</p>
           )}
