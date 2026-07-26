@@ -74,7 +74,7 @@ export function HomeVehiclePicker({ marcas }: { marcas: Marca[] }) {
       <Select
         value={brandId}
         onValueChange={(value) => {
-          setBrandId(value);
+          setBrandId(value ?? "");
           setModelId("");
         }}
       >
@@ -92,7 +92,7 @@ export function HomeVehiclePicker({ marcas }: { marcas: Marca[] }) {
 
       <Select
         value={modelId}
-        onValueChange={setModelId}
+        onValueChange={(value) => setModelId(value ?? "")}
         disabled={!brandId}
       >
         <SelectTrigger className="w-full flex-1 rounded-xl border-[#E4E4E1] bg-[#F6F6F4] px-3 py-2.5 text-sm text-[#16181D]">
