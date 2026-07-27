@@ -17,6 +17,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   BarChart,
   Bar,
@@ -344,7 +345,23 @@ export default function AdminPage() {
           </button>
         </div>
 
-        {loading && <p className="text-[#6B7280]">Cargando...</p>}
+        {loading && (
+          <div className="space-y-2">
+            {[1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="bg-white border border-[#E4E4E1] rounded-xl p-4 flex items-center justify-between gap-3"
+              >
+                <div className="min-w-0 flex-1 space-y-2">
+                  <Skeleton className="h-4 w-1/3" />
+                  <Skeleton className="h-3 w-1/2" />
+                  <Skeleton className="h-3 w-1/4" />
+                </div>
+                <Skeleton className="h-8 w-20 shrink-0 rounded-lg" />
+              </div>
+            ))}
+          </div>
+        )}
 
         {!loading && tab === "users" && (
           <div className="space-y-2">
