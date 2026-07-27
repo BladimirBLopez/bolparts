@@ -107,6 +107,7 @@ export default function AdminPage() {
   const [brands, setBrands] = useState<AdminBrand[]>([]);
   const [solicitudes, setSolicitudes] = useState<AdminSolicitud[]>([]);
   const [procesandoSolicitud, setProcesandoSolicitud] = useState<string | null>(null);
+  const [comprobanteAbierto, setComprobanteAbierto] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
 
@@ -728,10 +729,9 @@ export default function AdminPage() {
                   className="bg-white border border-[#E4E4E1] rounded-xl p-4"
                 >
                   <div className="flex gap-3">
-                    <a
-                      href={s.comprobanteUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      type="button"
+                      onClick={() => setComprobanteAbierto(s.comprobanteUrl)}
                       className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-[#E4E4E1]"
                     >
                       <Image
@@ -741,7 +741,7 @@ export default function AdminPage() {
                         sizes="80px"
                         className="object-cover"
                       />
-                    </a>
+                    </button>
                     <div className="min-w-0 flex-1">
                       <p className="font-bold text-[#16181D] truncate">
                         {s.user.name || s.user.email}
@@ -787,6 +787,30 @@ export default function AdminPage() {
             {solicitudes.length === 0 && (
               <p className="text-[#6B7280]">No hay solicitudes todavía.</p>
             )}
+
+            <Dialog
+              open={!!comprobanteAbierto}
+              onOpenChange={(open) => {
+                if (!open) setComprobanteAbierto(null);
+              }}
+            >
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Comprobante de pago</DialogTitle>
+                </DialogHeader>
+                {comprobanteAbierto && (
+                  <div className="relative aspect-square w-full overflow-hidden rounded-xl">
+                    <Image
+                      src={comprobanteAbierto}
+                      alt="Comprobante"
+                      fill
+                      sizes="400px"
+                      className="object-contain"
+                    />
+                  </div>
+                )}
+              </DialogContent>
+            </Dialog>
           </div>
         )}
       </div>
