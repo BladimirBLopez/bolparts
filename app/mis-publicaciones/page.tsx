@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Plus, Star, ChevronRight } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { MyListingCard } from "@/components/MyListingCard";
@@ -12,11 +12,17 @@ export default async function MisPublicacionesPage() {
     redirect("/login");
   }
 
-  const listings = await prisma.listing.findMany({
-    where: { userId: session.user.id },
-    orderBy: { createdAt: "desc" },
-    include: { images: true },
-  });
+  const [listings, usuario] = await Promise.all([
+    prisma.listing.findMany({
+      where: { userId: session.user.id },
+      orderBy: { createdAt: "desc" },
+      include: { images: true },
+    }),
+    prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { nivelPlan: true },
+    }),
+  ]);
 
   return (
     <main className="flex flex-1 flex-col bg-[#F6F6F4] px-4 py-8">
@@ -33,6 +39,26 @@ export default async function MisPublicacionesPage() {
             Nueva
           </Link>
         </div>
+
+        {usuario?.nivelPlan === "NINGUNO" && (
+          <Link
+            href="/planes"
+            className="mt-4 flex items-center justify-between gap-3 rounded-2xl bg-[#16181D] px-5 py-4 text-white transition-colors hover:bg-[#232631]"
+          >
+            <div className="flex items-center gap-3">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#FF5A1F]">
+                <Star size={16} fill="currentColor" />
+              </span>
+              <div>
+                <p className="text-sm font-semibold">Destacá tus repuestos</p>
+                <p className="text-xs text-white/60">
+                  Aparecé primero en búsquedas y home
+                </p>
+              </div>
+            </div>
+            <ChevronRight size={18} className="shrink-0 text-white/60" />
+          </Link>
+        )}
 
         {listings.length === 0 ? (
           <div className="mt-10 flex flex-col items-center gap-2 rounded-2xl border border-dashed border-[#E4E4E1] bg-white py-16 text-center">
