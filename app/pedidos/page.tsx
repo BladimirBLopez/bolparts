@@ -55,13 +55,23 @@ export default async function PedidosPage() {
               Compradores buscando repuestos que quizás vos tenés.
             </p>
           </div>
-          <Link
-            href="/pedidos/nuevo"
-            className="flex shrink-0 items-center gap-1.5 rounded-full bg-[#FF5A1F] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#e64f16]"
-          >
-            <Plus size={16} />
-            <span className="hidden sm:inline">Publicar</span>
-          </Link>
+          <div className="flex shrink-0 items-center gap-2">
+            {session?.user && (
+              <Link
+                href="/pedidos/mios"
+                className="rounded-full border border-[#E4E4E1] bg-white px-3 py-2 text-sm font-semibold text-[#16181D] transition-colors hover:border-[#16181D]"
+              >
+                Mis pedidos
+              </Link>
+            )}
+            <Link
+              href="/pedidos/nuevo"
+              className="flex items-center gap-1.5 rounded-full bg-[#FF5A1F] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#e64f16]"
+            >
+              <Plus size={16} />
+              <span className="hidden sm:inline">Publicar</span>
+            </Link>
+          </div>
         </div>
 
         {!puedeVerLista ? (
