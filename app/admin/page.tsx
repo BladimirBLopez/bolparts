@@ -11,6 +11,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
   BarChart,
   Bar,
   XAxis,
@@ -420,32 +427,12 @@ export default function AdminPage() {
                       {l.user.name || l.user.email} · Bs {l.price}
                     </p>
                   </div>
-                  {confirmingId === l.id ? (
-                    <div className="flex flex-col items-end gap-1 shrink-0">
-                      <p className="text-[11px] text-[#6B7280]">¿Borrar?</p>
-                      <div className="flex gap-1.5">
-                        <button
-                          onClick={() => deleteListing(l.id)}
-                          className="rounded-full bg-red-600 px-2.5 py-1 text-[11px] font-semibold text-white"
-                        >
-                          Sí
-                        </button>
-                        <button
-                          onClick={() => setConfirmingId(null)}
-                          className="rounded-full border border-[#E4E4E1] px-2.5 py-1 text-[11px] font-medium text-[#16181D]"
-                        >
-                          No
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => setConfirmingId(l.id)}
-                      className="text-sm font-bold text-red-600 shrink-0"
-                    >
-                      Borrar
-                    </button>
-                  )}
+                  <button
+                    onClick={() => setConfirmingId(l.id)}
+                    className="text-sm font-bold text-red-600 shrink-0"
+                  >
+                    Borrar
+                  </button>
                 </div>
                 {l.reports.length > 0 && (
                   <div className="mt-2 pt-2 border-t border-[#E4E4E1]">
@@ -465,6 +452,36 @@ export default function AdminPage() {
             {listings.length === 0 && (
               <p className="text-[#6B7280]">No hay publicaciones.</p>
             )}
+
+            <Dialog
+              open={!!confirmingId}
+              onOpenChange={(open) => {
+                if (!open) setConfirmingId(null);
+              }}
+            >
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>¿Borrar esta publicación?</DialogTitle>
+                </DialogHeader>
+                <p className="text-sm text-[#6B7280]">
+                  Esta acción no se puede deshacer.
+                </p>
+                <DialogFooter>
+                  <button
+                    onClick={() => setConfirmingId(null)}
+                    className="rounded-full border border-[#E4E4E1] bg-white px-4 py-2 text-sm font-semibold text-[#16181D]"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={() => confirmingId && deleteListing(confirmingId)}
+                    className="rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white"
+                  >
+                    Borrar
+                  </button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
         )}
 
