@@ -25,7 +25,10 @@ export default async function PedidosPage() {
 
   const [pedidos, usuario] = await Promise.all([
     prisma.pedido.findMany({
-      where: { estado: "ABIERTO" },
+      where: {
+        estado: "ABIERTO",
+        ...(session?.user?.id ? { userId: { not: session.user.id } } : {}),
+      },
       orderBy: { createdAt: "desc" },
       include: {
         brand: true,
