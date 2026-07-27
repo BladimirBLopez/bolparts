@@ -9,6 +9,7 @@ import {
   Plus,
   Heart,
   Package,
+  ClipboardList,
   LogOut,
   LogIn,
   UserPlus,
@@ -98,6 +99,15 @@ export function MobileMenu() {
             Vender repuesto
           </Link>
 
+          <Link
+            href="/pedidos"
+            onClick={close}
+            className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-[#16181D] hover:bg-white"
+          >
+            <ClipboardList size={18} />
+            Pedidos de repuestos
+          </Link>
+
           {session?.user && (
             <>
               <Link
@@ -116,6 +126,15 @@ export function MobileMenu() {
               >
                 <Package size={18} />
                 Mis publicaciones
+              </Link>
+
+              <Link
+                href="/pedidos/mios"
+                onClick={close}
+                className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-[#16181D] hover:bg-white"
+              >
+                <ClipboardList size={18} />
+                Mis pedidos
               </Link>
 
               <Link
