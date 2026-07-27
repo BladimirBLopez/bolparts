@@ -100,12 +100,12 @@ export function MobileMenu() {
           </Link>
 
           <Link
-            href="/pedidos"
+            href="/pedidos/nuevo"
             onClick={close}
             className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-[#16181D] hover:bg-white"
           >
             <ClipboardList size={18} />
-            Pedidos de repuestos
+            Pedir un repuesto
           </Link>
 
           {session?.user && (
