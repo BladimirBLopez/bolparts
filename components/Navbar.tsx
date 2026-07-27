@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { Search, Plus } from "lucide-react";
 import { MobileMenu } from "@/components/MobileMenu";
@@ -11,14 +12,18 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-[#E4E4E1] bg-[#F6F6F4]/90 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4">
-        {/* Logo estilo placa */}
+        {/* Logo */}
         <Link href="/" className="flex shrink-0 items-center gap-2">
-          <span className="relative flex h-8 w-11 items-center justify-center rounded-[3px] border-2 border-[#16181D] bg-white text-[11px] font-bold tracking-tight text-[#16181D]">
-            BOL
-            <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-[#FF5A1F]" />
-          </span>
+          <Image
+            src="/icon-header.png"
+            alt="BolParts"
+            width={36}
+            height={36}
+            className="h-9 w-9 object-contain"
+            priority
+          />
           <span className="text-lg font-extrabold tracking-tight text-[#16181D]">
-            Parts
+            BOL Parts
           </span>
         </Link>
 
