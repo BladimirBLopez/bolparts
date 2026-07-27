@@ -72,7 +72,7 @@ export default async function PedidosPage() {
               className="flex items-center gap-1.5 rounded-full bg-[#FF5A1F] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#e64f16]"
             >
               <Plus size={16} />
-              <span className="hidden sm:inline">Publicar</span>
+              Publicar pedido
             </Link>
           </div>
         </div>
