@@ -42,6 +42,11 @@ enum EstadoSolicitud {
   RECHAZADA
 }
 
+enum EstadoPedido {
+  ABIERTO
+  RESUELTO
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -68,6 +73,7 @@ model User {
   reviewsReceived Review[]  @relation("ReviewsReceived")
   favorites Favorite[]
   solicitudesPlan SolicitudPlan[]
+  pedidos Pedido[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -138,6 +144,7 @@ model Brand {
 
   models   CarModel[]
   listings Listing[]
+  pedidos  Pedido[]
 }
 
 model CarModel {
@@ -148,6 +155,7 @@ model CarModel {
   brand    Brand     @relation(fields: [brandId], references: [id])
 
   listings Listing[]
+  pedidos  Pedido[]
 }
 
 model Listing {
@@ -180,6 +188,33 @@ model Listing {
   images      Image[]
   favorites   Favorite[]
   reports     Report[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Pedido {
+  id          String       @id @default(cuid())
+  titulo      String
+  descripcion String?
+
+  city        String
+  department  String
+
+  yearFrom    Int?
+  yearTo      Int?
+  phone       String?
+
+  estado      EstadoPedido @default(ABIERTO)
+
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  brandId     String?
+  brand       Brand?       @relation(fields: [brandId], references: [id])
+
+  modelId     String?
+  model       CarModel?    @relation(fields: [modelId], references: [id])
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
