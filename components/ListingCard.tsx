@@ -16,7 +16,7 @@ type ListingCardProps = {
   loggedIn?: boolean;
   sellerRating?: number;
   sellerReviewCount?: number;
-  isPremium?: boolean;
+  nivelPlan?: "NINGUNO" | "DESTACADO" | "SUPERIOR";
 };
 
 function formatPrice(price: number) {
@@ -36,7 +36,7 @@ export function ListingCard({
   loggedIn = false,
   sellerRating = 0,
   sellerReviewCount = 0,
-  isPremium = false,
+  nivelPlan = "NINGUNO",
 }: ListingCardProps) {
   return (
     <Link
@@ -66,9 +66,14 @@ export function ListingCard({
         >
           {condition === "NEW" ? "Nuevo" : "Usado"}
         </span>
-        {isPremium && (
+        {nivelPlan === "SUPERIOR" && (
+          <span className="absolute left-2 top-8 rounded-full bg-gradient-to-r from-[#F5B301] to-[#FF5A1F] px-2 py-0.5 text-[11px] font-semibold text-white">
+            ★ Superior
+          </span>
+        )}
+        {nivelPlan === "DESTACADO" && (
           <span className="absolute left-2 top-8 rounded-full bg-[#FF5A1F] px-2 py-0.5 text-[11px] font-semibold text-white">
-            ★ Premium
+            ★ Destacado
           </span>
         )}
         <div className="absolute right-2 top-2">

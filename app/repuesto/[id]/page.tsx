@@ -88,7 +88,7 @@ export default async function RepuestoPage({
           id: true,
           name: true,
           image: true,
-          isPremium: true,
+          nivelPlan: true,
           reviewsReceived: { select: { rating: true } },
         },
       },
@@ -223,9 +223,14 @@ export default async function RepuestoPage({
                     className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#16181D] hover:underline"
                   >
                     {listing.user.name || "Vendedor de BolParts"}
-                    {listing.user.isPremium && (
+                    {listing.user.nivelPlan === "SUPERIOR" && (
                       <span className="text-xs font-bold text-[#FF5A1F]">
-                        ★ Premium
+                        ★ Superior
+                      </span>
+                    )}
+                    {listing.user.nivelPlan === "DESTACADO" && (
+                      <span className="text-xs font-bold text-[#FF5A1F]">
+                        ★ Destacado
                       </span>
                     )}
                   </Link>
@@ -282,7 +287,7 @@ export default async function RepuestoPage({
                   imageUrl={l.images[0]?.url}
                   brandName={l.brand?.name}
                   modelName={l.model?.name}
-                  isPremium={listing.user.isPremium}
+                  nivelPlan={listing.user.nivelPlan}
                 />
               ))}
             </div>

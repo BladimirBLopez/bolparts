@@ -32,7 +32,7 @@ type AdminUser = {
   name: string | null;
   email: string;
   role: string;
-  isPremium: boolean;
+  nivelPlan: "NINGUNO" | "DESTACADO" | "SUPERIOR";
   createdAt: string;
   _count: { listings: number };
 };
@@ -215,21 +215,25 @@ export default function AdminPage() {
     toast.success("Rol actualizado");
   }
 
-  async function togglePremium(id: string, isPremium: boolean) {
+  async function changeNivelPlan(id: string, nivelPlan: string) {
     const res = await fetch("/api/admin/users/" + id, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ isPremium }),
+      body: JSON.stringify({ nivelPlan }),
     });
     const data = await res.json();
     if (!data.ok) {
-      toast.error(data.error || "No se pudo cambiar el estado premium");
+      toast.error(data.error || "No se pudo cambiar el plan");
       return;
     }
     setUsers((prev) =>
-      prev.map((u) => (u.id === id ? { ...u, isPremium } : u))
+      prev.map((u) =>
+        u.id === id
+          ? { ...u, nivelPlan: nivelPlan as AdminUser["nivelPlan"] }
+          : u
+      )
     );
-    toast.success(isPremium ? "Usuario marcado como premium" : "Premium quitado");
+    toast.success("Plan actualizado");
   }
 
   async function deleteListing(id: string) {
@@ -266,8 +270,8 @@ export default function AdminPage() {
             />
             <MetricCard
               icon={Star}
-              label="Premium"
-              value={users.filter((u) => u.isPremium).length}
+              label="Con plan"
+              value={users.filter((u) => u.nivelPlan !== "NINGUNO").length}
             />
             <MetricCard
               icon={Flag}
@@ -373,8 +377,10 @@ export default function AdminPage() {
                 <div className="min-w-0">
                   <p className="font-bold text-[#16181D] truncate">
                     {u.name || "Sin nombre"}
-                    {u.isPremium && (
-                      <span className="ml-1.5 text-[#FF5A1F]">★ Premium</span>
+                    {u.nivelPlan !== "NINGUNO" && (
+                      <span className="ml-1.5 text-[#FF5A1F]">
+                        ★ {u.nivelPlan === "SUPERIOR" ? "Superior" : "Destacado"}
+                      </span>
                     )}
                   </p>
                   <p className="text-sm text-[#6B7280] truncate">{u.email}</p>
@@ -411,17 +417,36 @@ export default function AdminPage() {
                       </SelectItem>
                     </SelectContent>
                   </Select>
-                  <button
-                    onClick={() => togglePremium(u.id, !u.isPremium)}
-                    className={
-                      "text-xs font-bold px-2 py-1 rounded-lg border " +
-                      (u.isPremium
-                        ? "border-[#FF5A1F] text-[#FF5A1F]"
-                        : "border-[#E4E4E1] text-[#6B7280]")
+                  <Select
+                    value={u.nivelPlan}
+                    onValueChange={(value) =>
+                      changeNivelPlan(u.id, value ?? "NINGUNO")
                     }
                   >
-                    {u.isPremium ? "Quitar premium" : "Hacer premium"}
-                  </button>
+                    <SelectTrigger className="h-auto rounded-lg border-[#E4E4E1] px-2 py-1 text-xs font-bold">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-2xl border border-[#E4E4E1] bg-white p-1.5 shadow-lg ring-0">
+                      <SelectItem
+                        value="NINGUNO"
+                        className="rounded-xl px-3 py-2.5 text-sm data-highlighted:bg-[#FFF1EA] data-highlighted:text-[#FF5A1F]"
+                      >
+                        Sin plan
+                      </SelectItem>
+                      <SelectItem
+                        value="DESTACADO"
+                        className="rounded-xl px-3 py-2.5 text-sm data-highlighted:bg-[#FFF1EA] data-highlighted:text-[#FF5A1F]"
+                      >
+                        Destacado
+                      </SelectItem>
+                      <SelectItem
+                        value="SUPERIOR"
+                        className="rounded-xl px-3 py-2.5 text-sm data-highlighted:bg-[#FFF1EA] data-highlighted:text-[#FF5A1F]"
+                      >
+                        Superior
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             ))}

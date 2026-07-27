@@ -30,6 +30,18 @@ enum TipoVehiculo {
   CAMION
 }
 
+enum PlanNivel {
+  NINGUNO
+  DESTACADO
+  SUPERIOR
+}
+
+enum EstadoSolicitud {
+  PENDIENTE
+  APROBADA
+  RECHAZADA
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -44,7 +56,8 @@ model User {
   businessDescription String?
   businessHours       String?
   businessAddress     String?
-  isPremium           Boolean   @default(false)
+  nivelPlan           PlanNivel @default(NINGUNO)
+  planExpiraEn        DateTime?
   latitude            Float?
   longitude           Float?
 
@@ -54,9 +67,23 @@ model User {
   reviewsWritten  Review[]  @relation("ReviewsWritten")
   reviewsReceived Review[]  @relation("ReviewsReceived")
   favorites Favorite[]
+  solicitudesPlan SolicitudPlan[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model SolicitudPlan {
+  id              String          @id @default(cuid())
+  nivel           PlanNivel
+  comprobanteUrl  String
+  estado          EstadoSolicitud @default(PENDIENTE)
+
+  userId          String
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime        @default(now())
+  revisadaEn      DateTime?
 }
 
 model Account {

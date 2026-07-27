@@ -37,7 +37,7 @@ export default async function Home() {
       include: { models: { orderBy: { name: "asc" } } },
     }),
     prisma.listing.findMany({
-      orderBy: [{ user: { isPremium: "desc" } }, { createdAt: "desc" }],
+      orderBy: [{ user: { nivelPlan: "desc" } }, { createdAt: "desc" }],
       take: 8,
       include: {
         images: true,
@@ -45,7 +45,7 @@ export default async function Home() {
         model: true,
         user: {
           select: {
-            isPremium: true,
+            nivelPlan: true,
             reviewsReceived: { select: { rating: true } },
           },
         },
@@ -181,7 +181,7 @@ export default async function Home() {
                     imageUrl={listing.images[0]?.url}
                     brandName={listing.brand?.name}
                     modelName={listing.model?.name}
-                    isPremium={listing.user.isPremium}
+                    nivelPlan={listing.user.nivelPlan}
                     sellerReviewCount={listing.user.reviewsReceived.length}
                     sellerRating={
                       listing.user.reviewsReceived.length > 0

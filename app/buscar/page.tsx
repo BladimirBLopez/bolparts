@@ -73,7 +73,7 @@ export default async function BuscarPage({
   };
 
   const orderBy: Prisma.ListingOrderByWithRelationInput[] = [
-    { user: { isPremium: "desc" } },
+    { user: { nivelPlan: "desc" } },
     orden === "precio_asc"
       ? { price: "asc" }
       : orden === "precio_desc"
@@ -98,7 +98,7 @@ export default async function BuscarPage({
       model: true,
       user: {
         select: {
-          isPremium: true,
+          nivelPlan: true,
           reviewsReceived: { select: { rating: true } },
         },
       },
@@ -184,7 +184,7 @@ export default async function BuscarPage({
                           ) / listing.user.reviewsReceived.length
                         : 0
                     }
-                    isPremium={listing.user.isPremium}
+                    nivelPlan={listing.user.nivelPlan}
                   />
                 </AnimatedCard>
               ))}

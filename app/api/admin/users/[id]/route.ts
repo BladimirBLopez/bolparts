@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { Role, Prisma } from "@prisma/client";
+import { Role, PlanNivel, Prisma } from "@prisma/client";
 
 export async function PATCH(
   req: Request,
@@ -31,8 +31,17 @@ export async function PATCH(
     data.role = body.role as Role;
   }
 
-  if (body.isPremium !== undefined) {
-    data.isPremium = !!body.isPremium;
+  if (body.nivelPlan !== undefined) {
+    if (!["NINGUNO", "DESTACADO", "SUPERIOR"].includes(body.nivelPlan)) {
+      return Response.json({ error: "Nivel de plan inválido" }, { status: 400 });
+    }
+    data.nivelPlan = body.nivelPlan as PlanNivel;
+    if (body.nivelPlan === "NINGUNO") {
+      data.planExpiraEn = null;
+    } else {
+      const dias = 30;
+      data.planExpiraEn = new Date(Date.now() + dias * 24 * 60 * 60 * 1000);
+    }
   }
 
   const updated = await prisma.user.update({
