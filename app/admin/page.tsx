@@ -363,7 +363,7 @@ export default function AdminPage() {
           </div>
         )}
 
-        <div className="flex gap-2 mb-6 border-b border-[#E4E4E1]">
+        <div className="flex gap-2 mb-6 overflow-x-auto whitespace-nowrap border-b border-[#E4E4E1]">
           <button
             onClick={() => setTab("users")}
             className={
@@ -438,12 +438,12 @@ export default function AdminPage() {
                 <div className="min-w-0">
                   <p className="font-bold text-[#16181D] truncate">
                     {u.name || "Sin nombre"}
-                    {u.nivelPlan !== "NINGUNO" && (
-                      <span className="ml-1.5 text-[#FF5A1F]">
-                        ★ {u.nivelPlan === "SUPERIOR" ? "Superior" : "Destacado"}
-                      </span>
-                    )}
                   </p>
+                  {u.nivelPlan !== "NINGUNO" && (
+                    <span className="text-xs font-semibold text-[#FF5A1F]">
+                      ★ {u.nivelPlan === "SUPERIOR" ? "Superior" : "Destacado"}
+                    </span>
+                  )}
                   <p className="text-sm text-[#6B7280] truncate">{u.email}</p>
                   <p className="text-xs text-[#6B7280]">
                     {u._count.listings} publicaciones
