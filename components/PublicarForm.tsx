@@ -17,6 +17,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 const MAX_FOTOS = 10;
 
@@ -272,32 +279,35 @@ export function PublicarForm({
         Volver
       </Link>
 
-      {confirmandoSalida && (
-        <div className="mb-4 rounded-2xl border border-[#E4E4E1] bg-white p-4">
-          <p className="text-sm font-semibold text-[#16181D]">
-            Tenés cambios sin guardar
-          </p>
-          <p className="mt-1 text-xs text-[#6B7280]">
+      <Dialog
+        open={confirmandoSalida}
+        onOpenChange={setConfirmandoSalida}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Tenés cambios sin guardar</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-[#6B7280]">
             Si salís ahora vas a perder lo que completaste. ¿Querés descartarlos?
           </p>
-          <div className="mt-3 flex gap-2">
-            <button
-              type="button"
-              onClick={() => router.push(backHref)}
-              className="rounded-full bg-red-600 px-4 py-2 text-xs font-semibold text-white"
-            >
-              Descartar y salir
-            </button>
+          <DialogFooter>
             <button
               type="button"
               onClick={() => setConfirmandoSalida(false)}
-              className="rounded-full border border-[#E4E4E1] px-4 py-2 text-xs font-semibold text-[#16181D]"
+              className="rounded-full border border-[#E4E4E1] bg-white px-4 py-2 text-sm font-semibold text-[#16181D]"
             >
               Seguir editando
             </button>
-          </div>
-        </div>
-      )}
+            <button
+              type="button"
+              onClick={() => router.push(backHref)}
+              className="rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white"
+            >
+              Descartar y salir
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
     <form onSubmit={handleSubmit(onSubmit)} className="mt-8 flex flex-col gap-6">
       {/* Fotos */}
