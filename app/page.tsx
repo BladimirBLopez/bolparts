@@ -1,6 +1,5 @@
 import Link from "next/link";
 import {
-  Search,
   Wrench,
   Gauge,
   Zap,
@@ -15,7 +14,7 @@ import {
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { expirarPlanesVencidos } from "@/lib/expirarPlanes";
-import { HomeVehiclePicker } from "@/components/HomeVehiclePicker";
+import { HomeSearch } from "@/components/HomeSearch";
 import { ScrollCarousel } from "@/components/ScrollCarousel";
 import { ListingCard } from "@/components/ListingCard";
 import { AnimatedCard } from "@/components/AnimatedCard";
@@ -72,27 +71,7 @@ export default async function Home() {
             bolivianos. Sin intermediarios.
           </p>
 
-          <form
-            action="/buscar"
-            method="GET"
-            className="mx-auto mt-8 flex max-w-xl items-center gap-2 rounded-full border border-[#E4E4E1] bg-white p-1.5 shadow-sm"
-          >
-            <Search size={18} className="ml-3 shrink-0 text-[#6B7280]" />
-            <input
-              type="text"
-              name="q"
-              placeholder="Ej. pastillas de freno, cadena de moto, filtro de camión"
-              className="w-full bg-transparent py-2 text-sm text-[#16181D] outline-none placeholder:text-[#9CA3AF]"
-            />
-            <button
-              type="submit"
-              className="shrink-0 rounded-full bg-[#FF5A1F] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#e64f16]"
-            >
-              Buscar
-            </button>
-          </form>
-
-          <HomeVehiclePicker marcas={marcas} />
+          <HomeSearch marcas={marcas} />
         </div>
       </section>
 
