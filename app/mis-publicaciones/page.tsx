@@ -78,6 +78,7 @@ export default async function MisPublicacionesPage() {
               <MyListingCard
                 key={listing.id}
                 id={listing.id}
+                slug={listing.slug}
                 title={listing.title}
                 price={listing.price}
                 condition={listing.condition}

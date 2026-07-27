@@ -14,6 +14,14 @@ import { idFromSlugParam } from "@/lib/slug";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
+async function resolverListingPorParam(param: string) {
+  const porSlug = await prisma.listing.findUnique({ where: { slug: param } });
+  if (porSlug) return porSlug;
+
+  const id = idFromSlugParam(param);
+  return prisma.listing.findUnique({ where: { id } });
+}
+
 function formatPrecioMeta(price: number) {
   return `Bs. ${price.toLocaleString("es-BO", { maximumFractionDigits: 0 })}`;
 }
@@ -24,10 +32,14 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id: rawId } = await params;
-  const id = idFromSlugParam(rawId);
+  const base = await resolverListingPorParam(rawId);
+
+  if (!base) {
+    return { title: "Repuesto no encontrado — BolParts" };
+  }
 
   const listing = await prisma.listing.findUnique({
-    where: { id },
+    where: { id: base.id },
     include: { images: true },
   });
 
@@ -77,11 +89,15 @@ export default async function RepuestoPage({
   params: Promise<{ id: string }>;
 }) {
   const { id: rawId } = await params;
-  const id = idFromSlugParam(rawId);
+  const base = await resolverListingPorParam(rawId);
   const session = await getServerSession(authOptions);
 
+  if (!base) {
+    notFound();
+  }
+
   const listing = await prisma.listing.findUnique({
-    where: { id },
+    where: { id: base.id },
     include: {
       images: true,
       category: true,
@@ -284,6 +300,7 @@ export default async function RepuestoPage({
                 <ListingCard
                   key={l.id}
                   id={l.id}
+                  slug={l.slug}
                   title={l.title}
                   price={l.price}
                   condition={l.condition}

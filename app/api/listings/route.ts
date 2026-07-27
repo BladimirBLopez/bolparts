@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { generateUniqueSlug } from "@/lib/slug";
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
@@ -40,9 +41,17 @@ export async function POST(req: Request) {
       );
     }
 
+    const slug = await generateUniqueSlug(title, async (candidate) => {
+      const existing = await prisma.listing.findUnique({
+        where: { slug: candidate },
+      });
+      return !!existing;
+    });
+
     const listing = await prisma.listing.create({
       data: {
         title,
+        slug,
         description: description || null,
         price: parseFloat(price),
         condition,

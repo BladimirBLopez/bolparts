@@ -16,3 +16,19 @@ export function idFromSlugParam(param: string): string {
   const parts = param.split("-");
   return parts[parts.length - 1];
 }
+
+export async function generateUniqueSlug(
+  title: string,
+  checkExists: (slug: string) => Promise<boolean>
+): Promise<string> {
+  const base = slugify(title);
+  let candidate = base;
+  let counter = 2;
+
+  while (await checkExists(candidate)) {
+    candidate = `${base}-${counter}`;
+    counter++;
+  }
+
+  return candidate;
+}

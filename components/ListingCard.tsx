@@ -7,6 +7,7 @@ import { slugify } from "@/lib/slug";
 
 type ListingCardProps = {
   id: string;
+  slug?: string | null;
   title: string;
   price: number;
   condition: "NEW" | "USED";
@@ -27,6 +28,7 @@ function formatPrice(price: number) {
 
 export function ListingCard({
   id,
+  slug,
   title,
   price,
   condition,
@@ -42,7 +44,7 @@ export function ListingCard({
 }: ListingCardProps) {
   return (
     <Link
-      href={`/repuesto/${slugify(title)}-${id}`}
+      href={`/repuesto/${slug ?? `${slugify(title)}-${id}`}`}
       className="group flex flex-col overflow-hidden rounded-2xl border border-[#E4E4E1] bg-white transition-colors hover:border-[#16181D]"
     >
       <div className="relative aspect-square w-full overflow-hidden bg-[#F6F6F4]">

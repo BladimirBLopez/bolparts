@@ -159,6 +159,7 @@ export default async function VendedorPage({
                 <ListingCard
                   key={listing.id}
                   id={listing.id}
+                  slug={listing.slug}
                   title={listing.title}
                   price={listing.price}
                   condition={listing.condition}
