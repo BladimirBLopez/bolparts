@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { Users, Package, Star, Flag, Trash2, Plus } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -55,6 +56,15 @@ type AdminBrand = {
   models: AdminModel[];
 };
 
+type AdminSolicitud = {
+  id: string;
+  nivel: "DESTACADO" | "SUPERIOR";
+  comprobanteUrl: string;
+  estado: "PENDIENTE" | "APROBADA" | "RECHAZADA";
+  createdAt: string;
+  user: { id: string; name: string | null; email: string };
+};
+
 function agruparPorMes(listings: AdminListing[]) {
   const meses = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
   const conteo: Record<string, number> = {};
@@ -91,10 +101,12 @@ function MetricCard({
 }
 
 export default function AdminPage() {
-  const [tab, setTab] = useState<"users" | "listings" | "brands">("users");
+  const [tab, setTab] = useState<"users" | "listings" | "brands" | "solicitudes">("users");
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [listings, setListings] = useState<AdminListing[]>([]);
   const [brands, setBrands] = useState<AdminBrand[]>([]);
+  const [solicitudes, setSolicitudes] = useState<AdminSolicitud[]>([]);
+  const [procesandoSolicitud, setProcesandoSolicitud] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
 
@@ -112,18 +124,56 @@ export default function AdminPage() {
 
   async function loadData() {
     setLoading(true);
-    const [usersRes, listingsRes, brandsRes] = await Promise.all([
+    const [usersRes, listingsRes, brandsRes, solicitudesRes] = await Promise.all([
       fetch("/api/admin/users"),
       fetch("/api/admin/listings"),
       fetch("/api/admin/brands"),
+      fetch("/api/admin/solicitudes-plan"),
     ]);
     const usersData = await usersRes.json();
     const listingsData = await listingsRes.json();
     const brandsData = await brandsRes.json();
+    const solicitudesData = await solicitudesRes.json();
     if (usersData.ok) setUsers(usersData.users);
     if (listingsData.ok) setListings(listingsData.listings);
     if (brandsData.ok) setBrands(brandsData.brands);
+    if (solicitudesData.ok) setSolicitudes(solicitudesData.solicitudes);
     setLoading(false);
+  }
+
+  async function resolverSolicitud(id: string, accion: "APROBAR" | "RECHAZAR") {
+    setProcesandoSolicitud(id);
+    const res = await fetch("/api/admin/solicitudes-plan/" + id, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ accion }),
+    });
+    const data = await res.json();
+    setProcesandoSolicitud(null);
+    if (!data.ok) {
+      toast.error(data.error || "No se pudo procesar la solicitud");
+      return;
+    }
+    setSolicitudes((prev) =>
+      prev.map((s) =>
+        s.id === id
+          ? { ...s, estado: accion === "APROBAR" ? "APROBADA" : "RECHAZADA" }
+          : s
+      )
+    );
+    if (accion === "APROBAR") {
+      const solicitud = solicitudes.find((s) => s.id === id);
+      if (solicitud) {
+        setUsers((prev) =>
+          prev.map((u) =>
+            u.id === solicitud.user.id ? { ...u, nivelPlan: solicitud.nivel } : u
+          )
+        );
+      }
+    }
+    toast.success(
+      accion === "APROBAR" ? "Solicitud aprobada" : "Solicitud rechazada"
+    );
   }
 
   async function createBrand(e: React.FormEvent) {
@@ -346,6 +396,17 @@ export default function AdminPage() {
             }
           >
             Marcas ({brands.length})
+          </button>
+          <button
+            onClick={() => setTab("solicitudes")}
+            className={
+              "px-4 py-2 font-bold text-sm " +
+              (tab === "solicitudes"
+                ? "text-[#FF5A1F] border-b-2 border-[#FF5A1F]"
+                : "text-[#6B7280]")
+            }
+          >
+            Solicitudes ({solicitudes.filter((s) => s.estado === "PENDIENTE").length})
           </button>
         </div>
 
@@ -649,6 +710,83 @@ export default function AdminPage() {
                 <p className="text-[#6B7280]">No hay marcas todavía.</p>
               )}
             </div>
+          </div>
+        )}
+
+        {!loading && tab === "solicitudes" && (
+          <div className="space-y-2">
+            {solicitudes
+              .slice()
+              .sort((a, b) => {
+                if (a.estado === "PENDIENTE" && b.estado !== "PENDIENTE") return -1;
+                if (a.estado !== "PENDIENTE" && b.estado === "PENDIENTE") return 1;
+                return 0;
+              })
+              .map((s) => (
+                <div
+                  key={s.id}
+                  className="bg-white border border-[#E4E4E1] rounded-xl p-4"
+                >
+                  <div className="flex gap-3">
+                    <a
+                      href={s.comprobanteUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-[#E4E4E1]"
+                    >
+                      <Image
+                        src={s.comprobanteUrl}
+                        alt="Comprobante"
+                        fill
+                        sizes="80px"
+                        className="object-cover"
+                      />
+                    </a>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-bold text-[#16181D] truncate">
+                        {s.user.name || s.user.email}
+                      </p>
+                      <p className="text-sm text-[#6B7280]">
+                        Plan {s.nivel === "SUPERIOR" ? "Superior" : "Destacado"}
+                      </p>
+                      <span
+                        className={
+                          "mt-1 inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold " +
+                          (s.estado === "PENDIENTE"
+                            ? "bg-[#FFF1EA] text-[#FF5A1F]"
+                            : s.estado === "APROBADA"
+                            ? "bg-green-50 text-green-700"
+                            : "bg-red-50 text-red-600")
+                        }
+                      >
+                        {s.estado}
+                      </span>
+                    </div>
+                  </div>
+
+                  {s.estado === "PENDIENTE" && (
+                    <div className="mt-3 flex gap-2">
+                      <button
+                        onClick={() => resolverSolicitud(s.id, "APROBAR")}
+                        disabled={procesandoSolicitud === s.id}
+                        className="flex-1 rounded-lg bg-green-600 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
+                      >
+                        Aprobar
+                      </button>
+                      <button
+                        onClick={() => resolverSolicitud(s.id, "RECHAZAR")}
+                        disabled={procesandoSolicitud === s.id}
+                        className="flex-1 rounded-lg border border-[#E4E4E1] px-3 py-2 text-xs font-semibold text-[#16181D] disabled:opacity-50"
+                      >
+                        Rechazar
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            {solicitudes.length === 0 && (
+              <p className="text-[#6B7280]">No hay solicitudes todavía.</p>
+            )}
           </div>
         )}
       </div>
