@@ -150,6 +150,7 @@ export function PedidoForm({
         </div>
       </div>
 
+      <div>
       <div className="flex gap-3">
         <div className="flex-1">
           <label className="text-sm font-semibold text-[#16181D]">
@@ -213,6 +214,11 @@ export function PedidoForm({
             </SelectContent>
           </Select>
         </div>
+      </div>
+      <p className="mt-1.5 text-xs text-[#6B7280]">
+        ¿No encontrás tu marca? Podés dejarlo en blanco y contar los
+        detalles en el campo de arriba.
+      </p>
       </div>
 
       <div>

@@ -484,6 +484,7 @@ export function PublicarForm({
       </div>
 
       {/* Marca + modelo */}
+      <div>
       <div className="flex gap-3">
         <div className="flex-1">
           <label className="text-sm font-semibold text-[#16181D]">
@@ -549,6 +550,11 @@ export function PublicarForm({
             </SelectContent>
           </Select>
         </div>
+      </div>
+      <p className="mt-1.5 text-xs text-[#6B7280]">
+        ¿No encontrás tu marca? Podés dejarlo en blanco y agregar los detalles
+        en la descripción.
+      </p>
       </div>
 
       {/* Ciudad + año */}
