@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { MapPin, Trash2, Loader2, Pencil } from "lucide-react";
+import { slugify } from "@/lib/slug";
 
 type MyListingCardProps = {
   id: string;
@@ -48,7 +49,7 @@ export function MyListingCard({
   return (
     <div className="flex gap-3 rounded-2xl border border-[#E4E4E1] bg-white p-3">
       <Link
-        href={`/repuesto/${id}`}
+        href={`/repuesto/${slugify(title)}-${id}`}
         className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-[#F6F6F4]"
       >
         {imageUrl ? (
@@ -62,7 +63,7 @@ export function MyListingCard({
 
       <div className="flex flex-1 flex-col justify-between">
         <div>
-          <Link href={`/repuesto/${id}`}>
+          <Link href={`/repuesto/${slugify(title)}-${id}`}>
             <p className="line-clamp-1 text-sm font-semibold text-[#16181D]">
               {title}
             </p>

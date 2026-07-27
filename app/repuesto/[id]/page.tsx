@@ -10,6 +10,7 @@ import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { ReportButton } from "@/components/ReportButton";
 import { ListingCard } from "@/components/ListingCard";
 import { Badge } from "@/components/ui/badge";
+import { idFromSlugParam } from "@/lib/slug";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
@@ -22,7 +23,8 @@ export async function generateMetadata({
 }: {
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
-  const { id } = await params;
+  const { id: rawId } = await params;
+  const id = idFromSlugParam(rawId);
 
   const listing = await prisma.listing.findUnique({
     where: { id },
@@ -74,7 +76,8 @@ export default async function RepuestoPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
+  const { id: rawId } = await params;
+  const id = idFromSlugParam(rawId);
   const session = await getServerSession(authOptions);
 
   const listing = await prisma.listing.findUnique({

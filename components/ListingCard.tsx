@@ -3,6 +3,7 @@ import Image from "next/image";
 import { MapPin, Star } from "lucide-react";
 import { FavoriteButton } from "@/components/FavoriteButton";
 import { Badge } from "@/components/ui/badge";
+import { slugify } from "@/lib/slug";
 
 type ListingCardProps = {
   id: string;
@@ -41,7 +42,7 @@ export function ListingCard({
 }: ListingCardProps) {
   return (
     <Link
-      href={`/repuesto/${id}`}
+      href={`/repuesto/${slugify(title)}-${id}`}
       className="group flex flex-col overflow-hidden rounded-2xl border border-[#E4E4E1] bg-white transition-colors hover:border-[#16181D]"
     >
       <div className="relative aspect-square w-full overflow-hidden bg-[#F6F6F4]">
