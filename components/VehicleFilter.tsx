@@ -2,6 +2,13 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type Modelo = { id: string; name: string };
 type Marca = { id: string; name: string; models: Modelo[] };
@@ -42,32 +49,52 @@ export function VehicleFilter({ marcas }: { marcas: Marca[] }) {
 
   return (
     <>
-      <select
-        value={brandId}
-        onChange={(e) => handleMarcaChange(e.target.value)}
-        className="rounded-full border border-[#E4E4E1] bg-white px-3 py-1.5 text-xs font-medium text-[#16181D] outline-none"
-      >
-        <option value="">Cualquier marca</option>
-        {marcas.map((m) => (
-          <option key={m.id} value={m.id}>
-            {m.name}
-          </option>
-        ))}
-      </select>
+      <Select value={brandId} onValueChange={(value) => handleMarcaChange(value ?? "")}>
+        <SelectTrigger className="h-auto rounded-full border-[#E4E4E1] bg-white px-3 py-1.5 text-xs font-medium text-[#16181D]">
+          <SelectValue placeholder="Cualquier marca">
+            {(value: string) =>
+              marcas.find((m) => m.id === value)?.name ?? "Cualquier marca"
+            }
+          </SelectValue>
+        </SelectTrigger>
+        <SelectContent className="rounded-2xl border border-[#E4E4E1] bg-white p-1.5 shadow-lg ring-0">
+          {marcas.map((m) => (
+            <SelectItem
+              key={m.id}
+              value={m.id}
+              className="rounded-xl px-3 py-2.5 text-sm data-highlighted:bg-[#FFF1EA] data-highlighted:text-[#FF5A1F]"
+            >
+              {m.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
-      <select
+      <Select
         value={modelId}
-        onChange={(e) => handleModeloChange(e.target.value)}
+        onValueChange={(value) => handleModeloChange(value ?? "")}
         disabled={!brandId}
-        className="rounded-full border border-[#E4E4E1] bg-white px-3 py-1.5 text-xs font-medium text-[#16181D] outline-none disabled:opacity-50"
       >
-        <option value="">Cualquier modelo</option>
-        {modelosDisponibles.map((m) => (
-          <option key={m.id} value={m.id}>
-            {m.name}
-          </option>
-        ))}
-      </select>
+        <SelectTrigger className="h-auto rounded-full border-[#E4E4E1] bg-white px-3 py-1.5 text-xs font-medium text-[#16181D]">
+          <SelectValue placeholder="Cualquier modelo">
+            {(value: string) =>
+              modelosDisponibles.find((m) => m.id === value)?.name ??
+              "Cualquier modelo"
+            }
+          </SelectValue>
+        </SelectTrigger>
+        <SelectContent className="rounded-2xl border border-[#E4E4E1] bg-white p-1.5 shadow-lg ring-0">
+          {modelosDisponibles.map((m) => (
+            <SelectItem
+              key={m.id}
+              value={m.id}
+              className="rounded-xl px-3 py-2.5 text-sm data-highlighted:bg-[#FFF1EA] data-highlighted:text-[#FF5A1F]"
+            >
+              {m.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </>
   );
 }

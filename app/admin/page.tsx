@@ -4,6 +4,13 @@ import { useEffect, useState } from "react";
 import { Users, Package, Star, Flag, Trash2, Plus } from "lucide-react";
 import { toast } from "sonner";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   BarChart,
   Bar,
   XAxis,
@@ -352,15 +359,34 @@ export default function AdminPage() {
                   </p>
                 </div>
                 <div className="flex flex-col items-end gap-1.5 shrink-0">
-                  <select
+                  <Select
                     value={u.role}
-                    onChange={(e) => changeRole(u.id, e.target.value)}
-                    className="border border-[#E4E4E1] rounded-lg px-2 py-1 text-sm font-bold"
+                    onValueChange={(value) => changeRole(u.id, value ?? "USER")}
                   >
-                    <option value="USER">USER</option>
-                    <option value="SELLER">SELLER</option>
-                    <option value="ADMIN">ADMIN</option>
-                  </select>
+                    <SelectTrigger className="h-auto rounded-lg border-[#E4E4E1] px-2 py-1 text-sm font-bold">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-2xl border border-[#E4E4E1] bg-white p-1.5 shadow-lg ring-0">
+                      <SelectItem
+                        value="USER"
+                        className="rounded-xl px-3 py-2.5 text-sm data-highlighted:bg-[#FFF1EA] data-highlighted:text-[#FF5A1F]"
+                      >
+                        USER
+                      </SelectItem>
+                      <SelectItem
+                        value="SELLER"
+                        className="rounded-xl px-3 py-2.5 text-sm data-highlighted:bg-[#FFF1EA] data-highlighted:text-[#FF5A1F]"
+                      >
+                        SELLER
+                      </SelectItem>
+                      <SelectItem
+                        value="ADMIN"
+                        className="rounded-xl px-3 py-2.5 text-sm data-highlighted:bg-[#FFF1EA] data-highlighted:text-[#FF5A1F]"
+                      >
+                        ADMIN
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                   <button
                     onClick={() => togglePremium(u.id, !u.isPremium)}
                     className={
@@ -455,17 +481,36 @@ export default function AdminPage() {
                 placeholder="Nombre de la marca"
                 className="flex-1 rounded-lg border border-[#E4E4E1] px-3 py-2 text-sm outline-none"
               />
-              <select
+              <Select
                 value={newBrandTipo}
-                onChange={(e) =>
-                  setNewBrandTipo(e.target.value as "AUTO" | "MOTO" | "CAMION")
+                onValueChange={(value) =>
+                  setNewBrandTipo((value ?? "AUTO") as "AUTO" | "MOTO" | "CAMION")
                 }
-                className="rounded-lg border border-[#E4E4E1] px-3 py-2 text-sm font-semibold"
               >
-                <option value="AUTO">Auto</option>
-                <option value="MOTO">Moto</option>
-                <option value="CAMION">Camión</option>
-              </select>
+                <SelectTrigger className="h-auto rounded-lg border-[#E4E4E1] px-3 py-2 text-sm font-semibold">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="rounded-2xl border border-[#E4E4E1] bg-white p-1.5 shadow-lg ring-0">
+                  <SelectItem
+                    value="AUTO"
+                    className="rounded-xl px-3 py-2.5 text-sm data-highlighted:bg-[#FFF1EA] data-highlighted:text-[#FF5A1F]"
+                  >
+                    Auto
+                  </SelectItem>
+                  <SelectItem
+                    value="MOTO"
+                    className="rounded-xl px-3 py-2.5 text-sm data-highlighted:bg-[#FFF1EA] data-highlighted:text-[#FF5A1F]"
+                  >
+                    Moto
+                  </SelectItem>
+                  <SelectItem
+                    value="CAMION"
+                    className="rounded-xl px-3 py-2.5 text-sm data-highlighted:bg-[#FFF1EA] data-highlighted:text-[#FF5A1F]"
+                  >
+                    Camión
+                  </SelectItem>
+                </SelectContent>
+              </Select>
               <button
                 type="submit"
                 disabled={creatingBrand || !newBrandName.trim()}
