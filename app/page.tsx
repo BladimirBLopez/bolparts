@@ -14,6 +14,7 @@ import {
   MapPinned,
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { expirarPlanesVencidos } from "@/lib/expirarPlanes";
 import { HomeVehiclePicker } from "@/components/HomeVehiclePicker";
 import { ScrollCarousel } from "@/components/ScrollCarousel";
 import { ListingCard } from "@/components/ListingCard";
@@ -31,6 +32,8 @@ const categorias = [
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
+  await expirarPlanesVencidos();
+
   const [marcas, publicacionesRecientes] = await Promise.all([
     prisma.brand.findMany({
       orderBy: { name: "asc" },

@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { expirarPlanesVencidos } from "@/lib/expirarPlanes";
 import { PlanesForm } from "@/components/PlanesForm";
 
 export default async function PlanesPage() {
@@ -9,6 +10,8 @@ export default async function PlanesPage() {
   if (!session?.user?.id) {
     redirect("/login");
   }
+
+  await expirarPlanesVencidos();
 
   const usuario = await prisma.user.findUnique({
     where: { id: session.user.id },

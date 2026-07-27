@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { expirarPlanesVencidos } from "@/lib/expirarPlanes";
 import { Prisma } from "@prisma/client";
 import { ListingCard } from "@/components/ListingCard";
 import { AnimatedCard } from "@/components/AnimatedCard";
@@ -41,6 +42,8 @@ export default async function BuscarPage({
 }) {
   const { q, categoria, ciudad, condicion, pagina, orden, marca, modelo } =
     await searchParams;
+
+  await expirarPlanesVencidos();
 
   const session = await getServerSession(authOptions);
 
