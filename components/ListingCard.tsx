@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { MapPin, Star } from "lucide-react";
 import { FavoriteButton } from "@/components/FavoriteButton";
+import { Badge } from "@/components/ui/badge";
 
 type ListingCardProps = {
   id: string;
@@ -57,24 +58,24 @@ export function ListingCard({
             Sin foto
           </div>
         )}
-        <span
-          className={`absolute left-2 top-2 rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+        <Badge
+          className={`absolute left-2 top-2 h-auto px-2 py-0.5 text-[11px] font-semibold ${
             condition === "NEW"
               ? "bg-[#16181D] text-white"
               : "bg-white text-[#16181D]"
           }`}
         >
           {condition === "NEW" ? "Nuevo" : "Usado"}
-        </span>
+        </Badge>
         {nivelPlan === "SUPERIOR" && (
-          <span className="absolute left-2 top-8 rounded-full bg-gradient-to-r from-[#F5B301] to-[#FF5A1F] px-2 py-0.5 text-[11px] font-semibold text-white">
+          <Badge className="absolute left-2 top-8 h-auto bg-gradient-to-r from-[#F5B301] to-[#FF5A1F] px-2 py-0.5 text-[11px] font-semibold text-white">
             ★ Superior
-          </span>
+          </Badge>
         )}
         {nivelPlan === "DESTACADO" && (
-          <span className="absolute left-2 top-8 rounded-full bg-[#FF5A1F] px-2 py-0.5 text-[11px] font-semibold text-white">
+          <Badge className="absolute left-2 top-8 h-auto bg-[#FF5A1F] px-2 py-0.5 text-[11px] font-semibold text-white">
             ★ Destacado
-          </span>
+          </Badge>
         )}
         <div className="absolute right-2 top-2">
           <FavoriteButton

@@ -9,6 +9,7 @@ import { ListingGallery } from "@/components/ListingGallery";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { ReportButton } from "@/components/ReportButton";
 import { ListingCard } from "@/components/ListingCard";
+import { Badge } from "@/components/ui/badge";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
@@ -138,18 +139,18 @@ export default async function RepuestoPage({
           {/* Info */}
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
-              <span
-                className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+              <Badge
+                className={`h-auto px-2.5 py-0.5 text-xs font-semibold ${
                   listing.condition === "NEW"
                     ? "bg-[#16181D] text-white"
                     : "border border-[#E4E4E1] bg-white text-[#16181D]"
                 }`}
               >
                 {listing.condition === "NEW" ? "Nuevo" : "Usado"}
-              </span>
-              <span className="rounded-full border border-[#E4E4E1] bg-white px-2.5 py-0.5 text-xs font-medium text-[#6B7280]">
+              </Badge>
+              <Badge className="h-auto border border-[#E4E4E1] bg-white px-2.5 py-0.5 text-xs font-medium text-[#6B7280]">
                 {listing.category.name}
-              </span>
+              </Badge>
             </div>
 
             <h1 className="mt-3 text-2xl font-extrabold tracking-tight text-[#16181D]">
@@ -224,14 +225,14 @@ export default async function RepuestoPage({
                   >
                     {listing.user.name || "Vendedor de BolParts"}
                     {listing.user.nivelPlan === "SUPERIOR" && (
-                      <span className="text-xs font-bold text-[#FF5A1F]">
+                      <Badge className="h-auto bg-transparent p-0 text-xs font-bold text-[#FF5A1F]">
                         ★ Superior
-                      </span>
+                      </Badge>
                     )}
                     {listing.user.nivelPlan === "DESTACADO" && (
-                      <span className="text-xs font-bold text-[#FF5A1F]">
+                      <Badge className="h-auto bg-transparent p-0 text-xs font-bold text-[#FF5A1F]">
                         ★ Destacado
-                      </span>
+                      </Badge>
                     )}
                   </Link>
 
