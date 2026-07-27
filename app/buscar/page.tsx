@@ -159,8 +159,15 @@ export default async function BuscarPage({
               No encontramos repuestos con esos filtros
             </p>
             <p className="text-xs text-[#6B7280]">
-              Probá con otra búsqueda o revisá más tarde.
+              Probá con otra búsqueda, o publicá lo que buscás y que los
+              vendedores te contacten.
             </p>
+            <Link
+              href="/pedidos/nuevo"
+              className="mt-3 rounded-full bg-[#FF5A1F] px-5 py-2.5 text-sm font-semibold text-white"
+            >
+              Publicar lo que busco
+            </Link>
           </div>
         ) : (
           <>

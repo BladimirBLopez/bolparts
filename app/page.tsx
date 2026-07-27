@@ -245,6 +245,25 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* CTA pedidos */}
+      <section className="px-4 pt-14 sm:pt-20">
+        <div className="mx-auto flex max-w-3xl flex-col items-center gap-4 rounded-3xl border border-[#E4E4E1] bg-white px-6 py-12 text-center sm:px-12">
+          <h2 className="text-2xl font-extrabold tracking-tight text-[#16181D] sm:text-3xl">
+            ¿No encontrás lo que buscás?
+          </h2>
+          <p className="max-w-md text-sm text-[#6B7280] sm:text-base">
+            Publicá tu pedido y los vendedores te van a contactar directo.
+          </p>
+          <Link
+            href="/pedidos/nuevo"
+            className="mt-2 flex items-center gap-2 rounded-full border border-[#16181D] px-6 py-3 text-sm font-semibold text-[#16181D] transition-colors hover:bg-[#16181D] hover:text-white"
+          >
+            Publicar pedido
+            <ArrowRight size={16} />
+          </Link>
+        </div>
+      </section>
+
       {/* CTA vender */}
       <section className="px-4 py-14 sm:py-20">
         <div className="mx-auto flex max-w-3xl flex-col items-center gap-4 rounded-3xl bg-[#16181D] px-6 py-12 text-center sm:px-12">
