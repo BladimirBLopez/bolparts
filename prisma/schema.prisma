@@ -189,6 +189,7 @@ model Listing {
   model       CarModel?   @relation(fields: [modelId], references: [id])
 
   numeroParte String?
+  vistas      Int      @default(0)
 
   images      Image[]
   favorites   Favorite[]
