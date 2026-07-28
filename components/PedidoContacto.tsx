@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { MessageCircle, Lock, ShieldAlert } from "lucide-react";
+import { whatsappLink } from "@/lib/phone";
 
 export function PedidoContacto({
   tienePlanActivo,
@@ -49,9 +50,10 @@ export function PedidoContacto({
   return (
     <div>
       <a
-        href={`https://wa.me/591${phone.replace(/\D/g, "")}?text=${encodeURIComponent(
+        href={whatsappLink(
+          phone,
           `Hola, vi tu pedido "${titulo}" en BolParts y tengo ese repuesto.`
-        )}`}
+        )}
         target="_blank"
         rel="noopener noreferrer"
         className="flex items-center justify-center gap-2 rounded-full bg-green-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-700"

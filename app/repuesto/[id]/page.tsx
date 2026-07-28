@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { CompatibilidadesToggle } from "@/components/CompatibilidadesToggle";
 import { ShareButton } from "@/components/ShareButton";
 import { idFromSlugParam } from "@/lib/slug";
+import { whatsappLink } from "@/lib/phone";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
@@ -369,9 +370,10 @@ export default async function RepuestoPage({
               {listing.phone ? (
                 <>
                   <WhatsAppButton
-                    href={`https://wa.me/591${listing.phone.replace(/\D/g, "")}?text=${encodeURIComponent(
+                    href={whatsappLink(
+                      listing.phone,
                       `Hola, vi tu publicación "${listing.title}" en BolParts y me interesa.`
-                    )}`}
+                    )}
                   />
                   <p className="mt-2 flex items-start gap-1.5 text-[11px] text-[#6B7280]">
                     <ShieldAlert size={13} className="mt-0.5 shrink-0" />
