@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { X, Upload, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { TapButton } from "@/components/TapButton";
 import {
   Select,
@@ -261,6 +262,9 @@ export function PublicarForm({
         return;
       }
 
+      toast.success(
+        isEditing ? "Publicación actualizada" : "Publicación creada"
+      );
       router.push(isEditing ? "/mis-publicaciones" : "/");
       router.refresh();
     } catch {
