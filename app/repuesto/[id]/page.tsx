@@ -10,6 +10,7 @@ import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { ReportButton } from "@/components/ReportButton";
 import { ListingCard } from "@/components/ListingCard";
 import { Badge } from "@/components/ui/badge";
+import { CompatibilidadesToggle } from "@/components/CompatibilidadesToggle";
 import { idFromSlugParam } from "@/lib/slug";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -103,6 +104,7 @@ export default async function RepuestoPage({
       category: true,
       brand: true,
       model: true,
+      compatibilidades: { include: { brand: true, model: true } },
       user: {
         select: {
           id: true,
@@ -193,9 +195,36 @@ export default async function RepuestoPage({
               </p>
             )}
 
+            {listing.numeroParte && (
+              <p className="mt-1 text-xs text-[#6B7280]">
+                Número de parte: <span className="font-semibold text-[#16181D]">{listing.numeroParte}</span>
+              </p>
+            )}
+
             <p className="mt-4 text-3xl font-extrabold text-[#16181D]">
               {formatPrice(listing.price)}
             </p>
+
+            <CompatibilidadesToggle
+              items={[
+                ...(listing.brand || listing.model || listing.yearFrom || listing.yearTo
+                  ? [
+                      {
+                        marca: listing.brand?.name,
+                        modelo: listing.model?.name,
+                        yearFrom: listing.yearFrom,
+                        yearTo: listing.yearTo,
+                      },
+                    ]
+                  : []),
+                ...listing.compatibilidades.map((c) => ({
+                  marca: c.brand?.name,
+                  modelo: c.model?.name,
+                  yearFrom: c.yearFrom,
+                  yearTo: c.yearTo,
+                })),
+              ]}
+            />
 
             <div className="mt-4 flex flex-col gap-1.5 text-sm text-[#6B7280]">
               <span className="flex items-center gap-1.5">
