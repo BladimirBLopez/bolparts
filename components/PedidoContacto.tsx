@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { MessageCircle, Lock } from "lucide-react";
+import { MessageCircle, Lock, ShieldAlert } from "lucide-react";
 
 export function PedidoContacto({
   tienePlanActivo,
@@ -47,16 +47,23 @@ export function PedidoContacto({
   }
 
   return (
-    <a
-      href={`https://wa.me/591${phone.replace(/\D/g, "")}?text=${encodeURIComponent(
-        `Hola, vi tu pedido "${titulo}" en BolParts y tengo ese repuesto.`
-      )}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="flex items-center justify-center gap-2 rounded-full bg-green-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-700"
-    >
-      <MessageCircle size={16} />
-      Contactar por WhatsApp
-    </a>
+    <div>
+      <a
+        href={`https://wa.me/591${phone.replace(/\D/g, "")}?text=${encodeURIComponent(
+          `Hola, vi tu pedido "${titulo}" en BolParts y tengo ese repuesto.`
+        )}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center justify-center gap-2 rounded-full bg-green-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-700"
+      >
+        <MessageCircle size={16} />
+        Contactar por WhatsApp
+      </a>
+      <p className="mt-2 flex items-start gap-1.5 text-[11px] text-[#6B7280]">
+        <ShieldAlert size={13} className="mt-0.5 shrink-0" />
+        Verificá el repuesto antes de pagar. BolParts no participa en la
+        transacción.
+      </p>
+    </div>
   );
 }

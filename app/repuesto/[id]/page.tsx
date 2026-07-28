@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Metadata } from "next";
-import { MapPin, Calendar, ArrowLeft, User as UserIcon } from "lucide-react";
+import { MapPin, Calendar, ArrowLeft, User as UserIcon, ShieldAlert } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { StarRating } from "@/components/StarRating";
 import { ListingGallery } from "@/components/ListingGallery";
@@ -272,11 +272,18 @@ export default async function RepuestoPage({
               </div>
 
               {listing.phone ? (
-                <WhatsAppButton
-                  href={`https://wa.me/591${listing.phone.replace(/\D/g, "")}?text=${encodeURIComponent(
-                    `Hola, vi tu publicación "${listing.title}" en BolParts y me interesa.`
-                  )}`}
-                />
+                <>
+                  <WhatsAppButton
+                    href={`https://wa.me/591${listing.phone.replace(/\D/g, "")}?text=${encodeURIComponent(
+                      `Hola, vi tu publicación "${listing.title}" en BolParts y me interesa.`
+                    )}`}
+                  />
+                  <p className="mt-2 flex items-start gap-1.5 text-[11px] text-[#6B7280]">
+                    <ShieldAlert size={13} className="mt-0.5 shrink-0" />
+                    Verificá el repuesto antes de pagar. BolParts no participa
+                    en la transacción.
+                  </p>
+                </>
               ) : (
                 <p className="mt-4 text-xs text-[#6B7280]">
                   El vendedor no dejó un número de contacto.
