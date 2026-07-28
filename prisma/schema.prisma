@@ -145,6 +145,7 @@ model Brand {
   models   CarModel[]
   listings Listing[]
   pedidos  Pedido[]
+  compatibilidades Compatibilidad[]
 }
 
 model CarModel {
@@ -156,6 +157,7 @@ model CarModel {
 
   listings Listing[]
   pedidos  Pedido[]
+  compatibilidades Compatibilidad[]
 }
 
 model Listing {
@@ -186,12 +188,31 @@ model Listing {
   modelId     String?
   model       CarModel?   @relation(fields: [modelId], references: [id])
 
+  numeroParte String?
+
   images      Image[]
   favorites   Favorite[]
   reports     Report[]
+  compatibilidades Compatibilidad[]
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Compatibilidad {
+  id        String   @id @default(cuid())
+
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  brandId   String?
+  brand     Brand?   @relation(fields: [brandId], references: [id])
+
+  modelId   String?
+  model     CarModel? @relation(fields: [modelId], references: [id])
+
+  yearFrom  Int?
+  yearTo    Int?
 }
 
 model Pedido {
