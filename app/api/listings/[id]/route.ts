@@ -84,6 +84,14 @@ export async function PATCH(
       );
     }
 
+    const precioNum = parseFloat(price);
+    if (isNaN(precioNum) || precioNum <= 0) {
+      return Response.json(
+        { error: "El precio debe ser un número válido mayor a 0" },
+        { status: 400 }
+      );
+    }
+
     if (!images || images.length === 0) {
       return Response.json(
         { error: "Agregá al menos una foto" },
@@ -99,7 +107,7 @@ export async function PATCH(
       data: {
         title,
         description: description || null,
-        price: parseFloat(price),
+        price: precioNum,
         condition,
         city,
         department: city,

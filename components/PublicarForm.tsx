@@ -78,7 +78,13 @@ type InitialListing = {
 const publicarSchema = z.object({
   title: z.string().min(1, "El título es requerido"),
   description: z.string().optional(),
-  price: z.string().min(1, "El precio es requerido"),
+  price: z
+    .string()
+    .min(1, "El precio es requerido")
+    .refine(
+      (val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0,
+      "Ingresá un precio válido, mayor a 0"
+    ),
   brandId: z.string().optional(),
   modelId: z.string().optional(),
   numeroParte: z.string().optional(),
@@ -475,6 +481,7 @@ export function PublicarForm({
           <input
             type="number"
             step="0.01"
+            min="0.01"
             {...register("price")}
             placeholder="0"
             className="mt-1.5 w-full rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none placeholder:text-[#9CA3AF] focus:border-[#16181D]"
