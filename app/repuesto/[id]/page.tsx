@@ -262,6 +262,58 @@ export default async function RepuestoPage({
               </div>
             )}
 
+            {(listing.peso || listing.largo || listing.alto || listing.ancho) && (
+              <div className="mt-6">
+                <h2 className="text-sm font-semibold text-[#16181D]">
+                  Información adicional
+                </h2>
+                <table className="mt-2 w-full overflow-hidden rounded-xl border border-[#E4E4E1] text-sm">
+                  <tbody>
+                    {listing.peso && (
+                      <tr className="border-b border-[#E4E4E1] last:border-b-0">
+                        <td className="w-1/3 bg-[#F6F6F4] px-4 py-2.5 font-semibold text-[#16181D]">
+                          Peso
+                        </td>
+                        <td className="px-4 py-2.5 text-[#6B7280]">
+                          {listing.peso} Kg.
+                        </td>
+                      </tr>
+                    )}
+                    {listing.largo && (
+                      <tr className="border-b border-[#E4E4E1] last:border-b-0">
+                        <td className="w-1/3 bg-[#F6F6F4] px-4 py-2.5 font-semibold text-[#16181D]">
+                          Largo
+                        </td>
+                        <td className="px-4 py-2.5 text-[#6B7280]">
+                          {listing.largo} Cm.
+                        </td>
+                      </tr>
+                    )}
+                    {listing.alto && (
+                      <tr className="border-b border-[#E4E4E1] last:border-b-0">
+                        <td className="w-1/3 bg-[#F6F6F4] px-4 py-2.5 font-semibold text-[#16181D]">
+                          Alto
+                        </td>
+                        <td className="px-4 py-2.5 text-[#6B7280]">
+                          {listing.alto} Cm.
+                        </td>
+                      </tr>
+                    )}
+                    {listing.ancho && (
+                      <tr className="border-b border-[#E4E4E1] last:border-b-0">
+                        <td className="w-1/3 bg-[#F6F6F4] px-4 py-2.5 font-semibold text-[#16181D]">
+                          Ancho
+                        </td>
+                        <td className="px-4 py-2.5 text-[#6B7280]">
+                          {listing.ancho} Cm.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
             <div className="mt-6 rounded-2xl border border-[#E4E4E1] bg-white p-4">
               <p className="text-xs font-medium uppercase tracking-wide text-[#6B7280]">
                 Vendedor
