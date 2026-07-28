@@ -25,16 +25,24 @@ function RecenterOnChange({ lat, lng }: { lat: number; lng: number }) {
 export default function LeafletMap({
   position,
   onPositionChange,
+  interactive = true,
+  height = "224px",
 }: {
   position: { lat: number; lng: number };
-  onPositionChange: (lat: number, lng: number) => void;
+  onPositionChange?: (lat: number, lng: number) => void;
+  interactive?: boolean;
+  height?: string;
 }) {
   return (
     <MapContainer
       center={[position.lat, position.lng]}
       zoom={14}
-      style={{ width: "100%", height: "224px" }}
+      style={{ width: "100%", height }}
       scrollWheelZoom={false}
+      dragging={interactive}
+      zoomControl={interactive}
+      doubleClickZoom={interactive}
+      touchZoom={interactive}
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -43,14 +51,18 @@ export default function LeafletMap({
       <Marker
         position={[position.lat, position.lng]}
         icon={markerIcon}
-        draggable
-        eventHandlers={{
-          dragend: (e) => {
-            const marker = e.target;
-            const { lat, lng } = marker.getLatLng();
-            onPositionChange(lat, lng);
-          },
-        }}
+        draggable={interactive}
+        eventHandlers={
+          interactive
+            ? {
+                dragend: (e) => {
+                  const marker = e.target;
+                  const { lat, lng } = marker.getLatLng();
+                  onPositionChange?.(lat, lng);
+                },
+              }
+            : undefined
+        }
       />
       <RecenterOnChange lat={position.lat} lng={position.lng} />
     </MapContainer>

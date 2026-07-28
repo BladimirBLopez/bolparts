@@ -54,7 +54,7 @@ export function LocationPicker({
         <LocateFixed size={13} />
         Usar mi ubicación actual
       </button>
-      <div className="overflow-hidden rounded-xl border border-[#E4E4E1]">
+      <div className="isolate overflow-hidden rounded-xl border border-[#E4E4E1]">
         <LeafletMap position={position} onPositionChange={handlePositionChange} />
       </div>
     </div>
