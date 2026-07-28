@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowRight,
   Car,
@@ -102,9 +103,21 @@ export default async function Home() {
                     href={`/buscar?categoria=${c.slug}`}
                     className="group flex w-36 shrink-0 snap-start flex-col items-center gap-3 rounded-2xl border border-[#E4E4E1] bg-white px-4 py-6 text-center transition-colors hover:border-[#16181D]"
                   >
-                    <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#F6F6F4] text-[#16181D] transition-colors group-hover:bg-[#FF5A1F] group-hover:text-white">
-                      <Icon size={24} />
-                    </span>
+                    {c.imageUrl ? (
+                      <span className="relative h-14 w-14 overflow-hidden rounded-full bg-[#F6F6F4]">
+                        <Image
+                          src={c.imageUrl}
+                          alt=""
+                          fill
+                          sizes="56px"
+                          className="object-cover"
+                        />
+                      </span>
+                    ) : (
+                      <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#F6F6F4] text-[#16181D] transition-colors group-hover:bg-[#FF5A1F] group-hover:text-white">
+                        <Icon size={24} />
+                      </span>
+                    )}
                     <span className="text-sm font-semibold leading-snug text-[#16181D]">
                       {c.name}
                     </span>
