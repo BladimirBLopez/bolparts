@@ -48,6 +48,14 @@ type AdminListing = {
   images: { url: string }[];
 };
 
+type AdminCategory = {
+  id: string;
+  name: string;
+  slug: string;
+  tipo: "VEHICULO" | "REPUESTO";
+  _count: { listings: number };
+};
+
 type AdminModel = { id: string; name: string };
 type AdminBrand = {
   id: string;
@@ -101,10 +109,14 @@ function MetricCard({
 }
 
 export default function AdminPage() {
-  const [tab, setTab] = useState<"users" | "listings" | "brands" | "solicitudes">("users");
+  const [tab, setTab] = useState<"users" | "listings" | "brands" | "categories" | "solicitudes">("users");
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [listings, setListings] = useState<AdminListing[]>([]);
   const [brands, setBrands] = useState<AdminBrand[]>([]);
+  const [categories, setCategories] = useState<AdminCategory[]>([]);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [newCategoryTipo, setNewCategoryTipo] = useState<"VEHICULO" | "REPUESTO">("REPUESTO");
+  const [creatingCategory, setCreatingCategory] = useState(false);
   const [solicitudes, setSolicitudes] = useState<AdminSolicitud[]>([]);
   const [procesandoSolicitud, setProcesandoSolicitud] = useState<string | null>(null);
   const [comprobanteAbierto, setComprobanteAbierto] = useState<string | null>(null);
@@ -125,21 +137,61 @@ export default function AdminPage() {
 
   async function loadData() {
     setLoading(true);
-    const [usersRes, listingsRes, brandsRes, solicitudesRes] = await Promise.all([
+    const [usersRes, listingsRes, brandsRes, categoriesRes, solicitudesRes] = await Promise.all([
       fetch("/api/admin/users"),
       fetch("/api/admin/listings"),
       fetch("/api/admin/brands"),
+      fetch("/api/admin/categories"),
       fetch("/api/admin/solicitudes-plan"),
     ]);
     const usersData = await usersRes.json();
     const listingsData = await listingsRes.json();
     const brandsData = await brandsRes.json();
+    const categoriesData = await categoriesRes.json();
     const solicitudesData = await solicitudesRes.json();
     if (usersData.ok) setUsers(usersData.users);
     if (listingsData.ok) setListings(listingsData.listings);
     if (brandsData.ok) setBrands(brandsData.brands);
+    if (categoriesData.ok) setCategories(categoriesData.categorias);
     if (solicitudesData.ok) setSolicitudes(solicitudesData.solicitudes);
     setLoading(false);
+  }
+
+  async function createCategory(e: React.FormEvent) {
+    e.preventDefault();
+    if (!newCategoryName.trim()) return;
+    setCreatingCategory(true);
+    const res = await fetch("/api/admin/categories", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: newCategoryName.trim(), tipo: newCategoryTipo }),
+    });
+    const data = await res.json();
+    setCreatingCategory(false);
+    if (!data.ok) {
+      toast.error(data.error || "No se pudo crear la categoría");
+      return;
+    }
+    setCategories((prev) =>
+      [...prev, { ...data.categoria, _count: { listings: 0 } }].sort((a, b) =>
+        a.name.localeCompare(b.name)
+      )
+    );
+    setNewCategoryName("");
+    toast.success("Categoría creada");
+  }
+
+  async function deleteCategory(id: string) {
+    const res = await fetch("/api/admin/categories/" + id, {
+      method: "DELETE",
+    });
+    const data = await res.json();
+    if (!data.ok) {
+      toast.error(data.error || "No se pudo borrar la categoría");
+      return;
+    }
+    setCategories((prev) => prev.filter((c) => c.id !== id));
+    toast.success("Categoría borrada");
   }
 
   async function resolverSolicitud(id: string, accion: "APROBAR" | "RECHAZAR") {
@@ -397,6 +449,17 @@ export default function AdminPage() {
             }
           >
             Marcas ({brands.length})
+          </button>
+          <button
+            onClick={() => setTab("categories")}
+            className={
+              "px-4 py-2 font-bold text-sm " +
+              (tab === "categories"
+                ? "text-[#FF5A1F] border-b-2 border-[#FF5A1F]"
+                : "text-[#6B7280]")
+            }
+          >
+            Categorías ({categories.length})
           </button>
           <button
             onClick={() => setTab("solicitudes")}
@@ -709,6 +772,80 @@ export default function AdminPage() {
               ))}
               {brands.length === 0 && (
                 <p className="text-[#6B7280]">No hay marcas todavía.</p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {!loading && tab === "categories" && (
+          <div>
+            <form
+              onSubmit={createCategory}
+              className="bg-white border border-[#E4E4E1] rounded-2xl p-4 mb-4 flex flex-col gap-2 sm:flex-row sm:items-center"
+            >
+              <input
+                type="text"
+                value={newCategoryName}
+                onChange={(e) => setNewCategoryName(e.target.value)}
+                placeholder="Nombre de la categoría"
+                className="flex-1 rounded-lg border border-[#E4E4E1] px-3 py-2 text-sm outline-none"
+              />
+              <Select
+                value={newCategoryTipo}
+                onValueChange={(value) =>
+                  setNewCategoryTipo((value ?? "REPUESTO") as "VEHICULO" | "REPUESTO")
+                }
+              >
+                <SelectTrigger className="h-auto rounded-lg border-[#E4E4E1] px-3 py-2 text-sm font-semibold">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="rounded-2xl border border-[#E4E4E1] bg-white p-1.5 shadow-lg ring-0">
+                  <SelectItem
+                    value="REPUESTO"
+                    className="rounded-xl px-3 py-2.5 text-sm data-highlighted:bg-[#FFF1EA] data-highlighted:text-[#FF5A1F]"
+                  >
+                    Repuesto
+                  </SelectItem>
+                  <SelectItem
+                    value="VEHICULO"
+                    className="rounded-xl px-3 py-2.5 text-sm data-highlighted:bg-[#FFF1EA] data-highlighted:text-[#FF5A1F]"
+                  >
+                    Vehículo
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              <button
+                type="submit"
+                disabled={creatingCategory || !newCategoryName.trim()}
+                className="flex items-center justify-center gap-1.5 rounded-lg bg-[#FF5A1F] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+              >
+                <Plus size={15} />
+                Agregar categoría
+              </button>
+            </form>
+
+            <div className="space-y-2">
+              {categories.map((c) => (
+                <div
+                  key={c.id}
+                  className="bg-white border border-[#E4E4E1] rounded-xl p-4 flex items-center justify-between gap-3"
+                >
+                  <div className="min-w-0">
+                    <p className="font-bold text-[#16181D] truncate">{c.name}</p>
+                    <p className="text-xs text-[#6B7280]">
+                      {c._count.listings} publicaciones · {c.tipo === "VEHICULO" ? "Vehículo" : "Repuesto"}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => deleteCategory(c.id)}
+                    className="shrink-0 text-[#6B7280] hover:text-red-600"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              ))}
+              {categories.length === 0 && (
+                <p className="text-[#6B7280]">No hay categorías todavía.</p>
               )}
             </div>
           </div>
