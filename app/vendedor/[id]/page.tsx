@@ -6,6 +6,7 @@ import { ListingCard } from "@/components/ListingCard";
 import { StarRating } from "@/components/StarRating";
 import { ReviewForm } from "@/components/ReviewForm";
 import { ShareProfileButton } from "@/components/ShareProfileButton";
+import { SellerLocationMap } from "@/components/SellerLocationMap";
 import Image from "next/image";
 import { User as UserIcon, Calendar, Clock, MapPin } from "lucide-react";
 
@@ -140,6 +141,14 @@ export default async function VendedorPage({
                   </p>
                 )}
               </div>
+              {vendedor.latitude != null && vendedor.longitude != null && (
+                <div className="mt-3">
+                  <SellerLocationMap
+                    lat={vendedor.latitude}
+                    lng={vendedor.longitude}
+                  />
+                </div>
+              )}
             </div>
           )}
         </div>
