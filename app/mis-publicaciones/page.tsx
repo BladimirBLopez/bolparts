@@ -84,6 +84,7 @@ export default async function MisPublicacionesPage() {
                 condition={listing.condition}
                 city={listing.city}
                 imageUrl={listing.images[0]?.url}
+                vistas={listing.vistas}
               />
             ))}
           </div>

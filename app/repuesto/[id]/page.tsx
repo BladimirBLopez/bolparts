@@ -121,6 +121,10 @@ export default async function RepuestoPage({
     notFound();
   }
 
+  prisma.listing
+    .update({ where: { id: listing.id }, data: { vistas: { increment: 1 } } })
+    .catch(() => {});
+
   const otrosDelVendedor = await prisma.listing.findMany({
     where: {
       userId: listing.user.id,

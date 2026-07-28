@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin, Trash2, Loader2, Pencil } from "lucide-react";
+import { MapPin, Trash2, Loader2, Pencil, Eye } from "lucide-react";
 import { slugify } from "@/lib/slug";
 
 type MyListingCardProps = {
@@ -15,6 +15,7 @@ type MyListingCardProps = {
   condition: "NEW" | "USED";
   city: string;
   imageUrl?: string;
+  vistas?: number;
 };
 
 function formatPrice(price: number) {
@@ -29,6 +30,7 @@ export function MyListingCard({
   condition,
   city,
   imageUrl,
+  vistas = 0,
 }: MyListingCardProps) {
   const router = useRouter();
   const [deleting, setDeleting] = useState(false);
@@ -79,6 +81,10 @@ export function MyListingCard({
               {city}
             </span>
             <span>{condition === "NEW" ? "Nuevo" : "Usado"}</span>
+            <span className="flex items-center gap-1">
+              <Eye size={11} />
+              {vistas}
+            </span>
           </div>
         </div>
       </div>
