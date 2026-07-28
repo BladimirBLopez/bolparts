@@ -64,6 +64,10 @@ type InitialListing = {
   yearTo: number | null;
   phone: string | null;
   numeroParte: string | null;
+  peso: number | null;
+  largo: number | null;
+  alto: number | null;
+  ancho: number | null;
   categoryId: string;
   brandId: string | null;
   modelId: string | null;
@@ -78,6 +82,10 @@ const publicarSchema = z.object({
   brandId: z.string().optional(),
   modelId: z.string().optional(),
   numeroParte: z.string().optional(),
+  peso: z.string().optional(),
+  largo: z.string().optional(),
+  alto: z.string().optional(),
+  ancho: z.string().optional(),
   city: z.string().min(1, "Elegí una ciudad"),
   yearFrom: z.string().optional(),
   yearTo: z.string().optional(),
@@ -123,6 +131,10 @@ export function PublicarForm({
       brandId: initialListing?.brandId ?? "",
       modelId: initialListing?.modelId ?? "",
       numeroParte: initialListing?.numeroParte ?? "",
+      peso: initialListing?.peso?.toString() ?? "",
+      largo: initialListing?.largo?.toString() ?? "",
+      alto: initialListing?.alto?.toString() ?? "",
+      ancho: initialListing?.ancho?.toString() ?? "",
       city: initialListing?.city ?? "",
       yearFrom: initialListing?.yearFrom?.toString() ?? "",
       yearTo: initialListing?.yearTo?.toString() ?? "",
@@ -302,6 +314,10 @@ export function PublicarForm({
             brandId: data.brandId || null,
             modelId: data.modelId || null,
             numeroParte: data.numeroParte || null,
+            peso: data.peso || null,
+            largo: data.largo || null,
+            alto: data.alto || null,
+            ancho: data.ancho || null,
             images,
             compatibilidades: compatibilidades
               .filter((c) => c.brandId || c.modelId)
@@ -763,6 +779,62 @@ export function PublicarForm({
         >
           + Agregar otro vehículo compatible
         </button>
+      </div>
+
+      {/* Peso y dimensiones */}
+      <div>
+        <label className="text-sm font-semibold text-[#16181D]">
+          Peso y dimensiones (opcional)
+        </label>
+        <p className="mt-0.5 text-xs text-[#6B7280]">
+          Si lo sabés, ayuda al comprador a confirmar el tamaño de la pieza.
+        </p>
+        <div className="mt-1.5 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <div>
+            <label className="text-xs text-[#6B7280]">Peso (Kg)</label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              {...register("peso")}
+              placeholder="0.00"
+              className="mt-1 w-full rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none placeholder:text-[#9CA3AF] focus:border-[#16181D]"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-[#6B7280]">Largo (cm)</label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              {...register("largo")}
+              placeholder="0.00"
+              className="mt-1 w-full rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none placeholder:text-[#9CA3AF] focus:border-[#16181D]"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-[#6B7280]">Alto (cm)</label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              {...register("alto")}
+              placeholder="0.00"
+              className="mt-1 w-full rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none placeholder:text-[#9CA3AF] focus:border-[#16181D]"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-[#6B7280]">Ancho (cm)</label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              {...register("ancho")}
+              placeholder="0.00"
+              className="mt-1 w-full rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none placeholder:text-[#9CA3AF] focus:border-[#16181D]"
+            />
+          </div>
+        </div>
       </div>
 
       {/* Ciudad + año */}
