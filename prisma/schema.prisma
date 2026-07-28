@@ -133,6 +133,7 @@ model Category {
   name     String
   slug     String         @unique
   tipo     TipoCategoria  @default(REPUESTO)
+  imageUrl String?
 
   listings Listing[]
 }

@@ -24,7 +24,7 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json();
-  const { name, tipo } = body;
+  const { name, tipo, imageUrl } = body;
 
   if (!name || !name.trim()) {
     return Response.json({ error: "El nombre es requerido" }, { status: 400 });
@@ -45,6 +45,7 @@ export async function POST(req: Request) {
       name: name.trim(),
       slug,
       tipo: tipo === "VEHICULO" ? "VEHICULO" : "REPUESTO",
+      imageUrl: imageUrl || null,
     },
   });
 

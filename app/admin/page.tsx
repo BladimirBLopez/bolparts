@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { Users, Package, Star, Flag, Trash2, Plus } from "lucide-react";
+import { Users, Package, Star, Flag, Trash2, Plus, ImagePlus } from "lucide-react";
 import { toast } from "sonner";
 import {
   Select,
@@ -53,6 +53,7 @@ type AdminCategory = {
   name: string;
   slug: string;
   tipo: "VEHICULO" | "REPUESTO";
+  imageUrl: string | null;
   _count: { listings: number };
 };
 
@@ -117,6 +118,9 @@ export default function AdminPage() {
   const [newCategoryName, setNewCategoryName] = useState("");
   const [newCategoryTipo, setNewCategoryTipo] = useState<"VEHICULO" | "REPUESTO">("REPUESTO");
   const [creatingCategory, setCreatingCategory] = useState(false);
+  const [newCategoryImageUrl, setNewCategoryImageUrl] = useState("");
+  const [uploadingCategoryImage, setUploadingCategoryImage] = useState(false);
+  const [updatingCategoryImageId, setUpdatingCategoryImageId] = useState<string | null>(null);
   const [solicitudes, setSolicitudes] = useState<AdminSolicitud[]>([]);
   const [procesandoSolicitud, setProcesandoSolicitud] = useState<string | null>(null);
   const [comprobanteAbierto, setComprobanteAbierto] = useState<string | null>(null);
@@ -164,7 +168,11 @@ export default function AdminPage() {
     const res = await fetch("/api/admin/categories", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: newCategoryName.trim(), tipo: newCategoryTipo }),
+      body: JSON.stringify({
+        name: newCategoryName.trim(),
+        tipo: newCategoryTipo,
+        imageUrl: newCategoryImageUrl || null,
+      }),
     });
     const data = await res.json();
     setCreatingCategory(false);
@@ -178,7 +186,58 @@ export default function AdminPage() {
       )
     );
     setNewCategoryName("");
+    setNewCategoryImageUrl("");
     toast.success("Categoría creada");
+  }
+
+  async function uploadCategoryImageFile(file: File): Promise<string | null> {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await fetch("/api/upload", { method: "POST", body: formData });
+    const data = await res.json();
+    if (!data.ok) {
+      toast.error(data.error || "No se pudo subir la imagen");
+      return null;
+    }
+    return data.url;
+  }
+
+  async function handleNewCategoryImage(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingCategoryImage(true);
+    const url = await uploadCategoryImageFile(file);
+    if (url) setNewCategoryImageUrl(url);
+    setUploadingCategoryImage(false);
+    e.target.value = "";
+  }
+
+  async function handleExistingCategoryImage(
+    id: string,
+    e: React.ChangeEvent<HTMLInputElement>
+  ) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUpdatingCategoryImageId(id);
+    const url = await uploadCategoryImageFile(file);
+    if (url) {
+      const res = await fetch("/api/admin/categories/" + id, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageUrl: url }),
+      });
+      const data = await res.json();
+      if (!data.ok) {
+        toast.error(data.error || "No se pudo actualizar la imagen");
+      } else {
+        setCategories((prev) =>
+          prev.map((c) => (c.id === id ? { ...c, imageUrl: url } : c))
+        );
+        toast.success("Imagen actualizada");
+      }
+    }
+    setUpdatingCategoryImageId(null);
+    e.target.value = "";
   }
 
   async function deleteCategory(id: string) {
@@ -814,6 +873,31 @@ export default function AdminPage() {
                   </SelectItem>
                 </SelectContent>
               </Select>
+              <label className="flex shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-[#E4E4E1] px-3 py-2 text-sm font-semibold text-[#16181D]">
+                {newCategoryImageUrl ? (
+                  <Image
+                    src={newCategoryImageUrl}
+                    alt=""
+                    width={20}
+                    height={20}
+                    className="h-5 w-5 rounded object-cover"
+                  />
+                ) : (
+                  <ImagePlus size={16} />
+                )}
+                {uploadingCategoryImage
+                  ? "Subiendo..."
+                  : newCategoryImageUrl
+                  ? "Imagen lista"
+                  : "Imagen"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleNewCategoryImage}
+                  disabled={uploadingCategoryImage}
+                />
+              </label>
               <button
                 type="submit"
                 disabled={creatingCategory || !newCategoryName.trim()}
@@ -830,18 +914,49 @@ export default function AdminPage() {
                   key={c.id}
                   className="bg-white border border-[#E4E4E1] rounded-xl p-4 flex items-center justify-between gap-3"
                 >
-                  <div className="min-w-0">
-                    <p className="font-bold text-[#16181D] truncate">{c.name}</p>
-                    <p className="text-xs text-[#6B7280]">
-                      {c._count.listings} publicaciones · {c.tipo === "VEHICULO" ? "Vehículo" : "Repuesto"}
-                    </p>
+                  <div className="flex min-w-0 items-center gap-3">
+                    {c.imageUrl ? (
+                      <Image
+                        src={c.imageUrl}
+                        alt=""
+                        width={40}
+                        height={40}
+                        className="h-10 w-10 shrink-0 rounded-lg object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#F6F6F4] text-[#9CA3AF]">
+                        <ImagePlus size={16} />
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <p className="font-bold text-[#16181D] truncate">{c.name}</p>
+                      <p className="text-xs text-[#6B7280]">
+                        {c._count.listings} publicaciones · {c.tipo === "VEHICULO" ? "Vehículo" : "Repuesto"}
+                      </p>
+                    </div>
                   </div>
-                  <button
-                    onClick={() => deleteCategory(c.id)}
-                    className="shrink-0 text-[#6B7280] hover:text-red-600"
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  <div className="flex shrink-0 items-center gap-3">
+                    <label className="cursor-pointer text-[#6B7280] hover:text-[#16181D]">
+                      {updatingCategoryImageId === c.id ? (
+                        <span className="text-xs">Subiendo...</span>
+                      ) : (
+                        <ImagePlus size={16} />
+                      )}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => handleExistingCategoryImage(c.id, e)}
+                        disabled={updatingCategoryImageId === c.id}
+                      />
+                    </label>
+                    <button
+                      onClick={() => deleteCategory(c.id)}
+                      className="text-[#6B7280] hover:text-red-600"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
                 </div>
               ))}
               {categories.length === 0 && (
