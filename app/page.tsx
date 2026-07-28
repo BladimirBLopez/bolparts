@@ -1,11 +1,5 @@
 import Link from "next/link";
 import {
-  Wrench,
-  Gauge,
-  Zap,
-  PaintBucket,
-  CircleDot,
-  Armchair,
   ArrowRight,
   Car,
   MessageCircleHeart,
@@ -14,29 +8,25 @@ import {
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { expirarPlanesVencidos } from "@/lib/expirarPlanes";
+import { getCategoryIcon } from "@/lib/categoryIcons";
 import { HomeSearch } from "@/components/HomeSearch";
 import { ScrollCarousel } from "@/components/ScrollCarousel";
 import { ListingCard } from "@/components/ListingCard";
 import { AnimatedCard } from "@/components/AnimatedCard";
-
-const categorias = [
-  { nombre: "Motor", slug: "motor", icon: Wrench },
-  { nombre: "Frenos y suspensión", slug: "frenos-suspension", icon: Gauge },
-  { nombre: "Eléctrico", slug: "electrico", icon: Zap },
-  { nombre: "Carrocería y pintura", slug: "carroceria-pintura", icon: PaintBucket },
-  { nombre: "Neumáticos y llantas", slug: "neumaticos-llantas", icon: CircleDot },
-  { nombre: "Accesorios e interior", slug: "accesorios-interior", icon: Armchair },
-];
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
   await expirarPlanesVencidos();
 
-  const [marcas, publicacionesRecientes] = await Promise.all([
+  const [marcas, categoriasDb, publicacionesRecientes] = await Promise.all([
     prisma.brand.findMany({
       orderBy: { name: "asc" },
       include: { models: { orderBy: { name: "asc" } } },
+    }),
+    prisma.category.findMany({
+      where: { tipo: "REPUESTO" },
+      orderBy: { name: "asc" },
     }),
     prisma.listing.findMany({
       orderBy: [{ user: { nivelPlan: "desc" } }, { createdAt: "desc" }],
@@ -104,20 +94,23 @@ export default async function Home() {
           </h2>
           <div className="mt-6">
             <ScrollCarousel>
-              {categorias.map(({ nombre, slug, icon: Icon }) => (
-                <Link
-                  key={slug}
-                  href={`/buscar?categoria=${slug}`}
-                  className="group flex w-36 shrink-0 snap-start flex-col items-center gap-3 rounded-2xl border border-[#E4E4E1] bg-white px-4 py-6 text-center transition-colors hover:border-[#16181D]"
-                >
-                  <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#F6F6F4] text-[#16181D] transition-colors group-hover:bg-[#FF5A1F] group-hover:text-white">
-                    <Icon size={24} />
-                  </span>
-                  <span className="text-sm font-semibold leading-snug text-[#16181D]">
-                    {nombre}
-                  </span>
-                </Link>
-              ))}
+              {categoriasDb.map((c) => {
+                const Icon = getCategoryIcon(c.slug);
+                return (
+                  <Link
+                    key={c.slug}
+                    href={`/buscar?categoria=${c.slug}`}
+                    className="group flex w-36 shrink-0 snap-start flex-col items-center gap-3 rounded-2xl border border-[#E4E4E1] bg-white px-4 py-6 text-center transition-colors hover:border-[#16181D]"
+                  >
+                    <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#F6F6F4] text-[#16181D] transition-colors group-hover:bg-[#FF5A1F] group-hover:text-white">
+                      <Icon size={24} />
+                    </span>
+                    <span className="text-sm font-semibold leading-snug text-[#16181D]">
+                      {c.name}
+                    </span>
+                  </Link>
+                );
+              })}
             </ScrollCarousel>
           </div>
         </div>
