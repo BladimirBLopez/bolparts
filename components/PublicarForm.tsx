@@ -45,6 +45,14 @@ const CIUDADES = [
   "Cobija",
 ];
 
+type CompatibilidadInicial = {
+  id: string;
+  brandId: string | null;
+  modelId: string | null;
+  yearFrom: number | null;
+  yearTo: number | null;
+};
+
 type InitialListing = {
   id: string;
   title: string;
@@ -55,10 +63,12 @@ type InitialListing = {
   yearFrom: number | null;
   yearTo: number | null;
   phone: string | null;
+  numeroParte: string | null;
   categoryId: string;
   brandId: string | null;
   modelId: string | null;
   images: { url: string }[];
+  compatibilidades?: CompatibilidadInicial[];
 };
 
 const publicarSchema = z.object({
@@ -67,6 +77,7 @@ const publicarSchema = z.object({
   price: z.string().min(1, "El precio es requerido"),
   brandId: z.string().optional(),
   modelId: z.string().optional(),
+  numeroParte: z.string().optional(),
   city: z.string().min(1, "Elegí una ciudad"),
   yearFrom: z.string().optional(),
   yearTo: z.string().optional(),
@@ -111,6 +122,7 @@ export function PublicarForm({
       price: initialListing?.price?.toString() ?? "",
       brandId: initialListing?.brandId ?? "",
       modelId: initialListing?.modelId ?? "",
+      numeroParte: initialListing?.numeroParte ?? "",
       city: initialListing?.city ?? "",
       yearFrom: initialListing?.yearFrom?.toString() ?? "",
       yearTo: initialListing?.yearTo?.toString() ?? "",
@@ -136,6 +148,50 @@ export function PublicarForm({
   const [images, setImages] = useState<string[]>(
     initialListing?.images.map((i) => i.url) ?? []
   );
+
+  type FilaCompatibilidad = {
+    key: string;
+    brandId: string;
+    modelId: string;
+    yearFrom: string;
+    yearTo: string;
+  };
+
+  const [compatibilidades, setCompatibilidades] = useState<FilaCompatibilidad[]>(
+    initialListing?.compatibilidades?.map((c) => ({
+      key: c.id,
+      brandId: c.brandId ?? "",
+      modelId: c.modelId ?? "",
+      yearFrom: c.yearFrom?.toString() ?? "",
+      yearTo: c.yearTo?.toString() ?? "",
+    })) ?? []
+  );
+
+  function agregarCompatibilidad() {
+    setCompatibilidades((prev) => [
+      ...prev,
+      {
+        key: `nueva-${Date.now()}`,
+        brandId: "",
+        modelId: "",
+        yearFrom: "",
+        yearTo: "",
+      },
+    ]);
+  }
+
+  function quitarCompatibilidad(key: string) {
+    setCompatibilidades((prev) => prev.filter((c) => c.key !== key));
+  }
+
+  function actualizarCompatibilidad(
+    key: string,
+    patch: Partial<FilaCompatibilidad>
+  ) {
+    setCompatibilidades((prev) =>
+      prev.map((c) => (c.key === key ? { ...c, ...patch } : c))
+    );
+  }
   const [uploading, setUploading] = useState(false);
   const [formError, setFormError] = useState("");
   const [confirmandoSalida, setConfirmandoSalida] = useState(false);
@@ -245,7 +301,16 @@ export function PublicarForm({
             categoryId,
             brandId: data.brandId || null,
             modelId: data.modelId || null,
+            numeroParte: data.numeroParte || null,
             images,
+            compatibilidades: compatibilidades
+              .filter((c) => c.brandId || c.modelId)
+              .map((c) => ({
+                brandId: c.brandId || null,
+                modelId: c.modelId || null,
+                yearFrom: c.yearFrom || null,
+                yearTo: c.yearTo || null,
+              })),
           }),
         }
       );
@@ -559,6 +624,145 @@ export function PublicarForm({
         ¿No encontrás tu marca? Podés dejarlo en blanco y agregar los detalles
         en la descripción.
       </p>
+      </div>
+
+      {/* Numero de parte */}
+      <div>
+        <label className="text-sm font-semibold text-[#16181D]">
+          Número de parte (opcional)
+        </label>
+        <input
+          type="text"
+          {...register("numeroParte")}
+          placeholder="Ej. 49590C1100"
+          className="mt-1.5 w-full rounded-xl border border-[#E4E4E1] bg-white px-3 py-2.5 text-sm text-[#16181D] outline-none placeholder:text-[#9CA3AF] focus:border-[#16181D]"
+        />
+        <p className="mt-1 text-xs text-[#6B7280]">
+          El código del fabricante, si lo conocés. Ayuda al comprador a
+          confirmar que es la pieza exacta.
+        </p>
+      </div>
+
+      {/* Compatibilidad con otros vehículos */}
+      <div>
+        <label className="text-sm font-semibold text-[#16181D]">
+          ¿Sirve para otros vehículos? (opcional)
+        </label>
+        <p className="mt-0.5 text-xs text-[#6B7280]">
+          Si el repuesto también sirve para otras marcas o modelos, agregalos acá.
+        </p>
+
+        <div className="mt-2 flex flex-col gap-2">
+          {compatibilidades.map((c) => {
+            const modelosFila = marcas.find((m) => m.id === c.brandId)?.models ?? [];
+            return (
+              <div
+                key={c.key}
+                className="rounded-xl border border-[#E4E4E1] bg-white p-3"
+              >
+                <div className="flex gap-2">
+                  <Select
+                    value={c.brandId}
+                    onValueChange={(value) =>
+                      actualizarCompatibilidad(c.key, {
+                        brandId: value ?? "",
+                        modelId: "",
+                      })
+                    }
+                  >
+                    <SelectTrigger className="w-full flex-1 rounded-lg border-[#E4E4E1] bg-[#F6F6F4] px-2.5 py-2 text-sm text-[#16181D]">
+                      <SelectValue placeholder="Marca">
+                        {(value: string) =>
+                          marcas.find((m) => m.id === value)?.name ?? "Marca"
+                        }
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent className="rounded-2xl border border-[#E4E4E1] bg-white p-1.5 shadow-lg ring-0">
+                      {marcas.map((m) => (
+                        <SelectItem
+                          key={m.id}
+                          value={m.id}
+                          className="rounded-xl px-3 py-2.5 text-sm data-highlighted:bg-[#FFF1EA] data-highlighted:text-[#FF5A1F]"
+                        >
+                          {m.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <Select
+                    value={c.modelId}
+                    onValueChange={(value) =>
+                      actualizarCompatibilidad(c.key, { modelId: value ?? "" })
+                    }
+                    disabled={!c.brandId}
+                  >
+                    <SelectTrigger className="w-full flex-1 rounded-lg border-[#E4E4E1] bg-[#F6F6F4] px-2.5 py-2 text-sm text-[#16181D]">
+                      <SelectValue placeholder="Modelo">
+                        {(value: string) =>
+                          modelosFila.find((m) => m.id === value)?.name ?? "Modelo"
+                        }
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent className="rounded-2xl border border-[#E4E4E1] bg-white p-1.5 shadow-lg ring-0">
+                      {modelosFila.map((m) => (
+                        <SelectItem
+                          key={m.id}
+                          value={m.id}
+                          className="rounded-xl px-3 py-2.5 text-sm data-highlighted:bg-[#FFF1EA] data-highlighted:text-[#FF5A1F]"
+                        >
+                          {m.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <button
+                    type="button"
+                    onClick={() => quitarCompatibilidad(c.key)}
+                    className="flex shrink-0 items-center justify-center rounded-lg border border-[#E4E4E1] px-2.5 text-[#6B7280] hover:bg-red-50 hover:text-red-600"
+                  >
+                    <X size={15} />
+                  </button>
+                </div>
+
+                <div className="mt-2 flex items-center gap-2">
+                  <input
+                    type="number"
+                    min="1970"
+                    max="2030"
+                    value={c.yearFrom}
+                    onChange={(e) =>
+                      actualizarCompatibilidad(c.key, { yearFrom: e.target.value })
+                    }
+                    placeholder="Año desde"
+                    className="w-full rounded-lg border border-[#E4E4E1] bg-[#F6F6F4] px-2.5 py-2 text-xs text-[#16181D] outline-none placeholder:text-[#9CA3AF]"
+                  />
+                  <span className="text-xs text-[#6B7280]">a</span>
+                  <input
+                    type="number"
+                    min="1970"
+                    max="2030"
+                    value={c.yearTo}
+                    onChange={(e) =>
+                      actualizarCompatibilidad(c.key, { yearTo: e.target.value })
+                    }
+                    placeholder="Año hasta"
+                    className="w-full rounded-lg border border-[#E4E4E1] bg-[#F6F6F4] px-2.5 py-2 text-xs text-[#16181D] outline-none placeholder:text-[#9CA3AF]"
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <button
+          type="button"
+          onClick={agregarCompatibilidad}
+          className="mt-2 rounded-full border border-dashed border-[#E4E4E1] px-4 py-2 text-xs font-semibold text-[#6B7280] hover:border-[#16181D] hover:text-[#16181D]"
+        >
+          + Agregar otro vehículo compatible
+        </button>
       </div>
 
       {/* Ciudad + año */}

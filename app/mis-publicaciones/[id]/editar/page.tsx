@@ -19,7 +19,7 @@ export default async function EditarPage({
   const [listing, categorias, marcas] = await Promise.all([
     prisma.listing.findUnique({
       where: { id },
-      include: { images: true },
+      include: { images: true, compatibilidades: true },
     }),
     prisma.category.findMany({ orderBy: { name: "asc" } }),
     prisma.brand.findMany({
