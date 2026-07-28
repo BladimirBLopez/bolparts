@@ -71,6 +71,10 @@ export async function PATCH(
       images,
       numeroParte,
       compatibilidades,
+      peso,
+      largo,
+      alto,
+      ancho,
     } = body;
 
     if (!title || !price || !condition || !city || !categoryId) {
@@ -103,6 +107,10 @@ export async function PATCH(
         yearTo: yearTo ? parseInt(yearTo) : null,
         phone: phone || null,
         numeroParte: numeroParte || null,
+        peso: peso ? parseFloat(peso) : null,
+        largo: largo ? parseFloat(largo) : null,
+        alto: alto ? parseFloat(alto) : null,
+        ancho: ancho ? parseFloat(ancho) : null,
         categoryId,
         brandId: brandId || null,
         modelId: modelId || null,

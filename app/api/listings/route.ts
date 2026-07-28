@@ -27,6 +27,10 @@ export async function POST(req: Request) {
       images,
       numeroParte,
       compatibilidades,
+      peso,
+      largo,
+      alto,
+      ancho,
     } = body;
 
     if (!title || !price || !condition || !city || !department || !categoryId) {
@@ -63,6 +67,10 @@ export async function POST(req: Request) {
         yearTo: yearTo ? parseInt(yearTo) : null,
         phone: phone || null,
         numeroParte: numeroParte || null,
+        peso: peso ? parseFloat(peso) : null,
+        largo: largo ? parseFloat(largo) : null,
+        alto: alto ? parseFloat(alto) : null,
+        ancho: ancho ? parseFloat(ancho) : null,
         userId: session.user.id,
         categoryId,
         brandId: brandId || null,
