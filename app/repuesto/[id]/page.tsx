@@ -11,6 +11,7 @@ import { ReportButton } from "@/components/ReportButton";
 import { ListingCard } from "@/components/ListingCard";
 import { Badge } from "@/components/ui/badge";
 import { CompatibilidadesToggle } from "@/components/CompatibilidadesToggle";
+import { ShareButton } from "@/components/ShareButton";
 import { idFromSlugParam } from "@/lib/slug";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -178,9 +179,17 @@ export default async function RepuestoPage({
               </Badge>
             </div>
 
-            <h1 className="mt-3 text-2xl font-extrabold tracking-tight text-[#16181D]">
-              {listing.title}
-            </h1>
+            <div className="mt-3 flex items-start justify-between gap-3">
+              <h1 className="text-2xl font-extrabold tracking-tight text-[#16181D]">
+                {listing.title}
+              </h1>
+              <ShareButton
+                title={`${listing.title} — BolParts`}
+                text={`Mirá este repuesto en BolParts: ${listing.title}`}
+                label=""
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#E4E4E1] bg-white text-[#16181D] transition-colors hover:border-[#16181D]"
+              />
+            </div>
 
             {(listing.brand || listing.model) && (
               <p className="mt-1 text-sm text-[#6B7280]">
