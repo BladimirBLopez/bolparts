@@ -126,17 +126,18 @@ export default async function RepuestoPage({
     .update({ where: { id: listing.id }, data: { vistas: { increment: 1 } } })
     .catch(() => {});
 
-  const otrosDelVendedor = await prisma.listing.findMany({
+  const productosSimilares = await prisma.listing.findMany({
     where: {
-      userId: listing.user.id,
+      categoryId: listing.categoryId,
       id: { not: listing.id },
     },
-    orderBy: { createdAt: "desc" },
+    orderBy: [{ user: { nivelPlan: "desc" } }, { createdAt: "desc" }],
     take: 4,
     include: {
       images: true,
       brand: true,
       model: true,
+      user: { select: { nivelPlan: true } },
     },
   });
 
@@ -339,13 +340,13 @@ export default async function RepuestoPage({
           </div>
         </div>
 
-        {otrosDelVendedor.length > 0 && (
+        {productosSimilares.length > 0 && (
           <div className="mt-10">
             <h2 className="text-lg font-extrabold tracking-tight text-[#16181D]">
-              Más de {listing.user.name || "este vendedor"}
+              Productos similares
             </h2>
             <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-              {otrosDelVendedor.map((l) => (
+              {productosSimilares.map((l) => (
                 <ListingCard
                   key={l.id}
                   id={l.id}
@@ -357,7 +358,7 @@ export default async function RepuestoPage({
                   imageUrl={l.images[0]?.url}
                   brandName={l.brand?.name}
                   modelName={l.model?.name}
-                  nivelPlan={listing.user.nivelPlan}
+                  nivelPlan={l.user.nivelPlan}
                 />
               ))}
             </div>
