@@ -10,19 +10,15 @@ type Item = {
   yearTo?: number | null;
 };
 
-function formatItem(item: Item) {
-  const partes = [item.marca, item.modelo].filter(Boolean).join(" ");
-  const anios =
-    item.yearFrom && item.yearTo
-      ? item.yearFrom === item.yearTo
-        ? `${item.yearFrom}`
-        : `${item.yearFrom}-${item.yearTo}`
-      : item.yearFrom
-      ? `Desde ${item.yearFrom}`
-      : item.yearTo
-      ? `Hasta ${item.yearTo}`
-      : "";
-  return [partes, anios].filter(Boolean).join(" · ") || "Sin especificar";
+function formatAnios(item: Item) {
+  if (item.yearFrom && item.yearTo) {
+    return item.yearFrom === item.yearTo
+      ? `${item.yearFrom}`
+      : `${item.yearFrom}-${item.yearTo}`;
+  }
+  if (item.yearFrom) return `Desde ${item.yearFrom}`;
+  if (item.yearTo) return `Hasta ${item.yearTo}`;
+  return "—";
 }
 
 export function CompatibilidadesToggle({ items }: { items: Item[] }) {
@@ -49,13 +45,35 @@ export function CompatibilidadesToggle({ items }: { items: Item[] }) {
         />
       </button>
       {abierto && (
-        <ul className="flex flex-col gap-1.5 border-t border-[#E4E4E1] px-4 py-3">
-          {items.map((item, i) => (
-            <li key={i} className="text-sm text-[#6B7280]">
-              {formatItem(item)}
-            </li>
-          ))}
-        </ul>
+        <div className="border-t border-[#E4E4E1] overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="text-xs font-semibold uppercase tracking-wide text-[#6B7280]">
+                <th className="px-4 py-2">Marca</th>
+                <th className="px-4 py-2">Modelo</th>
+                <th className="px-4 py-2">Años</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((item, i) => (
+                <tr
+                  key={i}
+                  className={i > 0 ? "border-t border-[#E4E4E1]" : ""}
+                >
+                  <td className="px-4 py-2 text-[#16181D]">
+                    {item.marca || "—"}
+                  </td>
+                  <td className="px-4 py-2 text-[#16181D]">
+                    {item.modelo || "—"}
+                  </td>
+                  <td className="px-4 py-2 text-[#6B7280]">
+                    {formatAnios(item)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );
