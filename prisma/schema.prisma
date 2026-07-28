@@ -190,6 +190,10 @@ model Listing {
 
   numeroParte String?
   vistas      Int      @default(0)
+  peso        Float?
+  largo       Float?
+  alto        Float?
+  ancho       Float?
 
   images      Image[]
   favorites   Favorite[]
