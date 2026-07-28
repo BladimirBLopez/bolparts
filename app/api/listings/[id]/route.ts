@@ -69,6 +69,8 @@ export async function PATCH(
       brandId,
       modelId,
       images,
+      numeroParte,
+      compatibilidades,
     } = body;
 
     if (!title || !price || !condition || !city || !categoryId) {
@@ -86,6 +88,7 @@ export async function PATCH(
     }
 
     await prisma.image.deleteMany({ where: { listingId: id } });
+    await prisma.compatibilidad.deleteMany({ where: { listingId: id } });
 
     const updated = await prisma.listing.update({
       where: { id },
@@ -99,11 +102,29 @@ export async function PATCH(
         yearFrom: yearFrom ? parseInt(yearFrom) : null,
         yearTo: yearTo ? parseInt(yearTo) : null,
         phone: phone || null,
+        numeroParte: numeroParte || null,
         categoryId,
         brandId: brandId || null,
         modelId: modelId || null,
         images: {
           create: images.map((url: string) => ({ url })),
+        },
+        compatibilidades: {
+          create: Array.isArray(compatibilidades)
+            ? compatibilidades.map(
+                (c: {
+                  brandId?: string;
+                  modelId?: string;
+                  yearFrom?: string;
+                  yearTo?: string;
+                }) => ({
+                  brandId: c.brandId || null,
+                  modelId: c.modelId || null,
+                  yearFrom: c.yearFrom ? parseInt(c.yearFrom) : null,
+                  yearTo: c.yearTo ? parseInt(c.yearTo) : null,
+                })
+              )
+            : [],
         },
       },
     });

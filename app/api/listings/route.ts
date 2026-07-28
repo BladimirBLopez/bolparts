@@ -25,6 +25,8 @@ export async function POST(req: Request) {
       brandId,
       modelId,
       images,
+      numeroParte,
+      compatibilidades,
     } = body;
 
     if (!title || !price || !condition || !city || !department || !categoryId) {
@@ -60,12 +62,30 @@ export async function POST(req: Request) {
         yearFrom: yearFrom ? parseInt(yearFrom) : null,
         yearTo: yearTo ? parseInt(yearTo) : null,
         phone: phone || null,
+        numeroParte: numeroParte || null,
         userId: session.user.id,
         categoryId,
         brandId: brandId || null,
         modelId: modelId || null,
         images: {
           create: images.map((url: string) => ({ url })),
+        },
+        compatibilidades: {
+          create: Array.isArray(compatibilidades)
+            ? compatibilidades.map(
+                (c: {
+                  brandId?: string;
+                  modelId?: string;
+                  yearFrom?: string;
+                  yearTo?: string;
+                }) => ({
+                  brandId: c.brandId || null,
+                  modelId: c.modelId || null,
+                  yearFrom: c.yearFrom ? parseInt(c.yearFrom) : null,
+                  yearTo: c.yearTo ? parseInt(c.yearTo) : null,
+                })
+              )
+            : [],
         },
       },
     });
