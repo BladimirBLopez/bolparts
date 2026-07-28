@@ -5,7 +5,6 @@ import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 import {
   Menu,
-  Search,
   Plus,
   Heart,
   Package,
@@ -81,15 +80,6 @@ export function MobileMenu() {
         )}
 
         <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
-          <Link
-            href="/buscar"
-            onClick={close}
-            className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-[#16181D] hover:bg-white"
-          >
-            <Search size={18} />
-            Buscar repuestos
-          </Link>
-
           <Link
             href="/vender"
             onClick={close}
