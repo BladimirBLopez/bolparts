@@ -1,10 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
-import { LocateFixed, MapPinOff } from "lucide-react";
+import { useCallback, useState } from "react";
+import dynamic from "next/dynamic";
+import { LocateFixed } from "lucide-react";
 
 const SANTA_CRUZ = { lat: -17.7833, lng: -63.1821 };
+
+const LeafletMap = dynamic(() => import("./LeafletMap"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-56 w-full items-center justify-center rounded-xl border border-[#E4E4E1] bg-[#F6F6F4] text-xs text-[#6B7280]">
+      Cargando mapa...
+    </div>
+  ),
+});
 
 export function LocationPicker({
   initialLat,
@@ -15,27 +24,13 @@ export function LocationPicker({
   initialLng?: number | null;
   onChange: (lat: number, lng: number) => void;
 }) {
-  const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
-  });
-
-  const [mapError, setMapError] = useState(false);
-
-  useEffect(() => {
-    (window as typeof window & { gm_authFailure?: () => void }).gm_authFailure =
-      () => setMapError(true);
-  }, []);
-
   const [position, setPosition] = useState({
     lat: initialLat ?? SANTA_CRUZ.lat,
     lng: initialLng ?? SANTA_CRUZ.lng,
   });
 
-  const handleDragEnd = useCallback(
-    (e: google.maps.MapMouseEvent) => {
-      if (!e.latLng) return;
-      const lat = e.latLng.lat();
-      const lng = e.latLng.lng();
+  const handlePositionChange = useCallback(
+    (lat: number, lng: number) => {
       setPosition({ lat, lng });
       onChange(lat, lng);
     },
@@ -45,42 +40,8 @@ export function LocationPicker({
   function handleUseMyLocation() {
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition((pos) => {
-      const lat = pos.coords.latitude;
-      const lng = pos.coords.longitude;
-      setPosition({ lat, lng });
-      onChange(lat, lng);
+      handlePositionChange(pos.coords.latitude, pos.coords.longitude);
     });
-  }
-
-  if (!isLoaded) {
-    return (
-      <div className="flex h-56 w-full items-center justify-center rounded-xl border border-[#E4E4E1] bg-[#F6F6F4] text-xs text-[#6B7280]">
-        Cargando mapa...
-      </div>
-    );
-  }
-
-  if (mapError) {
-    return (
-      <div>
-        <button
-          type="button"
-          onClick={handleUseMyLocation}
-          className="mb-2 flex items-center gap-1.5 rounded-full border border-[#E4E4E1] bg-white px-3 py-1.5 text-xs font-semibold text-[#16181D] transition-colors hover:border-[#16181D]"
-        >
-          <LocateFixed size={13} />
-          Usar mi ubicación actual
-        </button>
-        <div className="flex h-40 w-full flex-col items-center justify-center gap-2 rounded-xl border border-[#E4E4E1] bg-[#F6F6F4] px-4 text-center">
-          <MapPinOff size={20} className="text-[#6B7280]" />
-          <p className="text-xs text-[#6B7280]">
-            El mapa no está disponible por el momento. Podés usar el campo de
-            texto de arriba para describir tu ubicación, o el botón &quot;Usar mi
-            ubicación actual&quot; para guardar tus coordenadas igual.
-          </p>
-        </div>
-      </div>
-    );
   }
 
   return (
@@ -94,22 +55,7 @@ export function LocationPicker({
         Usar mi ubicación actual
       </button>
       <div className="overflow-hidden rounded-xl border border-[#E4E4E1]">
-      <GoogleMap
-        mapContainerStyle={{ width: "100%", height: "224px" }}
-        center={position}
-        zoom={14}
-        options={{
-          streetViewControl: false,
-          mapTypeControl: false,
-          fullscreenControl: false,
-        }}
-      >
-        <Marker
-          position={position}
-          draggable
-          onDragEnd={handleDragEnd}
-        />
-      </GoogleMap>
+        <LeafletMap position={position} onPositionChange={handlePositionChange} />
       </div>
     </div>
   );
